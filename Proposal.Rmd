@@ -2,12 +2,78 @@
 title: "Proposal"
 author: "Sam Tyner"
 date: "September 9, 2016"
-output: html_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 ```
+
+
+### High Level Introduction
+
+Social networks have been studied for decades, beginning with the seminal 1967 study, "The Small World Problem" by Stanley Milgram (Goldenberg et al. 2009). In recent years, the study of social networks has grown in popularity due to an increase in the availability of and easy of access to social network data. 
+
+* discuss the data format and how it is different from traditional data formats seen in statistics
+* bring up the different disciplines that have studied social networks
+* mention the models that exist for social network analysis
+* mention that I am focusing on one type of model class, SAOMs.
+
+### More Meaty Introduction to Network Analysis
+
+In this section I will discuss in greater detail the models that are out there for network analysis. These include:
+
+* Classics:
+    + ERGMs
+    + Erdos-Renyi and its variations
+    + Random graphs with fixed degree distribution
+    + Blockmodels and their relatives
+    + Laten space models
+* Social Networks:
+    + "$p_1$" models
+    + "$p_2$" models
+* Dynamic:
+    + Preferential attachment
+    + Small-world
+    + Duplication-attachment
+    + Discrete time MC models
+    + Continuous time MC models (SAOMs a kind of CTMC)
+  
+### Why focus on SAOMs
+
+First, I will layout the field of network analysis formally using traditional statistical paradigms, as discussed in Kolaczyk (2009). Then I will discuss the lack of model checking tools specific to SAOMs due to model intractibility. This will be brief and will lead into the next section, a complete introduction to SAOMs and their structure/properties. 
+
+### Full introduction and discussion of SAOMs
+
+I will completely flesh out the form and theory of SAOMs. This will come primarily from the detailed document I created last year and anything else from Snijders' papers. 
+
+### Lead-in to Visual Inference 
+
+Take the theory of SAOMs and lead into the discussion of why visual inference could be useful for model checking and other things for SAOMs. 
+
+### Introduction to Visual Inference
+
+Fully introduce the concept of visual inference as laid out in Buja et al. (2009). Also include discussion of Majumder et al. 
+
+### Using visual inference for SAOMs
+
+Explain how I will use visual inference to explore properties of SAOMs. 
+
+### Intro to visualizing networks
+
+Discuss the many ways to visualize networks (also called network mapping). Ubiquitous view is 2D represetation of points and lines. Discuss the many layout algorithms. Discuss the many packages in R that can do this. Discuss the difficulty of using these package for people not intimately familiar with them. Lead into next section with discussion of ggplot2 and its importance and popularity in data visualization.
+
+### Why a ggplot2 wrapper? 
+
+Explain the hole filled by the geomnet package. 
+
+### Summary and Impact
+
+Brief walk-through of all topics already covered. Emphasize the holes filled by the work. 
+
+### Other Projects??? 
+
+Discuss the Bob Ross and Graphics Awards papers? 
 
 
 
