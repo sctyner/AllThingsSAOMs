@@ -91,7 +91,11 @@ This apparent difficulty has not stopped researchers in many different fields fr
 
 # Statistical Models for Social Networks
 
-The literature on statistical models for networks is extensive. In their "Survey of Statistical Models", Goldenberg et al separate these models in to two primary classes: static and dynamic. The Erd&#x00F6;s-R&#x00E9;nyi random graph model is widely regarded as the first random graph model (@goldenberg09). In this model, first introduced in 1959 in  @er59, a random, undirected graph or network, $G$, is described in terms of its nodeset, $N$, and its edgeset, $E$, where $E$ is a random subset of the $\binom{|N|}{2}$ possible edges in the nodeset. The parameter in this model is $p$, the probability of an edge between any two nodes in $N$. The likelihood is written in terms of $|E|$ and $p$, 
+The literature on statistical models for networks is extensive. In their thorough "Survey of Statistical Models", Goldenberg et al separate these models in to two primary classes: static and dynamic. 
+
+## Static Network Models
+
+The Erd&#x00F6;s-R&#x00E9;nyi random graph model is widely regarded as the first random graph model (@goldenberg09). In this model, first introduced in 1959 in  @er59, a random, undirected graph or network, $G$, is described in terms of its nodeset, $N$, and its edgeset, $E$, where $E$ is a random subset of the $\binom{|N|}{2}$ possible edges in the nodeset. The parameter in this model is $p$, the probability of an edge between any two nodes in $N$. The likelihood is written in terms of $|E|$ and $p$, 
 $$f_G(|E| | p, N) = p^{|E|}(1-p)^{\binom{|N|}{2} - |E|}.$$
 The properties and asymptotic behavior of this network model are well-established (@goldenberg09). Nodes in networks generated using this model will all have about the same degree, or number of incident edges, which is a very unrealistic property for networks to have. As such, many other models have been devised over the years as a way to better capture the the network creation process underlying real-world networks. 
 
@@ -106,7 +110,13 @@ The final form for ERGMs is far more general than the $p_1$ and $p_2$, and is fo
 $$f(X|\boldsymbol{\theta}, \tau) = \exp\left(\sum_k \theta_k S_k(X) + \tau T(X) + \psi(\theta, \tau)\right),$$ 
 where $\theta_k$ and $\tau$ are parameters and $\psi(\theta, \tau)$ is the normalizing constant.  A problem with this model arises when one considers the nested nature of the sufficient statistics. For example, an edge can be contained in a 2-star, which can be contained in a triangle. So, the sufficent statistics can be dependent. Despite this flaw, this type of ERGM has been studied extensively, and many methods for parameter estimation exist, for example in the \texttt{R} packages \texttt{statnet} and \texttt{sna} (, @Rsoft,@statnet, and @sna). 
 
-Another set of models includes extensions of the Erd&#x00F6;s-R&#x00E9;nyi (ER) random graph model. A natural way to extend the ER model is to vary the expected node degree of the graph. These models include the preferential attachment model or power-law degree distribution models. XXX TALKE MORE ABOUT POWER_LAW NETWORKS XXX . Another model type, the exchangeable random graph model of @exchange, adds weak dependence into the edge sampling procedure.
+Another set of models includes extensions of the Erd&#x00F6;s-R&#x00E9;nyi (ER) random graph model. A natural way to extend the ER model is to vary the expected node degree of the graph. These models include the preferential attachment model or power-law degree distribution models. XXX TALKE MORE ABOUT POWER-LAW NETWORKS XXX . Another model type, the exchangeable random graph model of @exchange, adds weak dependence into the edge sampling procedure.
+
+XXX TALK ABOUT THE OTHER COUPLE OF STATIC ONES
+
+## Dynamic Network Models
+
+Dynamic network models are a very important part of statistical network analysis because discovering how networks form and change over time can help us make predictions.XXX THAT IS A DUMB SENTENCE FIX IT LATER XXXX Like with static models, the literature on dynamic network models begins with a fairly simple random graph model. 
 
 # Stochastic Actor-Oriented Models for Longitudinal Social Networks. 
 
