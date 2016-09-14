@@ -29,14 +29,14 @@ Social networks have been studied for decades, beginning with the seminal 1967 s
 In this section I will discuss in greater detail the models that are out there for network analysis. These include:
 
 * Classics:
-    + ERGMs
+    + ~~ERGMs~~
     + ~~Erdos-Renyi~~ and its variations
     + Random graphs with fixed degree distribution
     + Blockmodels and their relatives
     + Latent space models
 * Social Networks:
     + ~~"$p_1$" models~~
-    + "$p_2$" models
+    + ~~"$p_2$" models~~
 * Dynamic:
     + Preferential attachment
     + Small-world
@@ -53,6 +53,12 @@ First, I will layout the field of network analysis formally using traditional st
 
 I will completely flesh out the form and theory of SAOMs. This will come primarily from the detailed document I created last year and anything else from Snijders' papers. 
 
+### Removing the Blindfold from SAOMs
+
+- What does the distribution look like? 
+- What does an "average network" from an SAOM look like? 
+- Generation / Creation process video
+
 ### Lead-in to Visual Inference 
 
 Take the theory of SAOMs and lead into the discussion of why visual inference could be useful for model checking and other things for SAOMs. 
@@ -63,7 +69,7 @@ Fully introduce the concept of visual inference as laid out in Buja et al. (2009
 
 ### Using visual inference for SAOMs
 
-Explain how I will use visual inference to explore properties of SAOMs. 
+Explain how I will use / have used visual inference to explore properties of SAOMs. Main research question: are statistically significant model differences also visually significant? 
 
 ### Intro to visualizing networks
 
@@ -120,6 +126,7 @@ Dynamic network models are a very important part of statistical network analysis
 
 # Stochastic Actor-Oriented Models for Longitudinal Social Networks. 
 
+The phrase Stochastic Actor-Oriented Model is quite a mouthful, but it contains most of the important information about the model. First, the model is changing in time in order to accomodate for observations from the same network made at different points in time. Second, it allows for changes in network structure due to actor-level covariates. These two properties are crucial to understanding networks as they exist naturally. Most social networks are ever-changing as relationships decay or grow, and most actors (or nodes) in social networks have inherent properties that could affect how they change their place within the network. 
  
 
 # References
