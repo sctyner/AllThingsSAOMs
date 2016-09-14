@@ -97,7 +97,13 @@ This apparent difficulty has not stopped researchers in many different fields fr
 
 # Statistical Models for Social Networks
 
-The literature on statistical models for networks is extensive. In their thorough "Survey of Statistical Models", Goldenberg et al separate these models in to two primary classes: static and dynamic. 
+The literature on statistical models for networks is extensive. In their thorough "Survey of Statistical Models", Goldenberg et al separate these models in to two primary classes: static and dynamic. I discuss the several types of models in each of these two categories after a brief introductory section on general network terminology and notation. 
+
+## Basic Network Terminology and Notation
+
+Formally, a network is a collection of nodes and the set of ties between them. Nodes are also referred to as vertices primarily in the graph theory literature or actors in the sociology literature, while ties are also called edges or relationships. In graph theory, a network is defined with respect to its nodes and edges, and a network $G$ is equivalently written as $G(\mathcal{N}, \mathcal{E})$, where $\mathcal{N}$ is the collection of nodes, or nodeset, and $\mathcal{E}$ is the collection of edges, or edgeset. Typically, the nodes are numbered so that $\mathcal{N} = {1, 2, \dots, n}$, where $n$ is the total number of nodes in the network. The edgeset $\mathcal{E}$ is usually described as a set of pairs, written as $(i,j)$ or $i \mapsto j$ or simply $ij$, where $i \neq j \in \mathcal{N}$. In an undirected network, the ordering of $i$ and $j$ does not matter: there is no parent-child relationship, to use a term from graph theory, just a connection of some kind. In a directed graph, however, the order does matter: the tie $(i,j)$ is not equivalent to the tie $(j,i)$. 
+
+In statistical network analysis, a network is denoted by $x$ if it is observed or by $X$ if it is being treated as unobserved or as a random variable. Following this convention, edges in the networks $x$ or $X$ are denoted by $x_{ij}$ or $X_{ij}$, respectively. If the edge $i \mapsto j$ is present, $x_{ij} = 1$, whereas $x_{ij} = 0$ if the edge is not present. If $x$ is undirected, then $x_{ij} = x_{ji} \forall i \neq j \in \mathcal{N}$. If $x$ is directed, then $x_{ij}$ may equal $x_{ji}$, but this is not required. 
 
 ## Static Network Models
 
@@ -127,6 +133,10 @@ Dynamic network models are a very important part of statistical network analysis
 # Stochastic Actor-Oriented Models for Longitudinal Social Networks. 
 
 The phrase Stochastic Actor-Oriented Model is quite a mouthful, but it contains most of the important information about the model. First, the model is changing in time in order to accomodate for observations from the same network made at different points in time. Second, it allows for changes in network structure due to actor-level covariates. These two properties are crucial to understanding networks as they exist naturally. Most social networks are ever-changing as relationships decay or grow, and most actors (or nodes) in social networks have inherent properties that could affect how they change their place within the network. 
+
+## Terms and Notation
+
+
  
 
 # References
