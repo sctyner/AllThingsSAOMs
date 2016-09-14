@@ -4,7 +4,7 @@ author: "Sam Tyner"
 date: "September 9, 2016"
 output:
   bookdown::pdf_book:
-    keep_tex: yes    
+    keep_tex: no   
     toc: true
     number_sections: true
 bibliography: docs/bigbib.bib
