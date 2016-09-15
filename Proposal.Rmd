@@ -149,5 +149,6 @@ In the network $x$ and for each actor $i$ in this network, the rate function is 
 
 Thanks to the conditional dependence assumptions in the model, we can consider the objective function for each node separately, since only one tie from one node is changing at a time. The objective function is written as $f_i(\boldsymbol{\beta}, x), x \in \mathcal{X}$. The vector $\boldsymbol{\beta}$ are the parameters of the model and $x$ is any possible state of the network. Given the focal or ego node, $i$, there are $n$ possible steps for the actor $i$ to take: either one of all current ties $x_{ij}$ will be destroyed, a new tie will be created, or no change will occur. The  
 
+
 # References {#refs}
 
