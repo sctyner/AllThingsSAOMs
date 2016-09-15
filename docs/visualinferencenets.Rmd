@@ -1,16 +1,35 @@
 # Visual Inference for Networks
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, cache = TRUE)
+library(dplyr)
+library(ggplot2)
+library(geomnet)
+library(tidyr)
+library(RSiena)
 ```
 
 ## Models
 
-We fit three different stochastic actor-oriented models to a subset of the 50 actor dataset from the ``Teenage Friends and Lifestyle Study" that is provided on the RSiena webpage @friendsdata. We chose to subset the data to decrease the cognitive load on our experiment's subjects. The subset contained actors 20 through 35 and the ties between them, as well as the drinking behavior of each actor at each of the three waves. This specific subset was chosen because it showed somewhat higher connectivity than other subsets, as we've emphasized in the visualizations of the three network adjacency matrices below. For model fitting, we condition on wave 1 and estimate the parameters of our models from the second and third waves.
+We fit three different stochastic actor-oriented models to a subset of the 50 actor dataset from the ``Teenage Friends and Lifestyle Study" that is provided on the RSiena webpage ```friendsdata. We chose to subset the data to decrease the cognitive load on our experiment's subjects. The subset contained actors 20 through 35 and the ties between them, as well as the drinking behavior of each actor at each of the three waves. This specific subset was chosen because it showed somewhat higher connectivity than other subsets, as we've emphasized in the visualizations of the three network adjacency matrices below. For model fitting, we condition on wave 1 and estimate the parameters of our models from the second and third waves.
 
 
-```{r get_sm_friends, echo=FALSE, fig.width=8, fig.height=3, message = FALSE, warning = FALSE, fig.cap="Adjacency matrices describing friendship relations between 50 students in waves 1,2, and 3 of the friendship study @friendsdata. The red squares identify the subset we focus on for our experiment."}
-source("Code/00e_small_friends.R")
+```{r smallfriends, echo=FALSE, fig.width=8, fig.height=3, message = FALSE, warning = FALSE, fig.cap="Adjacency matrices describing friendship relations between 50 students in waves 1,2, and 3 of the friendship study ```friendsdata. The red squares identify the subset we focus on for our experiment."}
+#source("VisInfDocs/Code/00e_small_friends.R")
+friend.data.w1 <- as.matrix(read.table("VisInfDocs/Data/s50_data/s50-network1.dat"))
+friend.data.w2 <- as.matrix(read.table("VisInfDocs/Data/s50_data/s50-network2.dat"))
+friend.data.w3 <- as.matrix(read.table("VisInfDocs/Data/s50_data/s50-network3.dat"))
+
+val1 <- data.frame(friend.data.w1) %>% gather(x,y, V1:V50) %>% select(y)
+val2 <- data.frame(friend.data.w2) %>% gather(x,y, V1:V50) %>% select(y)
+val3 <- data.frame(friend.data.w3) %>% gather(x,y, V1:V50) %>% select(y)
+
+all_girls <- expand.grid(x = 1:50, y= 1:50)
+
+view_rs <- data.frame(all_girls, W1 = val1, W2 = val2, W3 = val3)
+names(view_rs)[3:5] <- c('w1', 'w2','w3')
+
+view_rs %>% gather(wave, value, w1:w3) -> view_rs2
 view_rs2$wave <- factor(view_rs2$wave)
 levels(view_rs2$wave) <- c("Wave 1", "Wave 2", "Wave 3")
 ggplot(data= view_rs2, aes(x = x, y=y)) + 
@@ -21,15 +40,20 @@ ggplot(data= view_rs2, aes(x = x, y=y)) +
             aes(xmin = 20, xmax = 35, ymin = 20, ymax = 35, fill =NA)) + 
   facet_wrap(~wave) + theme_bw() +
   theme(aspect.ratio=1, axis.text = element_blank(), axis.ticks = element_blank()) 
-```
-\caption{\label{fig:smallfriends}Adjacency matrices describing friendship relations between 50 students in waves 1,2, and 3 of the friendship study \citep{friendsdata}. The red squares identify the subset we focus on in the remainder.}
-\end{figure}
 
-The first wave of the network, which is conditioned on in estimation, is given in Figure~\ref{fig:wave1}.
+fd2.w1 <- friend.data.w1[20:35,20:35]
+fd2.w2 <- friend.data.w2[20:35,20:35]
+fd2.w3 <- friend.data.w3[20:35,20:35]
+# read in covariate data
+drink <- as.matrix(read.table("VisInfDocs/Data/s50_data/s50-alcohol.dat"))
+drink2 <- drink[20:35,]
+```
+
+The first wave of the network, which is conditioned on in estimation, is given in Figure \@ref(fig:wave1).
 
 \begin{figure}
 \centering
-<<wave1, echo=FALSE, message=FALSE, warning=FALSE, fig.height=5, out.width='.6\\linewidth'>>=
+```{r wave1, echo=FALSE, message=FALSE, warning=FALSE, fig.height=5, out.width='.6\\linewidth', fig.cap="Network of friendships of wave 1 of the subset of students marked in Figure \\@ref(smallfriends)."}
 library(sna)
 library(network)
 actual1 <- merge(data.frame(as.edgelist(as.network(fd2.w1))), 
@@ -66,29 +90,27 @@ ggplot(data = actual1, aes(from_id = X1, to_id = X2)) +
 #  geom_net(label = TRUE, hjust = -.5, labelcolour = 'black', fiteach = T,
 #           aes(color = as.factor(drink))) + 
 #  theme_net() + theme(panel.background = element_rect(fill = "white", color = 'black')) + facet_wrap(~wave)
-@
-\caption{\label{fig:wave1} Network of friendships of wave 1 of the subset of students marked in Figure~\ref{fig:smallfriends}. }
-\end{figure}
+```
 
-<<modelfit, echo=FALSE, results = 'hide', message=FALSE, warning = FALSE, cache = T>>=
-source("Code/03c_complete_lineup_creation.R")
+```{r modelfit, echo=FALSE, eval = FALSE, results = 'hide', message=FALSE, warning = FALSE, cache = T}
+source("VisInfDocs/Code/03c_complete_lineup_creation.R")
 lineup1 <- create_smfriend_lu(null_eff_struct = null_model_eff2, test_eff_struct = eff_models_smallFriends[[39]], M = 3)
-@
+```
 
-The two models we fit are a ``null model" (model $M_1$) and two ``alternative models" (model $M_2$ and $M_3$). The null model only includes the default parameters that are included in the RSiena estimation: the reciprocity and outdegree parameters. The alternative model $M_2$ includes one additional covariate parameter that was determined to be significant by the Wald test in the RSienaTest package, while the alternative model $M_3$ includes one additional structural parameter whose significance was determined in the same way. Details on these effects are given in Table~\ref{tab:models}.
+The two models we fit are a "null model" (model $M_1$) and two "alternative models" (model $M_2$ and $M_3$). The null model only includes the default parameters that are included in the RSiena estimation: the reciprocity and outdegree parameters. The alternative model $M_2$ includes one additional covariate parameter that was determined to be significant by the Wald test in the RSienaTest package, while the alternative model $M_3$ includes one additional structural parameter whose significance was determined in the same way. Details on these effects are given in Table \@ref(tab:models).
 
-<<readsimu, echo=FALSE>>=
- nulls <- read.csv("Data/distribution_null_model.csv")
+```{r readsimu, echo=FALSE}
+ nulls <- read.csv("VisInfDocs/Data/distribution_null_model.csv")
 # names(nulls)[-1] <- c("alpha1", "alpha2", "beta1", "beta2")
 # nulls$Sim <- 1:nrow(nulls)
 # nulls$Model <- "M1"
 # 
- alt <- read.csv("Data/distribution_jumpTT_model.csv")
+ alt <- read.csv("VisInfDocs/Data/distribution_jumpTT_model.csv")
 # names(alt)[-1] <- c("alpha1", "alpha2", "beta1", "beta2", "beta3")
 # alt$Sim <- 1:nrow(alt)
 # alt$Model <- "M2"
 # 
- alt2nd <- read.csv("Data/distribution_dblpairs_model.csv")
+ alt2nd <- read.csv("VisInfDocs//Data/distribution_dblpairs_model.csv")
 # names(alt2nd)[-1] <- c("alpha1", "alpha2", "beta1", "beta2", "beta4")
 # alt2nd$Sim <- 1:nrow(alt2nd)
 # alt2nd$Model <- "M3"
@@ -101,7 +123,7 @@ The two models we fit are a ``null model" (model $M_1$) and two ``alternative mo
 # write.csv(simu, "Data/simulation-1000-M1-M2.csv", row.names=FALSE)
 
 
-simu2 <- read.csv("Data/simulation-1000-M1-M2-M3.csv")
+simu2 <- read.csv("VisInfDocs/Data/simulation-1000-M1-M2-M3.csv")
 means <- simu2 %>% group_by(Model, parameter) %>% summarize(
   mean = mean(estimate)
 )
@@ -109,10 +131,10 @@ library(dplyr)
 null_mod_sv <- as.numeric(nulls[,-c(1,6,7)] %>% summarise_each(funs(mean)))
 alt_mod_sv <- as.numeric(alt[,-c(1, 7,8)] %>% summarise_each(funs(mean)))
 alt_mod2_sv <- as.numeric(alt2nd[,-c(1,7,8)] %>% summarise_each(funs(mean)))
-@
+```
 
 \begin{table}[h]
-\caption{\label{tab:models}Parameters and estimates of models $M_1$, $M_2$, and $M_3$. Estimates are the mean of 1000 iterations of the model estimates. The lineups that follow are simulated from models using these values.}
+\caption{(\#tab:models) Parameters and estimates of models $M_1$, $M_2$, and $M_3$. Estimates are the mean of 1000 iterations of the model estimates. The lineups that follow are simulated from models using these values.}
 \centering
 \scalebox{0.8}{
 \begin{tabular}{lccrrr}
@@ -146,13 +168,10 @@ Jumping Transitive Triplets & $\beta_3$ & $s_{i3}(x) = \sum\limits_{\forall j\ne
 \end{table}
 
 
-\begin{figure}
-\centering
-<<hist-estimates, dependson='read-simu', echo=FALSE, fig.width=8, fig.height=5, out.width='.8\\linewidth'>>=
+
+```{r hist-estimates, dependson='read-simu', echo=FALSE, fig.width=8, fig.height=5, out.width='.8\\linewidth', fig.align='center', fig.cap="Histogram of the distribution of model parameters based on 1,000 simulation runs. Model parameter $\beta_3$ for jumping transitive triplets in model $M_2$ is significantly different from zero, but its inclusion also leads to significant changes in the  other model parameters of model $M_1$. The parameter $\beta_4$ for doubly acheived distances is also significantly different from zero, but has larger variance. The inclusion of $\beta_4$ also changes the estimates of the other model parameters, but not as much as the inclusion of $\beta_3$."}
 qplot(data=simu2, estimate, fill=Model, geom="density", alpha=I(0.65)) + facet_wrap(~parameter, scales="free") + theme_bw()
-@
-\caption{\label{fig:hist-simulations}Histogram of the distribution of model parameters based on 1,000 simulation runs. Model parameter $\beta_3$ for jumping transitive triplets in model $M_2$ is significantly different from zero, but its inclusion also leads to significant changes in the  other model parameters of model $M_1$. The parameter $\beta_4$ for doubly acheived distances is also significantly different from zero, but has larger variance. The inclusion of $\beta_4$ also changes the estimates of the other model parameters, but not as much as the inclusion of $\beta_3$.}
-\end{figure}
+```
 
 After estimating the parameters in each of these models, we simulate from them to obtain realizations of each of the models. The objective function for each actor in each model is given below. 
   \begin{align*}
@@ -160,12 +179,9 @@ After estimating the parameters in each of these models, we simulate from them t
   f^{M_2}_{i}(x) & = \hat{\beta}_1^{M_2}s_{i1}(x) +  \hat{\beta}_2^{M_2}s_{i2}(x) + \hat{\beta}_3^{M_2}s_{i3}(x) \\
   f^{M_3}_{i}(x) & = \hat{\beta}_1^{M_3}s_{i1}(x) +  \hat{\beta}_2^{M_3}s_{i2}(x) + \hat{\beta}_4^{M_3}s_{i4}(x) 
   \end{align*}
-The rate parameters, $\alpha_1$ and $\alpha_2$ represent how many opportunities for change each actor gets when moving from wave 1 to 2 and from wave 2 to 3, respectively. The outdegree parameter, $\beta_1$, represents how likely an actor is to change outgoing ties. If the estimate, $\hat{\beta}_1$, is positive, the actor is more likely to create outgoing ties, while a negative estimate leads the actor to deleting outgoing ties. This effect is highly correlated with the reciprocity parameter, $\beta_2$. A negative estimate of this parameter implies that the actor is discouraged from reciprocating its incoming ties, while a positive estimate implies that the actor is encouraged to reciprocate all ties. The additional parameter in $M_2$, $\beta_3$, is a covariate parameter. The covariate in this model is the drinking behaviour of the 16 students in our data. The possible values are 1, 2, 3, and 4, which means the student drinks never, once or twice a year, once a month, or once a week. This jumping transitive triplet effect impacts the transitive closure of actors from different groups. Thus, a positive estimate encourages transitive closure when one of three actors is in a different covariate group than the other two, while a negative estimate discourages this behavior. An example of this type of closure is given in Figure~\ref{fig:jtt}. With the directed edges we also distinguish between 'i likes j' and 'j likes i'. Finally, the doubly achieved distances effect is defined by the number of actors to whom actor $i$ is not directly tied, and tied through two paths via at least two intermediaries. This is a structural effect, like the density and reciprocity effects. A positive coefficient value encourages indirect ties, while a negative value discourages the formation of indirect ties. 
+The rate parameters, $\alpha_1$ and $\alpha_2$ represent how many opportunities for change each actor gets when moving from wave 1 to 2 and from wave 2 to 3, respectively. The outdegree parameter, $\beta_1$, represents how likely an actor is to change outgoing ties. If the estimate, $\hat{\beta}_1$, is positive, the actor is more likely to create outgoing ties, while a negative estimate leads the actor to deleting outgoing ties. This effect is highly correlated with the reciprocity parameter, $\beta_2$. A negative estimate of this parameter implies that the actor is discouraged from reciprocating its incoming ties, while a positive estimate implies that the actor is encouraged to reciprocate all ties. The additional parameter in $M_2$, $\beta_3$, is a covariate parameter. The covariate in this model is the drinking behaviour of the 16 students in our data. The possible values are 1, 2, 3, and 4, which means the student drinks never, once or twice a year, once a month, or once a week. This jumping transitive triplet effect impacts the transitive closure of actors from different groups. Thus, a positive estimate encourages transitive closure when one of three actors is in a different covariate group than the other two, while a negative estimate discourages this behavior. An example of this type of closure is given in Figure \@ref(fig:jtt). With the directed edges we also distinguish between 'i likes j' and 'j likes i'. Finally, the doubly achieved distances effect is defined by the number of actors to whom actor $i$ is not directly tied, and tied through two paths via at least two intermediaries. This is a structural effect, like the density and reciprocity effects. A positive coefficient value encourages indirect ties, while a negative value discourages the formation of indirect ties. 
 
-\begin{figure}
-\begin{subfigure}[t]{.45\textwidth}
-\caption{\label{fig:jtt}Realization of a jumping transitive triplet, where $i$ is the focal actor, $j$ is the target actor, and $h$ is the intermediary. The group of the actors is represented by the shape of the node.}
-<<jtt, echo=FALSE, fig.width=2, fig.height=2, message = FALSE, warning = FALSE, fig.align='center'>>=
+```{r jtt, echo=FALSE, fig.width=2, fig.height=2, message = FALSE, warning = FALSE, fig.align='center', fig.cap="Structural network effects. On the left, a jumping transitive triplet (JTT). On the right, a doubly achieved distance between $i$ and $k$. At left, a realization of a jumping transitive triplet, where $i$ is the focal actor, $j$ is the target actor, and $h$ is the intermediary. The group of the actors is represented by the shape of the node. At right, doubly achieved distance between actors $i$ and $k$.", out.width = "50%", fig.show='hold'}
 jTTe <- data.frame(from = c('i', 'i', 'h'), to = c('h', 'j', 'j'))
 jTTn <- data.frame(id = letters[8:10], group = c(1,1,2))
 
@@ -180,11 +196,7 @@ ggplot(data = jTT, aes(from_id = from, to_id = to)) +
   expand_limits(x=c(-0.1,1.1), y=c(-0.1,1.1)) +
   theme_net() +
   theme(legend.position = "none")
-@
-\end{subfigure}\hfill
-\begin{subfigure}[t]{.45\textwidth}
-\caption{Doubly achieved distance between actors $i$ and $k$.}
-<<dab, echo=FALSE, fig.width=2, fig.height=2, message = FALSE, warning = FALSE, fig.align='center'>>=
+
 dade <- data.frame(from = c('i', 'i', 'h', 'j'), to = c('h', 'j', 'k', 'k'))
 dadn <- data.frame(id = letters[8:11], group = c(1,1,1,1))
 
@@ -196,10 +208,8 @@ ggplot(data = dad, aes(from_id = from, to_id = to)) +
   expand_limits(x=c(-0.1,1.1), y=c(-0.1,1.1)) +
   theme_net() +
   theme(legend.position = "none")
-@
-\end{subfigure}
-\caption{\label{fig:structures}Structural newtwork effects. On the left, a jumping transitive triplet (JTT). On the right, a doubly achieved distance between $i$ and $k$.}
-\end{figure}
+```
+
 
 The parameters in the objective function are tested for significance using $t$-tests. The test statistic is the ratio of the parameter estimate to its standard error. If this value is larger than 2 in absolute value, then the parameter is said to be significant at the $\alpha = 0.05$ level and should be included in the model. This is a fairly simple statistical test, so we wanted to test whether this significance can be detected visually just as simply as the statistical test detects it. If visualizations of simulated networks from two nested models have a much different appearance when placed side-by-side, then the difference in appearance can be attributed to the additional parameter in one. If, however, there is no visually detectable difference, then the additional parameter does not appear to have changed the network structure all that much. Because model selection and diagnostics for network models are less developed areas of the theory, testing network parameters in this visual way could lead to additional methods of model selection for networks. 
 
@@ -210,7 +220,7 @@ Needs more specifics: how many lineups were created for each model?
 
 At the moment we are just considering models M2 and M3 for an inclusion in the lineup study. We are trying to nail down what to include and what not to include in the experiment.
 
-To create the lineups that will be used in our experiment, we used the values given in Table~\ref{tab:models} as starting values in simulation. For each lineup simulated, the same default RSiena algorithm was used as was used to generate the fitted models with the exception that the algorithm only simulated from the given set of parameters. Each lineup and plot within lineup was generated idependent of all the others.
+To create the lineups that will be used in our experiment, we used the values given in Table \@ref(tab:models) as starting values in simulation. For each lineup simulated, the same default RSiena algorithm was used as was used to generate the fitted models with the exception that the algorithm only simulated from the given set of parameters. Each lineup and plot within lineup was generated idependent of all the others.
 
 
 \section{Parameter Estimation from Lineups}
@@ -223,9 +233,8 @@ Questions that should be answered in this section:
  We fit all three models to every plot in the lineups. Fitting all models to all lineup plots allows us to gauge tha ability of the parameter estimates to provide a measure of lineup identification difficulty. XXX ? not quite sure ? XXX For instance, when comparing models 1 and 2 in a lineup, the estimates from fitting model 2 to plots which were simulated from model 2 should be significantly different from the model 2 estimates from plots simulated from model 
 0. Convergence issues
 
-\begin{figure}
-<<results0, fig.width=8, fig.height=3, out.width='\\linewidth', echo = FALSE, warning = FALSE>>=
-load("Data/lus_ests_truth.rda")
+```{r convergence, fig.width=8, fig.height=3, echo = FALSE, warning = FALSE, fig.cap="Pattern of convergence. A total of 67.7\\% of all lineup data converged in 5,000 iterations. The simplest model, $M_1$ has the highest rate of convergence. For models $M_2$ and $M_3$ data generated from the model converged at a higher rate than data generated from the other model."}
+load("VisInfDocs/Data/lus_ests_truth.rda")
 lus_ests_truth$param_name <- 
   factor(lus_ests_truth$param_name,
     levels = c("rate", "outdegree (density)", "reciprocity",
@@ -239,14 +248,12 @@ ggplot(data=lus_ests_truth) +
   theme(legend.position="bottom") + ylab("Ratio") +
   scale_fill_brewer("Convergence", palette="Set1") +
   xlab("Estimated Model")
-@
-\caption{\label{fig:convergence}Pattern of convergence. A total of 67.7\% of all lineup data converged in 5,000 iterations. The simplest model, $M_1$ has the highest rate of convergence. For models $M_2$ and $M_3$ data generated from the model converged at a higher rate than data generated from the other model.}
-\end{figure}
+```
 
 
-\begin{figure}
-<<results0b, fig.width=8, fig.height=8, out.width='\\linewidth', echo = FALSE, warning = FALSE>>=
-load("Data/lus_ests_truth.rda")
+
+```{r convergence-ests, fig.cap="Difference between parameter estimate and true value. Panels with a light grey background show model fits with data sampled from the same model. Densities are drawn for both converged and non-converged data. The red-filled densities should have a mode near zero, idicating that the model converged toward the correct value. For data from model $M_1$, estimates for parameters $\beta_3$ and $\beta_4$ converge to a wrong value.", fig.width=8, fig.height=8, echo = FALSE, warning = FALSE}
+load("VisInfDocs/Data/lus_ests_truth.rda")
 lus_ests_truth$param_name <- 
   factor(lus_ests_truth$param_name,
     levels = c("rate", "outdegree (density)", "reciprocity",
@@ -272,11 +279,7 @@ ggplot(data=lus_ests_truth %>%
   scale_fill_brewer("Convergence", palette="Set1") +
   xlab("Difference between parameter estimate and true value") + 
     xlim(c(-15,15))
-@
-\caption{\label{fig:convergence-ests} Difference between parameter estimate and true value. 
-Panels with a light grey background show model fits with data sampled from the same model.  Densities are drawn for both converged and non-converged data. The red-filled densities should have a mode in zero, indicating that the model converged in the correct value. For data from model $M_1$ estimates for parameters $\beta_3$ and $\beta_4$ converge to a wrong value.
-}
-\end{figure}
+```
 
 
 
@@ -285,17 +288,17 @@ Panels with a light grey background show model fits with data sampled from the s
 2. How is the fitting done, exactly?
 XXX get into nitty gritty from RSiena model XXX
 
-Because the likelihood function for these complicated models is intractable, RSiena implements a Monte Carlo simulation to obtain method of moments estimates of the parameter values. This fitting procedure was first introduced in ~\cite{saompaper}. 
+Because the likelihood function for these complicated models is intractable, RSiena implements a Monte Carlo simulation to obtain method of moments estimates of the parameter values. This fitting procedure was first introduced in @saompaper. 
 
 The model fitting in RSiena is done in three phases. Briefly, in the initial phase, sensitivity of the statistics to the parameter values is determined, then in the second phase, parameter values are fit iteratively. Finally, in the third phase, networks are simulated from the fitted models and the model is checked for convergence. 
 
 4. What parameters are in the output?
-In RSiena, the convergence of a non-rate parameter is determined through the simulated values from Phase 3 of the SienaFit algorithm. XXX more detail will be above later XXX  The simulations are compared to the observed values of the statistics observed in the data. The values from the simulations should be fairly close to the observed values, but because the fitting is done stochastically, deviations from statistics will not be exactly zero. Checking for convergence is based on a t-ratio of the average of these deviations to the standard deviation of these deviations. RSiena also performs an overall maximum convergence check by finding the maximum t-ratio value for any linear combination of the observed statistics.  According to the RSiena Manual, ``convergence is excellent when the overall maximum convergence ratio is less than 0.2", and for the non-rate parameters, the threshold for ``reasonable" convergence is set at 0.3 with excellent convergence when the t-ratio is less than or equal to 0.1 in absolute value. (\cite{RSiena}).
+In RSiena, the convergence of a non-rate parameter is determined through the simulated values from Phase 3 of the SienaFit algorithm. XXX more detail will be above later XXX  The simulations are compared to the observed values of the statistics observed in the data. The values from the simulations should be fairly close to the observed values, but because the fitting is done stochastically, deviations from statistics will not be exactly zero. Checking for convergence is based on a t-ratio of the average of these deviations to the standard deviation of these deviations. RSiena also performs an overall maximum convergence check by finding the maximum t-ratio value for any linear combination of the observed statistics.  According to the RSiena Manual, ``convergence is excellent when the overall maximum convergence ratio is less than 0.2", and for the non-rate parameters, the threshold for ``reasonable" convergence is set at 0.3 with excellent convergence when the t-ratio is less than or equal to 0.1 in absolute value. (@Rsiena).
 
 5. What are the results?
 
-\begin{figure}
-<<results1, fig.width=8, fig.height=6, out.width='\\linewidth', echo = FALSE, warning = FALSE>>=
+
+```{r comparison, fig.width=8, fig.height=6, out.width='\\linewidth', echo = FALSE, warning = FALSE, fig.cap = "Comparison of model estimates under all three models under investigation."}
 l1 <- levels(lus_ests_truth$param_name)
 l1 <- stringr::str_trim(gsub("2","", l1))
 l1[5] <- "#pairs at doubly achieved distance"
@@ -316,11 +319,10 @@ ggplot(data = subset(lus_ests_truth)) + #, convergence=="Converged")) +
   theme(legend.position = "bottom") +
   xlab("Parameter Estimate") + 
   guides(fill = guide_legend(nrow = 3, byrow = TRUE))
-@
-\caption{\label{fig:comparison} Comparison of model estimates under all three models under investigation. }
-\end{figure}
+```
 
-<<est, echo = FALSE>>=
+
+```{r est, echo = FALSE}
 #For model $M_2$, parameter $\beta_3$ is estimated to be significantly different from zero in almost all cases (XXX how many exactly? XXX).
 
 # get beta3s where true model and fit model are M2
@@ -336,16 +338,15 @@ beta3sig2 <- beta3sig %>%
          ttestpval = 2*dt(tstat, df = 1))
 beta3sig05 <- sum(beta3sig2$ttestpval <= 0.05) / nrow(beta3sig2)
 beta3sig10 <- sum(beta3sig2$ttestpval <= 0.10) / nrow(beta3sig2)
-@
-Figure~\ref{fig:comparison} shows an overview of model estimates for each simulated data set. What we expect to see is that estimates do not change values (much) if they are estimated under a model different from the one they are generated from. This is true for all data sets estimated under model $M_1$ independently of which model they were generated from (top row of Figure~\ref{fig:comparison}). For data fitted under model $M_2$ we see that parameter $\beta_3$ (jumping transitive triplets) are estimated to be about zero, if the data is generated from models $M_1$ and $M_3$.
+```
+Figure \@ref(fig:comparison) shows an overview of model estimates for each simulated data set. What we expect to see is that estimates do not change values (much) if they are estimated under a model different from the one they are generated from. This is true for all data sets estimated under model $M_1$ independently of which model they were generated from (top row of Figure \@ref(fig:comparison). For data fit under model $M_2$ we see that parameter $\beta_3$ (jumping transitive triplets) are estimated to be about zero, if the data is generated from models $M_1$ and $M_3$.
 For model $M_2$, parameter $\beta_3$ is estimated to be significantly different from zero in \Sexpr{round(100 * beta3sig10, 1)}\% of cases. This coincides with our expectation.
 
-However, the bottom row of Figure~\ref{fig:comparison} shows that independently of which model data is generated from, $\beta_4$, the number of pairs at doubly achieved distance, is estimated to be significantly different from zero in a large number of cases (about half of the data generated from model $M_2$ and more than that in model $M_1$). While $\beta_4$ is a highly significant parameter in model $M_3$, this questions the way that parameters are fitted and tells us that we are not likely to be able to visually distinguish between data generated from model $M_3$ and data generated from models $M_1$ and $M_2$. We might, however, be able to distinguish between data sets for which $\beta_4$ is estimated to be significantly different from zero and non-significant ones. XXX can we see differences in the pilot study?
+However, the bottom row of Figure \@ref(fig:comparison) shows that independently of which model data is generated from, $\beta_4$, the number of pairs at doubly achieved distance, is estimated to be significantly different from zero in a large number of cases (about half of the data generated from model $M_2$ and more than that in model $M_1$). While $\beta_4$ is a highly significant parameter in model $M_3$, this questions the way that parameters are fitted and tells us that we are not likely to be able to visually distinguish between data generated from model $M_3$ and data generated from models $M_1$ and $M_2$. We might, however, be able to distinguish between data sets for which $\beta_4$ is estimated to be significantly different from zero and non-significant ones. XXX can we see differences in the pilot study?
 
-\begin{figure}
-\centering
-<<echo=FALSE, fig.width=8, fig.height = 8, out.width='.6\\linewidth', warning = FALSE>>=
-load("Data/lus_ests_truth.rda")
+
+```{r lusparms, echo=FALSE, fig.width=8, fig.height = 8, out.width='.6\\linewidth', fig.align = 'center', warning = FALSE, fig.cap="Scatterplots of smallfriends and smallfriends-rev: comparing the ratio of null plots with smaller estimates of $\beta_3$ in the nulls than in the data panel (top row) and larger estimates of $\beta_3$ in the nulls than in the data panel. In lineups with a ratio of 1 the data should be 'easy' to identify in both scenarios."}
+load("VisInfDocs/Data/lus_ests_truth.rda")
 
 lus_ests_truth$true_panel <- lus_ests_truth$true_model == lus_ests_truth$model
 lus_spread <- tidyr::spread(lus_ests_truth[,c("lineupid","model", "true_model", "panel_num", "param_name", "param_est")], model, param_est)
@@ -392,22 +393,20 @@ p2 <- qplot(data_dist, lower_qu, data = subset(lus_summary_2b, part %in% c("smal
   ggtitle("jumping transitive triplets")
 
 gridExtra::grid.arrange(p1,p2)
-@
-\caption{\label{fig:lusparms} Scatterplots of smallfriends and smallfriends-rev: comparing the ratio of null plots with smaller estimates of $\beta_3$ in the nulls than in the data panel (top row) and larger estimates of $\beta_3$ in the nulls than in the data panel. In lineups with a ratio of 1 the data should be 'easy' to identify in both scenarios.}
-\end{figure}
+```
 
-<<>>=
-jtts <- read.csv("Data/lineups-jtt.csv")
+
+```{r }
+jtts <- read.csv("VisInfDocs/Data/lineups-jtt.csv")
 jtts$lineupid <- with(jtts, paste(model, m, rep, sep="-"))
 jtts$data_panel <- jtts$plot_order
 lus_summary_2 <- merge(lus_summary_2, jtts[, c("lineupid", "jtt", "data_panel")], by=c("lineupid","data_panel"), all.x=TRUE)
 qplot(data=subset(lus_summary_2, param_name=="transitive triplets jumping alcohol2" & part=="smallfriends"), data_est, jtt, geom="jitter") + geom_label(data=subset(lus_summary_2, param_name=="transitive triplets jumping alcohol2" & jtt > 20 & part=="smallfriends"), aes(label=lineupid), alpha=.6)
-@
+```
 
 
-\begin{figure}
-\centering
-<<echo=FALSE, fig.width=8, fig.height = 8, out.width='.6\\linewidth', warning=FALSE>>=
+
+```{r lusparms-eff2, echo=FALSE, fig.width=8, fig.height = 8, out.width='.6\\linewidth', fig.align = 'center', warning=FALSE}
 lus_summary_3 <- lus_spread %>% group_by(part, lineupid, param_name) %>%
   summarize(
     data_n = sum(true_model=="M3"),
@@ -441,10 +440,7 @@ part %in% c("smallfriends-eff2", "smallfriends-eff2-rev"))) +
 
 gridExtra::grid.arrange(p1,p2)
 #p1
-@
-\caption{\label{fig:lusparms-eff2} }
-\end{figure}
-
+```
 
 6. How do the results influence our decision for the lineups?
 
@@ -455,7 +451,7 @@ The strong influence of the inclusion of $\beta_4$ in model 3 has made any compa
 
 
 
-\section{Results from the pilot study}
+## Results from the pilot study
 
 Big goal: Can we derive measures from the model estimates or the visual representation (ie. the network structure) that help us determine which lineups are more difficult than others, i.e. based on these estimates, how relaibly can we predict which panel will be picked from a lineup? 
 XXX For that, we could also calculate the number of JTTs in each network - use `jtt` for that.
@@ -465,10 +461,10 @@ Littler goal: evaluate pilot study and see whether the results line up with the 
 
 
 The pilot study consisted of an evaluation of a set of 20 lineups by 11 volunteers. For each of the model situations ($M_1$ vs $M_2$, $M_2$ vs $M_1$, $M_1$ vs $M_3$ and $M_3$ vs $M_1$) one lineup of size $m = 3, 6, 9, 12$ was used. Overall, the number of data identifications in the lineups was very low (34 out of 220 evaluations). Participants identified the data plot in two to four of the lineups they evaluated. The mode was three data identifications out of twenty per participant. 
+
 \paragraph{Suitability of $M_3$ in lineups:}
-\begin{figure}
-\centering
-<<data-picks, echo=FALSE, fig.width=10, fig.height=5, out.width='0.85\\linewidth'>>=
+
+```{r data-picks, echo=FALSE, fig.align='center', fig.width=10, fig.height=5, out.width='0.85\\linewidth', fig.cap="Barchart summarizing the number of responses from the pilot study by model and lineup. Color shows the number of times the data panel was chosen from the lineup. Clearly, the first two sets of lineups ($M_1$ vs $M_2$ and $M_2$ vs $M_1$) have on average higher number of data identifications." }
 pdffiles <- dir("GGExperimentApr28/", pattern="pdf")
 pdffiles <- gsub(".pdf","",pdffiles)
 #pdffiles <- gsub("-m","",pdffiles)
@@ -498,23 +494,22 @@ qplot(label, weight=tally, fill=data_pick, data=dframe_res) +
   facet_grid(.~model, scales="free", space="free") + theme_bw() +
   theme(axis.text.x = element_text(angle=45, hjust=1)) + 
   scale_fill_brewer("Data panel chosen", palette="Set1", na.value="grey80") + xlab("Lineup")
-@
-\caption{\label{fig:data-picks}Barchart summarizing the number of responses from the pilot study by model and lineup. Color shows the number of times the data panel was chosen from the lineup. Clearly, the first two sets of lineups ($M_1$ vs $M_2$ and $M_2$ vs $M_1$) have on average higher number of data identifications. }
-\end{figure}
+```
 
-Figure~\ref{fig:data-picks} shows barcharts of responses from the pilot study detailing the number of data identifications in each lineup. 
+Figure \@ref(fig:data-picks) shows barcharts of responses from the pilot study detailing the number of data identifications in each lineup. 
 It is more difficult to identify the data plot in lineups of graphs based on data from models $M_1$ and $M_3$ than  in lineups of graphs based on data from models $M_1$ and $M_2$.
 
 
 
-\section{Amazon Turk Experiment}
+## Amazon Turk Experiment
 
-\subsection{Methods}
-In order to test our hypothesis, we set up an Amazon Mechanical Turk experiment (~\cite{turk}) using the lineup protocal of ~\cite{Bujaetal}. We presented four types of lineups: M1 v. M2, M2 v. M1, M1 v. M3, and M3 v. M1, where M1, M2, and M3 have the objective functions given in ~\ref{tab:models}. We created a total of 25 lineups to show to Amazon Turk users taking our experiment: 10 for M1 v. M2 and 5 each for the other three types of lineups. In each lineup, there were 12 plots shown: 11 of the plots were simulated from the first model (the ``null" model) and 1 was simulated from the second model (the ``alternative" model). We chose to show lineups of size 12 because we felt that showing more than 12 would be too large of a cognitive load, while showing fewer than 12 would leave too much of the experiment to random chance. The order of the plots within the lineups was randomly assigned. We selected five lineups presented from each group based on the following criteria: first, for M1 v M2 and M1 v M3, we selected the lineups where the additional parameter in the objective function, $\beta_3$ and $\beta_4$, respectively, had the largest estimated value among the 12 networks presented. There were not many of these in the size 12 lineups, so our other selection criteria was that the estimated parameter value was larger in the alternative panel than in at least half of the other lineups and it was close to the estimate from the panel that did have the largest value. For the M2 v were chosen where the smallest parameter estimate belonged to the alternative model. If there more lineups were needed, we next selected those which had estimates smaller than at least half of the other panels and were close to the minimum estimate in the lineup. For the remaining five plots of type M1 v M2, we chose the lineups where the alternative plot had the largest number of jumping transitive triplets appear in the network. We chose this  statistic because its value has great effect on both the estimation of the $\beta_3$ parameter and on the visual appearance of the plot.
+### Methods 
+
+In order to test our hypothesis, we set up an Amazon Mechanical Turk experiment (@turk) using the lineup protocal of @Bujaetal. We presented four types of lineups: M1 v. M2, M2 v. M1, M1 v. M3, and M3 v. M1, where M1, M2, and M3 have the objective functions given in ~\ref{tab:models}. We created a total of 25 lineups to show to Amazon Turk users taking our experiment: 10 for M1 v. M2 and 5 each for the other three types of lineups. In each lineup, there were 12 plots shown: 11 of the plots were simulated from the first model (the "null" model) and 1 was simulated from the second model (the "alternative" model). We chose to show lineups of size 12 because we felt that showing more than 12 would be too large of a cognitive load, while showing fewer than 12 would leave too much of the experiment to random chance. The order of the plots within the lineups was randomly assigned. We selected five lineups presented from each group based on the following criteria: first, for M1 v M2 and M1 v M3, we selected the lineups where the additional parameter in the objective function, $\beta_3$ and $\beta_4$, respectively, had the largest estimated value among the 12 networks presented. There were not many of these in the size 12 lineups, so our other selection criteria was that the estimated parameter value was larger in the alternative panel than in at least half of the other lineups and it was close to the estimate from the panel that did have the largest value. For the M2 v were chosen where the smallest parameter estimate belonged to the alternative model. If there more lineups were needed, we next selected those which had estimates smaller than at least half of the other panels and were close to the minimum estimate in the lineup. For the remaining five plots of type M1 v M2, we chose the lineups where the alternative plot had the largest number of jumping transitive triplets appear in the network. We chose this  statistic because its value has great effect on both the estimation of the $\beta_3$ parameter and on the visual appearance of the plot.
 
 In order to become a subject in our experiment, the Amazon turk user had to first read through some introductory material and prove they could identify the correct plot in two test lineups, one for M1 v. M2 and one for M2 v. M1. These two lineups were constructed to be very simple in order to train the turkers. Once the turker made it into the experiment, they looked at 10 lineups selected at random from a pool of 25. There were five lineups for each of the four types with an additional five lineups of the type M1 v. M2 which were chosen for their high counts of jumping transitive triplets in the alternative model network in an attempt to gauge how important this statistic is to the visualization of the network. If there are many jumping transitive triplets in the alternative model plot and more turkers correctly choose that plot, that would be evidence that the jumping transitive triplets are very noticeable to the user.
 
-\subsection{Procedure}
+### Procedure 
 
 Each Amazon Turk user was greeted with the following message: ``In this survey a series of similar looking charts will be presented. We would like you to respond to the following questions.
 \begin{enumerate}
@@ -522,7 +517,7 @@ Each Amazon Turk user was greeted with the following message: ``In this survey a
 \item Provide reasons for choice
 \item How certain are you?
 \end{enumerate}
-Finally we would like to collect some information about you. (age category, education and gender)."  Then, they were led through a training page about how to identify the correct plot in a lineup, seen in Figure~\ref{fig:lineupex}. Then, they saw two trial plots that they had to get correct in order to proceed to the rest of the experiment. They chose the plot that looked the most different from the others, why they chose is (most complex, least complex, or other), and how certain they were that they had chosen correctly (Very Uncertain, Uncertain, Neutral, Certain, Very Certain). These trial plots are shown in Figure~\ref{fig:lineuptrial} 
+Finally we would like to collect some information about you. (age category, education and gender)."  Then, they were led through a training page about how to identify the correct plot in a lineup, seen in Figure \@ref(fig:lineupex). Then, they saw two trial plots that they had to get correct in order to proceed to the rest of the experiment. They chose the plot that looked the most different from the others, why they chose is (most complex, least complex, or other), and how certain they were that they had chosen correctly (Very Uncertain, Uncertain, Neutral, Certain, Very Certain). These trial plots are shown in Figure~\ref{fig:lineuptrial} 
 
 \begin{figure}
 \begin{subfigure}[t]{.45\textwidth}
@@ -552,7 +547,7 @@ Once the turk user chose the correct plot in the two trial plots, the experiment
 
 \subsection{Results}
 
-<<get_res, echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.cap="Boxplot showing the percent of users correctly choosing the alternative model in all 25 lineups. In 15 out of 25 lineups, no user picked the correct plot. The maximum was 64.00\\%, and the second highest was 35.29\\% correct.", fig.height=3>>=
+```{r get_res, echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.cap="Boxplot showing the percent of users correctly choosing the alternative model in all 25 lineups. In 15 out of 25 lineups, no user picked the correct plot. The maximum was 64.00\\%, and the second highest was 35.29\\% correct.", fig.height=3}
 ids <- readr::read_csv("https://raw.githubusercontent.com/erichare/lineups/f19635a00507210013ba9e631761ad0c89a6564d/experiments/turk21/details/picture-details.csv")
 tab <- read.csv("Results/turk21_users.csv")
 tab2 <- unique(tab)
@@ -616,36 +611,36 @@ res3 %>% group_by(group_name, response_no2, correct) %>% summarise(tot_wt = sum(
 #   coord_flip() + theme_classic() + 
 #   theme(axis.text.y = element_blank(), axis.ticks.y = element_blank()) + 
 #   labs(x = "", title = "Percent of Users Correctly Identifying Alternate Model", y = "")
-@
+```
 
 We collected 10 lineups each from 77 Amazon Turk users. A table of demographic information collected on the participants in the experiment is in Table~\ref{fig:demos}. 
 
 \begin{figure}
 \begin{subfigure}[c]{.45\textwidth}
 \textbf{Gender:} \\
-<<tab_demo, echo=FALSE, results='asis'>>=
+```{r tab_demo, echo=FALSE, results='asis'}
 t1 <- t(data.frame(table(tab2$gender)))
 rownames(t1) <- c("Gender:", "Count:")
 colnames(t1) <- t1[1,]
 t1 <- t1[2,]
 t1[as.numeric(t1) < 5] <- "*"
 kable(t1, format = 'latex')
-@
+```
 \vspace{.5cm}
 \textbf{Education Level:} \\
-<<tab_demo3, echo=FALSE, results='asis'>>=
+```{r tab_demo3, echo=FALSE, results='asis'}
 t3 <- t(data.frame(table(tab2$academic_study)))
 rownames(t3) <- c("Highest Education:", "Count:")
 colnames(t3) <- t3[1,]
 t3 <- t3[2,]
 t3[as.numeric(t3) < 5] <- "*"
 kable(t3, format = 'latex')
-@
+```
 \end{subfigure}\hfill
 \begin{subfigure}[c]{.45\textwidth}
 \centering
 \textbf{Age Group:} \\
-<<tab_demo2, echo=FALSE, results='asis'>>=
+```{r tab_demo2, echo=FALSE, results='asis'}
 t2 <- t(data.frame(table(tab2$age)))
 rownames(t2) <- c("Age:", "Count:")
 colnames(t2) <- t2[1,]
@@ -655,7 +650,7 @@ t2.2 <- t2.2[1:7]
 names(t2.2)[6:7] <- c("46-55", "Over 55")
 t2.2[6:7] <- c(sum(as.numeric(t2[6:7])), sum(as.numeric(t2[8:9])))
 kable(t2.2, format = 'latex')
-@
+```
 \end{subfigure}
 \caption{\label{fig:demos} Demographic information on the Amazon Turk users participating in the experiment. Asterisks (*) indicate less than 5 responses.}
 \end{figure}
@@ -663,7 +658,7 @@ kable(t2.2, format = 'latex')
 
 Because of the random assignment of the 25 plots to users, almost every lineup was seen by a different number of people. Repetition 3 of M1 v. M3 was seen by 47 different users while repetition 2 of the same type was seen by only 6 different users. The mean number of times seens was 30.8 and the median was 31. In 15 of the 25 lineups, no user chose the correct plot, and in the remaining 10 lineups, the users correctly identified the alternative plot a minimum of 4.35\% of the time and a maximum of 64\% of the time. A plot showing the number of different plots chosen, how many times they were chosen, and whether or not it was the correct choice is given in Figure~\ref{fig:facets_correct}. 
 
-<<facets_correct, echo=FALSE, fig.align="center", fig.cap="Plots chosen for each of the 25 lineups in the experiment. The x-axis ticks do not have a label because the label is less important than the number of different plots users chose and whether or not they chose the correct plot, shown in the coloring of the bars.", fig.height=9>>=
+```{r facets_correct, echo=FALSE, fig.align="center", fig.cap="Plots chosen for each of the 25 lineups in the experiment. The x-axis ticks do not have a label because the label is less important than the number of different plots users chose and whether or not they chose the correct plot, shown in the coloring of the bars.", fig.height=9}
 ggplot(data = summ_res_wts, 
        aes(x = reorder(as.factor(response_no2), -tot_wt), 
                                 y = tot_wt,
@@ -675,13 +670,13 @@ ggplot(data = summ_res_wts,
   theme_bw() + 
   theme(legend.position = 'bottom') + 
   labs(x = "User Response" , y = "Number of Responses") 
-@
+```
 
 This plot shows us the abysmal ability of the Turkers to identify the alternative plot correctly. There are also a few other interesting results from this plot. First, there are several lineups where a majority of participants selected the same wrong alternative plot. Additionally, we see a lot of variation in the number of different plots selected at the alternate plot by the Turkers. At most, there were 10 different plots selected, compared to 2 at the opposite end. XXX is it worth exploring these ``interesting things" more in-depth? XXX
 
 Next, we investigate the confidence of the experiment's participants in selecting the most different plot from the others. Overall, in 40\% of the responses, the respondent was certain they were correct. User confidence in the remaining categories, neutral, uncertain, very certain, and very uncertain, was 26.88\%, 16.88\%, 9.48\%, and 6.76\%, respectively. These results are summarized by lineup in Figure~\ref{fig:cert_plot}. We also performed a 5-sample test for equality of proportions in order to test the null hypothesis that the proportion of correct responses is the same in all 5 certainty categories. This test resulted in a $p$-value of 0.5881, so there is no evidence that the certainty of a user's response affects whether or not they choose the correct plot. This provides further evidence that detecting a network simulated from a different model is an extremely difficult problem. 
 
-<<cert_plot, echo=FALSE, warning = FALSE, message = FALSE, fig.align='center', fig.height=4, fig.cap="All responses for all lineups, separated by whether the plot selected was the true alternative plot (TRUE) or not (FALSE) and colored by the respondent's uncertainty levels. We see here that most respondents were certain in their answer whether or not they were correct.">>=
+```{r cert_plot, echo=FALSE, warning = FALSE, message = FALSE, fig.align='center', fig.height=4, fig.cap="All responses for all lineups, separated by whether the plot selected was the true alternative plot (TRUE) or not (FALSE) and colored by the respondent's uncertainty levels. We see here that most respondents were certain in their answer whether or not they were correct."}
 res2$conf_level <- ordered(res2$conf_level, levels = c("Very Uncertain", "Uncertain", "Neutral", "Certain", "Very Certain"))
 
 ggplot(data = res2, aes(x = lineup_name)) + 
@@ -699,11 +694,11 @@ names(summary.conf) <- c("Var1", "Failures", "Successes")
 summary.conf <- summary.conf[,-1]
 summary.conf <- summary.conf[,c(2,1)]
 prop_test_for_conf_corr <- prop.test(as.matrix(summary.conf))
-@
+```
 
 We next investigate the length of time that users' took to respond to each lineup. The minimum was 3.762 seconds and the maximum was 578.8 seconds (nearly 10 minutes). The median was 13.01 seconds and the mean was 20.32 seconds. First, a 2-sample Kolmogorov-Smirnov test for equality of distribution was done to see if the distribution of times for correct plots chosen is the same as the distribution of times for incorrect plots chosen. This two-sided test resulted in a $p$-value of 1, so there is no evidence that the distribution of times is different whether or not the response was correct. 
 
-<<time_plot, echo=FALSE>>=
+```{r time_plot, echo=FALSE}
 #qplot(x = res2$time, binwidth = 2)
 ggplot(data = res2, aes(x = conf_level, y = time)) + geom_boxplot() + coord_flip()
 ggplot(data = res2, aes(x = correct, y = time)) + geom_boxplot() + coord_flip() + theme_bw()
@@ -717,7 +712,7 @@ ggplot(data = res2, aes(x = lineup_name, y = time)) +
 # 2-sample kolmogorov-smirnov test for equality of distributions
 # ks.test(x = summary(res2$time[res2$correct]), y = summary(res2$time[!res2$correct]))
 # fail to reject null
-@
+```
 
 \subsection{Discussion/Future Work}
 

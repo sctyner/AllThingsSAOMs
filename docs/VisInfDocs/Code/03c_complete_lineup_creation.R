@@ -5,16 +5,16 @@ library(gridSVG)
 ##### LOAD IN DATA #####
 #looks like 20:35 are pretty well connected, go with those for now
 #setwd("Desktop/NetworksResearch/NetworksVizInference/")
-friend.data.w1 <- as.matrix(read.table("Data/s50_data/s50-network1.dat"))
-friend.data.w2 <- as.matrix(read.table("Data/s50_data/s50-network2.dat"))
-friend.data.w3 <- as.matrix(read.table("Data/s50_data/s50-network3.dat"))
-fd2.w1 <- friend.data.w1[20:35,20:35]
-fd2.w2 <- friend.data.w2[20:35,20:35]
-fd2.w3 <- friend.data.w3[20:35,20:35]
+#friend.data.w1 <- as.matrix(read.table("Data/s50_data/s50-network1.dat"))
+#friend.data.w2 <- as.matrix(read.table("Data/s50_data/s50-network2.dat"))
+#friend.data.w3 <- as.matrix(read.table("Data/s50_data/s50-network3.dat"))
+#fd2.w1 <- friend.data.w1[20:35,20:35]
+#fd2.w2 <- friend.data.w2[20:35,20:35]
+#fd2.w3 <- friend.data.w3[20:35,20:35]
 # read in covariate data
-drink <- as.matrix(read.table("Data/s50_data/s50-alcohol.dat"))
-drink2 <- drink[20:35,]
-# siena data
+#drink <- as.matrix(read.table("Data/s50_data/s50-alcohol.dat"))
+#drink2 <- drink[20:35,]
+## siena data
 friendData2 <- array( c( fd2.w1, fd2.w2, fd2.w3 ),
                       dim = c( 16, 16, 3 ) )
 # and next give this the role of the dependent variable:
@@ -24,9 +24,9 @@ alcohol2 <- varCovar( as.matrix(drink2) )
 mysmalldata <- sienaDataCreate( friend2, alcohol2)
 null_model_eff2 <- getEffects(mysmalldata)
 myalgorithm2 <- sienaAlgorithmCreate( projname = 's50' , n3 = 1000)
-sig_eff_names <- read.csv("Data/sig_eff_names_smfriends.csv")
-runs_models_smallFriends <- readRDS("Data/runs_models_smallFriends.RDS")
-eff_models_smallFriends <- readRDS("Data/eff_models_smallFriends.RDS")
+#sig_eff_names <- read.csv("Data/sig_eff_names_smfriends.csv")
+#runs_models_smallFriends <- readRDS("Data/runs_models_smallFriends.RDS")
+#eff_models_smallFriends <- readRDS("Data/eff_models_smallFriends.RDS")
 # functions to create lineups 
 create_smfriend_lu <- function(null_eff_struct, test_eff_struct, M, my_dat=mysmalldata, ...){
  # browser()

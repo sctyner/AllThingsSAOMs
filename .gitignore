@@ -7,4 +7,5 @@
 *.toc
 *.aux
 *.html
-docs/VisInfDocs/Data/lineupdata_experiment_dontopen/
+docs/visualinferencenets_*
+*.Rapp.*
