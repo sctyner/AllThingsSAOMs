@@ -7,6 +7,7 @@ library(ggplot2)
 library(geomnet)
 library(tidyr)
 library(RSiena)
+library(knitr)
 ```
 
 ## Models
@@ -14,7 +15,7 @@ library(RSiena)
 We fit three different stochastic actor-oriented models to a subset of the 50 actor dataset from the ``Teenage Friends and Lifestyle Study" that is provided on the RSiena webpage ```friendsdata. We chose to subset the data to decrease the cognitive load on our experiment's subjects. The subset contained actors 20 through 35 and the ties between them, as well as the drinking behavior of each actor at each of the three waves. This specific subset was chosen because it showed somewhat higher connectivity than other subsets, as we've emphasized in the visualizations of the three network adjacency matrices below. For model fitting, we condition on wave 1 and estimate the parameters of our models from the second and third waves.
 
 
-```{r smallfriends, echo=FALSE, fig.width=8, fig.height=3, message = FALSE, warning = FALSE, fig.cap="Adjacency matrices describing friendship relations between 50 students in waves 1,2, and 3 of the friendship study ```friendsdata. The red squares identify the subset we focus on for our experiment."}
+```{r smallfriends, echo=FALSE, fig.width=8, fig.height=3, message = FALSE, warning = FALSE, fig.cap="Adjacency matrices describing friendship relations between 50 students in waves 1,2, and 3 of the friendship study \\@friendsdata. The red squares identify the subset we focus on for our experiment."}
 #source("VisInfDocs/Code/00e_small_friends.R")
 friend.data.w1 <- as.matrix(read.table("VisInfDocs/Data/s50_data/s50-network1.dat"))
 friend.data.w2 <- as.matrix(read.table("VisInfDocs/Data/s50_data/s50-network2.dat"))
@@ -51,9 +52,8 @@ drink2 <- drink[20:35,]
 
 The first wave of the network, which is conditioned on in estimation, is given in Figure \@ref(fig:wave1).
 
-\begin{figure}
-\centering
-```{r wave1, echo=FALSE, message=FALSE, warning=FALSE, fig.height=5, out.width='.6\\linewidth', fig.cap="Network of friendships of wave 1 of the subset of students marked in Figure \\@ref(smallfriends)."}
+
+```{r wave1, echo=FALSE, message=FALSE, warning=FALSE, fig.height=5, fig.cap="Network of friendships of wave 1 of the subset of students that we will be exploring.", fig.align='center', out.width='50%'}
 library(sna)
 library(network)
 actual1 <- merge(data.frame(as.edgelist(as.network(fd2.w1))), 
@@ -142,34 +142,34 @@ Effect name & Parameter & Corresponding Statistic & $M_1$  & $M_2$  & $M_3$ \\
 \hline
 \hline
 Rate 1 (wave 1 $\rightarrow$ 2) & $\alpha_1$ & $\sum\limits_{i,j = 1 i\neq j}^n (x_{ij}(t_2) - x_{ij}(t_1))^2 $ & 
-\Sexpr{round(null_mod_sv[1], 2)} &
-\Sexpr{round(alt_mod_sv[1], 2)} & 
-\Sexpr{round(alt_mod2_sv[1], 2)} 
+`r round(null_mod_sv[1], 2)` &
+`r round(alt_mod_sv[1], 2)` & 
+`r round(alt_mod2_sv[1], 2)` 
 \\
 Rate 2 (wave 2 $\rightarrow$ 3) & $\alpha_2$ & $\sum\limits_{i,j = 1 i\neq j}^n (x_{ij}(t_3) - x_{ij}(t_2))^2 $ & 
-\Sexpr{round(null_mod_sv[2], 2)} &
-\Sexpr{round(alt_mod_sv[2], 2)} & 
-\Sexpr{round(alt_mod2_sv[2], 2)}
+`r round(null_mod_sv[2], 2)` &
+`r round(alt_mod_sv[2], 2)` & 
+`r round(alt_mod2_sv[2], 2)`
 \\
 Outdegree & $\beta_1$ & $s_{i1}(x) = \sum\limits_{j=1}^n x_{ij}$ & 
-\Sexpr{round(null_mod_sv[3], 2)} &
-\Sexpr{round(alt_mod_sv[3], 2)} & 
-\Sexpr{round(alt_mod2_sv[3], 2)}
+`r round(null_mod_sv[3], 2)` &
+`r round(alt_mod_sv[3], 2)` & 
+`r round(alt_mod2_sv[3], 2)`
 \\
-Reciprocity & $\beta_2$ & $s_{i2}(x) = \sum\limits_{j=1}^n x_{ij}x_{ji}$ & \Sexpr{round(null_mod_sv[4], 2)} &
-\Sexpr{round(alt_mod_sv[4], 2)} & 
-\Sexpr{round(alt_mod2_sv[4], 2)}
+Reciprocity & $\beta_2$ & $s_{i2}(x) = \sum\limits_{j=1}^n x_{ij}x_{ji}$ & `r round(null_mod_sv[4], 2)` &
+`r round(alt_mod_sv[4], 2)` & 
+`r round(alt_mod2_sv[4], 2)`
 \\
 Jumping Transitive Triplets & $\beta_3$ & $s_{i3}(x) = \sum\limits_{\forall j\neq h} x_{ij}x_{ih}x_{hj} \mathbb{I}(v_i = v_h \neq v_j)$ & -- & 
-\Sexpr{round(alt_mod_sv[5], 2)} & -- \\
+`r round(alt_mod_sv[5], 2)` & -- \\
 \# doubly achieved distances & $\beta_4$ & $s_{i4}(x) = |\{j : x_{ij} = 0, \sum\limits_h x_{ih}x_{hj} \geq 2\}|$ & -- & -- &
-\Sexpr{round(alt_mod2_sv[5], 2)}
+`r round(alt_mod2_sv[5], 2)`
 \end{tabular}}
 \end{table}
 
 
 
-```{r hist-estimates, dependson='read-simu', echo=FALSE, fig.width=8, fig.height=5, out.width='.8\\linewidth', fig.align='center', fig.cap="Histogram of the distribution of model parameters based on 1,000 simulation runs. Model parameter $\beta_3$ for jumping transitive triplets in model $M_2$ is significantly different from zero, but its inclusion also leads to significant changes in the  other model parameters of model $M_1$. The parameter $\beta_4$ for doubly acheived distances is also significantly different from zero, but has larger variance. The inclusion of $\beta_4$ also changes the estimates of the other model parameters, but not as much as the inclusion of $\beta_3$."}
+```{r hist-estimates, dependson='read-simu', echo=FALSE, fig.width=8, fig.height=5, out.width='.8\\linewidth', fig.align='center', fig.cap="Histogram of the distribution of model parameters based on 1,000 simulation runs. Model parameter $\\beta_3$ for jumping transitive triplets in model $M_2$ is significantly different from zero, but its inclusion also leads to significant changes in the  other model parameters of model $M_1$. The parameter $\\beta_4$ for doubly acheived distances is also significantly different from zero, but has larger variance. The inclusion of $\\beta_4$ also changes the estimates of the other model parameters, but not as much as the inclusion of $\\beta_3$."}
 qplot(data=simu2, estimate, fill=Model, geom="density", alpha=I(0.65)) + facet_wrap(~parameter, scales="free") + theme_bw()
 ```
 
@@ -214,7 +214,7 @@ ggplot(data = dad, aes(from_id = from, to_id = to)) +
 The parameters in the objective function are tested for significance using $t$-tests. The test statistic is the ratio of the parameter estimate to its standard error. If this value is larger than 2 in absolute value, then the parameter is said to be significant at the $\alpha = 0.05$ level and should be included in the model. This is a fairly simple statistical test, so we wanted to test whether this significance can be detected visually just as simply as the statistical test detects it. If visualizations of simulated networks from two nested models have a much different appearance when placed side-by-side, then the difference in appearance can be attributed to the additional parameter in one. If, however, there is no visually detectable difference, then the additional parameter does not appear to have changed the network structure all that much. Because model selection and diagnostics for network models are less developed areas of the theory, testing network parameters in this visual way could lead to additional methods of model selection for networks. 
 
 
-\section{Lineup Simulation}
+## Lineup Simulation
 
 Needs more specifics: how many lineups were created for each model?
 
@@ -223,7 +223,7 @@ At the moment we are just considering models M2 and M3 for an inclusion in the l
 To create the lineups that will be used in our experiment, we used the values given in Table \@ref(tab:models) as starting values in simulation. For each lineup simulated, the same default RSiena algorithm was used as was used to generate the fitted models with the exception that the algorithm only simulated from the given set of parameters. Each lineup and plot within lineup was generated idependent of all the others.
 
 
-\section{Parameter Estimation from Lineups}
+## Parameter Estimation from Lineups
 
 After the lineups were created, we re-fit each of our three models to each graph in each lineup. 
 
@@ -252,7 +252,7 @@ ggplot(data=lus_ests_truth) +
 
 
 
-```{r convergence-ests, fig.cap="Difference between parameter estimate and true value. Panels with a light grey background show model fits with data sampled from the same model. Densities are drawn for both converged and non-converged data. The red-filled densities should have a mode near zero, idicating that the model converged toward the correct value. For data from model $M_1$, estimates for parameters $\beta_3$ and $\beta_4$ converge to a wrong value.", fig.width=8, fig.height=8, echo = FALSE, warning = FALSE}
+```{r convergence-ests, fig.cap="Difference between parameter estimate and true value. Panels with a light grey background show model fits with data sampled from the same model. Densities are drawn for both converged and non-converged data. The red-filled densities should have a mode near zero, idicating that the model converged toward the correct value. For data from model $M_1$, estimates for parameters $\\beta_3$ and $\\beta_4$ converge to a wrong value.", fig.width=8, fig.height=8, echo = FALSE, warning = FALSE}
 load("VisInfDocs/Data/lus_ests_truth.rda")
 lus_ests_truth$param_name <- 
   factor(lus_ests_truth$param_name,
@@ -293,7 +293,7 @@ Because the likelihood function for these complicated models is intractable, RSi
 The model fitting in RSiena is done in three phases. Briefly, in the initial phase, sensitivity of the statistics to the parameter values is determined, then in the second phase, parameter values are fit iteratively. Finally, in the third phase, networks are simulated from the fitted models and the model is checked for convergence. 
 
 4. What parameters are in the output?
-In RSiena, the convergence of a non-rate parameter is determined through the simulated values from Phase 3 of the SienaFit algorithm. XXX more detail will be above later XXX  The simulations are compared to the observed values of the statistics observed in the data. The values from the simulations should be fairly close to the observed values, but because the fitting is done stochastically, deviations from statistics will not be exactly zero. Checking for convergence is based on a t-ratio of the average of these deviations to the standard deviation of these deviations. RSiena also performs an overall maximum convergence check by finding the maximum t-ratio value for any linear combination of the observed statistics.  According to the RSiena Manual, ``convergence is excellent when the overall maximum convergence ratio is less than 0.2", and for the non-rate parameters, the threshold for ``reasonable" convergence is set at 0.3 with excellent convergence when the t-ratio is less than or equal to 0.1 in absolute value. (@Rsiena).
+In RSiena, the convergence of a non-rate parameter is determined through the simulated values from Phase 3 of the SienaFit algorithm. XXX more detail will be above later XXX  The simulations are compared to the observed values of the statistics observed in the data. The values from the simulations should be fairly close to the observed values, but because the fitting is done stochastically, deviations from statistics will not be exactly zero. Checking for convergence is based on a t-ratio of the average of these deviations to the standard deviation of these deviations. RSiena also performs an overall maximum convergence check by finding the maximum t-ratio value for any linear combination of the observed statistics.  According to the RSiena Manual, ``convergence is excellent when the overall maximum convergence ratio is less than 0.2", and for the non-rate parameters, the threshold for ``reasonable" convergence is set at 0.3 with excellent convergence when the t-ratio is less than or equal to 0.1 in absolute value. (@RSiena).
 
 5. What are the results?
 
@@ -340,12 +340,12 @@ beta3sig05 <- sum(beta3sig2$ttestpval <= 0.05) / nrow(beta3sig2)
 beta3sig10 <- sum(beta3sig2$ttestpval <= 0.10) / nrow(beta3sig2)
 ```
 Figure \@ref(fig:comparison) shows an overview of model estimates for each simulated data set. What we expect to see is that estimates do not change values (much) if they are estimated under a model different from the one they are generated from. This is true for all data sets estimated under model $M_1$ independently of which model they were generated from (top row of Figure \@ref(fig:comparison). For data fit under model $M_2$ we see that parameter $\beta_3$ (jumping transitive triplets) are estimated to be about zero, if the data is generated from models $M_1$ and $M_3$.
-For model $M_2$, parameter $\beta_3$ is estimated to be significantly different from zero in \Sexpr{round(100 * beta3sig10, 1)}\% of cases. This coincides with our expectation.
+For model $M_2$, parameter $\beta_3$ is estimated to be significantly different from zero in `r round(100 * beta3sig10, 1)`\% of cases. This coincides with our expectation.
 
 However, the bottom row of Figure \@ref(fig:comparison) shows that independently of which model data is generated from, $\beta_4$, the number of pairs at doubly achieved distance, is estimated to be significantly different from zero in a large number of cases (about half of the data generated from model $M_2$ and more than that in model $M_1$). While $\beta_4$ is a highly significant parameter in model $M_3$, this questions the way that parameters are fitted and tells us that we are not likely to be able to visually distinguish between data generated from model $M_3$ and data generated from models $M_1$ and $M_2$. We might, however, be able to distinguish between data sets for which $\beta_4$ is estimated to be significantly different from zero and non-significant ones. XXX can we see differences in the pilot study?
 
 
-```{r lusparms, echo=FALSE, fig.width=8, fig.height = 8, out.width='.6\\linewidth', fig.align = 'center', warning = FALSE, fig.cap="Scatterplots of smallfriends and smallfriends-rev: comparing the ratio of null plots with smaller estimates of $\beta_3$ in the nulls than in the data panel (top row) and larger estimates of $\beta_3$ in the nulls than in the data panel. In lineups with a ratio of 1 the data should be 'easy' to identify in both scenarios."}
+```{r lusparms, echo=FALSE, fig.width=8, fig.height = 8, out.width='.6\\linewidth', fig.align = 'center', warning = FALSE, fig.cap="Scatterplots of smallfriends and smallfriends-rev: comparing the ratio of null plots with smaller estimates of $\\beta_3$ in the nulls than in the data panel (top row) and larger estimates of $\\beta_3$ in the nulls than in the data panel. In lineups with a ratio of 1 the data should be 'easy' to identify in both scenarios."}
 load("VisInfDocs/Data/lus_ests_truth.rda")
 
 lus_ests_truth$true_panel <- lus_ests_truth$true_model == lus_ests_truth$model
@@ -465,7 +465,7 @@ The pilot study consisted of an evaluation of a set of 20 lineups by 11 voluntee
 \paragraph{Suitability of $M_3$ in lineups:}
 
 ```{r data-picks, echo=FALSE, fig.align='center', fig.width=10, fig.height=5, out.width='0.85\\linewidth', fig.cap="Barchart summarizing the number of responses from the pilot study by model and lineup. Color shows the number of times the data panel was chosen from the lineup. Clearly, the first two sets of lineups ($M_1$ vs $M_2$ and $M_2$ vs $M_1$) have on average higher number of data identifications." }
-pdffiles <- dir("GGExperimentApr28/", pattern="pdf")
+pdffiles <- dir("VisInfDocs/GGExperimentApr28/", pattern="pdf")
 pdffiles <- gsub(".pdf","",pdffiles)
 #pdffiles <- gsub("-m","",pdffiles)
 #pdffiles <- gsub("-rep","",pdffiles)
@@ -473,7 +473,7 @@ pdffiles <- gsub(".pdf","",pdffiles)
 dframe <- strsplit(pdffiles, split=" ") %>% plyr::ldply(function(x) x)
 names(dframe) <- c("stimulus", "lineupid")
 
-results <- read.csv("GGExperimentApr28/responses_GGExpApr28.csv")
+results <- read.csv("VisInfDocs/GGExperimentApr28/responses_GGExpApr28.csv")
 lus <- results %>% group_by(Lineup, ChosenLU) %>% summarize(
   tally = n(),
   data = Answer[1],
@@ -517,46 +517,31 @@ Each Amazon Turk user was greeted with the following message: ``In this survey a
 \item Provide reasons for choice
 \item How certain are you?
 \end{enumerate}
-Finally we would like to collect some information about you. (age category, education and gender)."  Then, they were led through a training page about how to identify the correct plot in a lineup, seen in Figure \@ref(fig:lineupex). Then, they saw two trial plots that they had to get correct in order to proceed to the rest of the experiment. They chose the plot that looked the most different from the others, why they chose is (most complex, least complex, or other), and how certain they were that they had chosen correctly (Very Uncertain, Uncertain, Neutral, Certain, Very Certain). These trial plots are shown in Figure~\ref{fig:lineuptrial} 
+Finally we would like to collect some information about you. (age category, education and gender)."  Then, they were led through a training page about how to identify the correct plot in a lineup, seen in Figure \@ref(fig:lineupex). Then, they saw two trial plots that they had to get correct in order to proceed to the rest of the experiment. They chose the plot that looked the most different from the others, why they chose is (most complex, least complex, or other), and how certain they were that they had chosen correctly (Very Uncertain, Uncertain, Neutral, Certain, Very Certain). These trial plots are shown in Figure \@ref(fig:lineuptrial)
 
-\begin{figure}
-\begin{subfigure}[t]{.45\textwidth}
-\caption{Example 1}
-\includegraphics[width=\textwidth]{Results/Ex1}
-\end{subfigure}\hfill
-\begin{subfigure}[t]{.45\textwidth}
-\caption{Example 2}
-\includegraphics[width=\textwidth]{Results/Ex2}
-\end{subfigure}
-\caption{\label{fig:lineupex} The first training page in the Amazon Turk experiment.}
-\end{figure}
+```{r lineupex, out.width="50%", fig.cap="The first training page in the Amazon Turk experiment.", fig.show='hold'}
+knitr::include_graphics(c("VisInfDocs/Results/Ex1","VisInfDocs/Results/Ex2"))
+```
 
-\begin{figure}
-\begin{subfigure}[t]{.45\textwidth}
-\caption{Trial 1}
-\includegraphics[width=\textwidth]{Results/Trial1}
-\end{subfigure}\hfill
-\begin{subfigure}[t]{.45\textwidth}
-\caption{Trial 2}
-\includegraphics[width=\textwidth]{Results/Trial2}
-\end{subfigure}
-\caption{\label{fig:lineuptrial} The trial plots that users had to get correct in order to participate in the Amazon Turk experiment.}
-\end{figure}
+```{r lineuptrial, out.width="50%", fig.cap=" The trial plots that users had to get correct in order to participate in the Amazon Turk experiment.", fig.show='hold'}
+knitr::include_graphics(c("VisInfDocs/Results/Trial1","VisInfDocs/Results/Trial2"))
+
+```
 
 Once the turk user chose the correct plot in the two trial plots, the experiment proceeded with the same interface and users selecting which plot they thought was most different, why they thought that, and how certain they were for 10 plots chosen at random. 
 
-\subsection{Results}
+### Results
 
 ```{r get_res, echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.cap="Boxplot showing the percent of users correctly choosing the alternative model in all 25 lineups. In 15 out of 25 lineups, no user picked the correct plot. The maximum was 64.00\\%, and the second highest was 35.29\\% correct.", fig.height=3}
 ids <- readr::read_csv("https://raw.githubusercontent.com/erichare/lineups/f19635a00507210013ba9e631761ad0c89a6564d/experiments/turk21/details/picture-details.csv")
-tab <- read.csv("Results/turk21_users.csv")
+tab <- read.csv("VisInfDocs/Results/turk21_users.csv")
 tab2 <- unique(tab)
 #length(unique(tab2$nick_name))
 #head(sort(table(tab2$nick_name),decreasing = T))
 #tab2 %>% filter(nick_name == "A3U3L1XQVR362A")
 #tab2 %>% filter(nick_name == "ADTIO3A6TM9CG")
 #tab2 %>% filter(nick_name %in% names(table(res$nick_name))[table(res$nick_name) != 10])
-res <- read.csv("Results/turk21_feedback.csv", stringsAsFactors = F)
+res <- read.csv("VisInfDocs/Results/turk21_feedback.csv", stringsAsFactors = F)
 # remove people who only completed 1 plot
 res <- res %>% filter(!(nick_name %in% names(table(res$nick_name))[table(res$nick_name) != 10]))
 # need to repeat rows with weights for people who selected multiple plots.
@@ -591,7 +576,7 @@ res2$correct <- res2$response_no == res2$obs_plot_location
 res2$time <- res2$end_time - res2$start_time
 res2$lineup_name <- as.factor(paste(res2$test_param, res2$param_value))
 # with the correct labels (in order of data plot w/value most different from rest to least different)
-more_details <- read.csv("experimentdetails_Aug31.csv", stringsAsFactors = F)
+more_details <- read.csv("VisInfDocs/experimentdetails_Aug31.csv", stringsAsFactors = F)
 res3 <- left_join(res2, more_details, by = c("data_name" = "lineup_filename"))
 # higest jtts are: reps 18, 20, 6, 19, 3 with 
               # jtts of 40, 24, 18,17, 9
@@ -613,34 +598,18 @@ res3 %>% group_by(group_name, response_no2, correct) %>% summarise(tot_wt = sum(
 #   labs(x = "", title = "Percent of Users Correctly Identifying Alternate Model", y = "")
 ```
 
-We collected 10 lineups each from 77 Amazon Turk users. A table of demographic information collected on the participants in the experiment is in Table~\ref{fig:demos}. 
-
-\begin{figure}
-\begin{subfigure}[c]{.45\textwidth}
-\textbf{Gender:} \\
-```{r tab_demo, echo=FALSE, results='asis'}
+We collected 10 lineups each from 77 Amazon Turk users. A table of demographic information collected on the participants in the experiment is in Table \@ref(fig:demos). 
+```{r demos}
 t1 <- t(data.frame(table(tab2$gender)))
 rownames(t1) <- c("Gender:", "Count:")
 colnames(t1) <- t1[1,]
 t1 <- t1[2,]
 t1[as.numeric(t1) < 5] <- "*"
-kable(t1, format = 'latex')
-```
-\vspace{.5cm}
-\textbf{Education Level:} \\
-```{r tab_demo3, echo=FALSE, results='asis'}
 t3 <- t(data.frame(table(tab2$academic_study)))
 rownames(t3) <- c("Highest Education:", "Count:")
 colnames(t3) <- t3[1,]
 t3 <- t3[2,]
 t3[as.numeric(t3) < 5] <- "*"
-kable(t3, format = 'latex')
-```
-\end{subfigure}\hfill
-\begin{subfigure}[c]{.45\textwidth}
-\centering
-\textbf{Age Group:} \\
-```{r tab_demo2, echo=FALSE, results='asis'}
 t2 <- t(data.frame(table(tab2$age)))
 rownames(t2) <- c("Age:", "Count:")
 colnames(t2) <- t2[1,]
@@ -649,11 +618,16 @@ t2.2 <- t2
 t2.2 <- t2.2[1:7]
 names(t2.2)[6:7] <- c("46-55", "Over 55")
 t2.2[6:7] <- c(sum(as.numeric(t2[6:7])), sum(as.numeric(t2[8:9])))
-kable(t2.2, format = 'latex')
+knitr::kable(
+  list(
+    t1,
+    t2,
+    t3
+  ),
+  caption = 'Demographic information collected from experiment participants. An asterisk (*) indicates fewer than 5 participants.', booktabs = TRUE
+)
 ```
-\end{subfigure}
-\caption{\label{fig:demos} Demographic information on the Amazon Turk users participating in the experiment. Asterisks (*) indicate less than 5 responses.}
-\end{figure}
+
 
 
 Because of the random assignment of the 25 plots to users, almost every lineup was seen by a different number of people. Repetition 3 of M1 v. M3 was seen by 47 different users while repetition 2 of the same type was seen by only 6 different users. The mean number of times seens was 30.8 and the median was 31. In 15 of the 25 lineups, no user chose the correct plot, and in the remaining 10 lineups, the users correctly identified the alternative plot a minimum of 4.35\% of the time and a maximum of 64\% of the time. A plot showing the number of different plots chosen, how many times they were chosen, and whether or not it was the correct choice is given in Figure~\ref{fig:facets_correct}. 
@@ -714,109 +688,10 @@ ggplot(data = res2, aes(x = lineup_name, y = time)) +
 # fail to reject null
 ```
 
-\subsection{Discussion/Future Work}
+### Discussion/Future Work
 
 This small experiment suggests that detecting a network model difference from just one simulation from one model and 11 from the other model is just about impossible. This result is fairly unsurprising: drawing a single random point from, say, a $\chi^2_1$ distribution and placing it in a lineup with 11 separate draws from a standard normal distribution would likely have similar results. Every once in a while, a chi-square value would appear that would be too large to belong with draws from a standard normal distribution, but values near 1, the mean, would probably not appear that different from some random standard normal draws. This means that we need to develop a different way to compare two network models. We need a way to visualize many samples from a network model in one panel.
 
 
-\section{Model $M_1$ versus $M_2$ lineup size 3}
-\newcounter{k}
-\forloop{k}{1}{\value{k} < 21}{smallfriends-m-3-rep-\arabic{k}\newline
-\includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-m-3-rep-\arabic{k}} \\ }
 
-\section{Model $M_1$ versus $M_2$ lineup size 6}
-\newcounter{k1}
-\forloop{k1}{1}{\value{k1} < 21}{
-Lineup-Images/pdfs/smallfriends-m-6-rep-\arabic{k1}\newline
-\includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-m-6-rep-\arabic{k1}} \\ }
-
-\section{Model $M_1$ versus $M_2$ lineup size 9}
-\newcounter{k2}
-\forloop{k2}{1}{\value{k2} < 21}{Lineup-Images/pdfs/smallfriends-m-9-rep-\arabic{k2}\newline
-\includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-m-9-rep-\arabic{k2}} \\ }
-
-\section{Model $M_1$ versus $M_2$ lineup size 12}
-\newcounter{k3}
-\forloop{k3}{1}{\value{k3} < 21}{Lineup-Images/pdfs/smallfriends-m-12-rep-\arabic{k3}\newline
-\includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-m-12-rep-\arabic{k3}} \\ }
-
-\section{Model $M_1$ versus $M_2$ lineup size 16}
-\newcounter{k4}
-\forloop{k4}{1}{\value{k4} < 21}{smallfriends-m-16-rep-\arabic{k4}\newline
-\includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-m-16-rep-\arabic{k4}} \\ }
-
-\section{Model $M_2$ versus $M_1$ lineup size 3}
-\newcounter{k5}
-\forloop{k5}{1}{\value{k5} < 21}{smallfriends-rev-m-3-rep-\arabic{k5}\newline
-\includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-rev-m-3-rep-\arabic{k5}} \\ }
-
-\section{Model $M_2$ versus $M_1$ lineup size 6}
-\newcounter{k6}
-\forloop{k6}{1}{\value{k6} < 21}{smallfriends-rev-m-6-rep-\arabic{k6}\newline
-\includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-rev-m-6-rep-\arabic{k6}} \\ }
-
-\section{Model $M_2$ versus $M_1$ lineup size 9}
-\newcounter{k7}
-\forloop{k7}{1}{\value{k7} < 21}{smallfriends-rev-m-9-rep-\arabic{k7}\newline
-\includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-rev-m-9-rep-\arabic{k7}} \\ }
-
-\section{Model $M_2$ versus $M_1$ lineup size 12}
-\newcounter{k8}
-\forloop{k8}{1}{\value{k8} < 21}{smallfriends-rev-m-12-rep-\arabic{k8}\newline
-\includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-rev-m-12-rep-\arabic{k8}} \\ }
-
-\section{Model $M_2$ versus $M_1$ lineup size 16}
-\newcounter{k9}
-\forloop{k9}{1}{\value{k9} < 21}{smallfriends-rev-m-16-rep-\arabic{k9}\newline
-\includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-rev-m-16-rep-\arabic{k9}} \\ }
-
-% \section{Model $M_1$ versus $M_3$ lineup size 3}
-% \newcounter{k10}
-% \forloop{k10}{1}{\value{k10} < 21}{smallfriends-eff2-m-3-rep-\arabic{k10}\newline
-% \includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-eff2-m-3-rep-\arabic{k10}} \\ }
-% 
-% \section{Model $M_1$ versus $M_3$ lineup size 6}
-% \newcounter{k11}
-% \forloop{k11}{1}{\value{k11} < 21}{smallfriends-eff2-m-6-rep-\arabic{k11}\newline
-% \includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-eff2-m-6-rep-\arabic{k11}} \\ }
-% 
-% \section{Model $M_1$ versus $M_3$ lineup size 9}
-% \newcounter{k12}
-% \forloop{k12}{1}{\value{k12} < 21}{smallfriends-eff2-m-9-rep-\arabic{k12}\newline
-% \includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-eff2-m-9-rep-\arabic{k12}} \\ }
-% 
-% \section{Model $M_1$ versus $M_3$ lineup size 12}
-% \newcounter{k13}
-% \forloop{k13}{1}{\value{k13} < 21}{smallfriends-eff2-m-12-rep-\arabic{k13}\newline
-% \includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-eff2-m-12-rep-\arabic{k13}} \\ }
-% 
-% \section{Model $M_1$ versus $M_3$ lineup size 16}
-% \newcounter{k14}
-% \forloop{k14}{1}{\value{k14} < 21}{smallfriends-eff2-m-16-rep-\arabic{k14}\newline
-% \includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-eff2-m-16-rep-\arabic{k14}} \\ }
-% 
-% \section{Model $M_3$ versus $M_1$ lineup size 3}
-% \newcounter{k15}
-% \forloop{k15}{1}{\value{k15} < 21}{smallfriends-eff2-rev-m-3-rep-\arabic{k15}\newline
-% \includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-eff2-rev-m-3-rep-\arabic{k15}} \\ }
-% 
-% \section{Model $M_3$ versus $M_1$ lineup size 6}
-% \newcounter{k16}
-% \forloop{k16}{1}{\value{k16} < 21}{smallfriends-eff2-rev-m-6-rep-\arabic{k16}\newline
-% \includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-eff2-rev-m-6-rep-\arabic{k16}} \\ }
-% 
-% \section{Model $M_3$ versus $M_1$ lineup size 9}
-% \newcounter{k17}
-% \forloop{k17}{1}{\value{k17} < 21}{smallfriends-eff2-rev-m-9-rep-\arabic{k17}\newline
-% \includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-eff2-rev-m-9-rep-\arabic{k17}} \\ }
-% 
-% \section{Model $M_3$ versus $M_1$ lineup size 12}
-% \newcounter{k18}
-% \forloop{k18}{1}{\value{k18} < 21}{smallfriends-eff2-rev-m-12-rep-\arabic{k18}\newline
-% \includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-eff2-rev-m-12-rep-\arabic{k18}} \\ }
-
-% \section{Model $M_3$ versus $M_1$ lineup size 16}
-% \newcounter{k19}
-% \forloop{k19}{1}{\value{k19} < 21}{smallfriends-eff2-rev-m-16-rep-\arabic{k19}\newline
-% \includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-eff2-rev-m-16-rep-\arabic{k19}} \\ }
 
