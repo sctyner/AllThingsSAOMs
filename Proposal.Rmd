@@ -134,9 +134,11 @@ The final form for ERGMs is far more general than the $p_1$ and $p_2$, and is fo
 $$f(X|\boldsymbol{\theta}, \tau) = \exp\left(\sum_k \theta_k S_k(X) + \tau T(X) + \psi(\theta, \tau)\right),$$ 
 where $\theta_k$ and $\tau$ are parameters and $\psi(\theta, \tau)$ is the normalizing constant.  A problem with this model arises when one considers the nested nature of the sufficient statistics. For example, an edge can be contained in a 2-star, which can be contained in a triangle. So, the sufficent statistics can be dependent. Despite this flaw, this type of ERGM has been studied extensively, and many methods for parameter estimation exist, for example in the \texttt{R} packages \texttt{statnet} and \texttt{sna} (, @Rsoft,@statnet, and @sna). 
 
-Another set of models includes extensions of the Erd&#x00F6;s-R&#x00E9;nyi (ER) random graph model. A natural way to extend the ER model is to vary the expected node degree of the graph. These models include the preferential attachment model or power-law degree distribution models. XXX TALKE MORE ABOUT POWER-LAW NETWORKS XXX . Another model type, the exchangeable random graph model of @exchange, adds weak dependence into the edge sampling procedure.
+Another set of models includes extensions of the Erd&#x00F6;s-R&#x00E9;nyi (ER) random graph model. A natural way to extend the ER model is to vary the expected node degree of the graph. These models include the preferential attachment model or the small world models, which will be discussed further in \@ref(dynamicnets). Another model type, the exchangeable random graph model of @exchange, adds weak dependence into the edge sampling procedure.
 
-XXX TALK ABOUT THE OTHER COUPLE OF STATIC ONES
+Another area of study is community detection or blockmodels. The goal of these models is to simplify the network into a small number of "hubs" in which the members of the same hub form ties much more often with each other than with members of different hubs. These "hubs" are usually referred to as blocks or communities. Two nodes are in the same block if they are found to be "structurally equivalent," meaning that they have similar connectivity with other nodes in the network (@goldenberg09, p. 34). XXXX MORE DETAIL LATER XXX
+
+The last type static network model I'll present here is the latent space model. These models are called latent space models because they assumes that all nodes in the network can be expressed as a point in some $k$-dimensional space for "small" values of $k$ (@latentspace). 
 
 ### Dynamic Network Models {#dynamicnets}
 
