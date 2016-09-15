@@ -851,6 +851,9 @@ This small experiment suggests that detecting a network model difference from ju
 
 # Drawing Networks with the R package `ggplot2` 
 
+This next section is a paper I authored with Heike Hofmann (Iowa State University) and François Briatte (European School of Political and Social Sciences) that will be published in the R Journal.  
+
+
 
 
 # References {#refs}
