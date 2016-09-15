@@ -147,7 +147,9 @@ In the network $x$ and for each actor $i$ in this network, the rate function is 
  
 ### The Objective Function {#saomobjective} 
 
-Thanks to the conditional dependence assumptions in the model, we can consider the objective function for each node separately, since only one tie from one node is changing at a time. The objective function is written as $f_i(\boldsymbol{\beta}, x), x \in \mathcal{X}$. The vector $\boldsymbol{\beta}$ are the parameters of the model and $x$ is any possible state of the network. Given the focal or ego node, $i$, there are $n$ possible steps for the actor $i$ to take: either one of all current ties $x_{ij}$ will be destroyed, a new tie will be created, or no change will occur. The  
+Thanks to the conditional dependence assumptions in the model, we can consider the objective function for each node separately, since only one tie from one node is changing at a time. The objective function is written as $f_i(\boldsymbol{\beta}, x), x \in \mathcal{X}$. The vector $\boldsymbol{\beta}$ are the parameters of the model and $x$ is any possible state of the network. Given the focal or ego node, $i$, there are $n$ possible steps for the actor $i$ to take: either one of all current ties $x_{ij}$ will be destroyed, a new tie will be created, or no change will occur. 
+
+The parameters, $\beta$, are attached to various actor-level network statistics. There are always at least two parameters, $\beta_1$ for the outdegree of a node, and $\beta_2$ for the number of reciprocal ties held by a node. There are many possible parameters $\beta$ to add to the model. They can be split up into two groups: first, the structural effects, which only depend on the structure of the network. The inclusion of these effects has origin in the ERGMs discussed previously for static networks. The second set of effects are the actor-level or covariate effects. These effects 
 
 
 # References {#refs}
