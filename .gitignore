@@ -14,4 +14,6 @@ docs/visualinferencenets_*
 *cache/*
 */cache/*
 *.gz
-*blg
+*.blg
+*_files/
+Proposal/

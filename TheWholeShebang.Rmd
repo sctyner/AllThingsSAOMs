@@ -1,24 +1,19 @@
 ---
-title: "Proposal"
-author: "Sam Tyner"
+title: "Dissertation Proposal"
+author: "Samantha C. Tyner"
 date: "`r Sys.Date()`"
-header_includes: 
-  - \usepackage{RJournal}
-  - \usepackage{booktabs}
-  - \usepackage{adjustbox}          
-  - \usepackage[font=small,skip=5pt]{caption}
-  - \usepackage{subcaption}
-  - \usepackage{afterpage}
-  - \usepackage{color}
 output:
   bookdown::pdf_book:
     keep_tex: no 
     toc: true
     number_sections: true
+header-includes:
+- \usepackage{booktabs}  
 bibliography: docs/bigbib.bib
+
 ---
 
-```{r setup, include=FALSE}
+```{r setup1, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, cache = TRUE)
 library(dplyr)
 library(ggplot2)
@@ -27,16 +22,19 @@ library(tidyr)
 library(RSiena)
 library(knitr)
 ```
-# Outline
+# Outline of the whole shebang
+This section will be removed once I'm done writing this thing! 
 
-### High Level Introduction
+## Lit Review (CH. 0)
 
-Social networks have been studied for decades, beginning with the seminal 1967 study, "The Small World Problem" by Stanley Milgram  (Goldenberg et al. 2009). In recent years, the study of social networks has grown in popularity due to an increase in the availability of and easy of access to social network data. 
+### ~~High Level Introduction~~
 
-* discuss the data format and how it is different from traditional data formats seen in statistics
-* bring up the different disciplines that have studied social networks
-* mention the models that exist for social network analysis
-* mention that I am focusing on one type of model class, SAOMs.
+~~Social networks have been studied for decades, beginning with the seminal 1967 study, "The Small World Problem" by Stanley Milgram  (Goldenberg et al. 2009). In recent years, the study of social networks has grown in popularity due to an increase in the availability of and easy of access to social network data. ~~
+
+* ~~discuss the data format and how it is different from traditional data formats seen in statistics~~
+* ~~bring up the different disciplines that have studied social networks~~
+* ~~mention the models that exist for social network analysis~~
+* ~~mention that I am focusing on one type of model class, SAOMs.~~
 
 ### More Meaty Introduction to Network Analysis
 
@@ -45,7 +43,7 @@ In this section I will discuss in greater detail the models that are out there f
 * Classics:
     + ~~ERGMs~~
     + ~~Erdos-Renyi~~ and its variations
-    + Random graphs with fixed degree distribution
+    + ~~Random graphs with fixed degree distribution~~
     + Blockmodels and their relatives
     + Latent space models
 * Social Networks:
@@ -67,12 +65,6 @@ First, I will layout the field of network analysis formally using traditional st
 
 I will completely flesh out the form and theory of SAOMs. This will come primarily from the detailed document I created last year and anything else from Snijders' papers. 
 
-### Removing the Blindfold from SAOMs
-
-- What does the distribution look like? 
-- What does an "average network" from an SAOM look like? 
-- Generation / Creation process video
-
 ### Lead-in to Visual Inference 
 
 Take the theory of SAOMs and lead into the discussion of why visual inference could be useful for model checking and other things for SAOMs. 
@@ -81,785 +73,54 @@ Take the theory of SAOMs and lead into the discussion of why visual inference co
 
 Fully introduce the concept of visual inference as laid out in Buja et al. (2009). Also include discussion of Majumder et al. 
 
-### Using visual inference for SAOMs
-
-Explain how I will use / have used visual inference to explore properties of SAOMs. Main research question: are statistically significant model differences also visually significant? 
-
 ### Intro to visualizing networks
 
 Discuss the many ways to visualize networks (also called network mapping). Ubiquitous view is 2D represetation of points and lines. Discuss the many layout algorithms. Discuss the many packages in R that can do this. Discuss the difficulty of using these package for people not intimately familiar with them. Lead into next section with discussion of ggplot2 and its importance and popularity in data visualization.
 
-### Why a ggplot2 wrapper? 
+### Lead-in to the full thesis. 
+
+Briefly outline the 3 chapters and tie them all together. 
+
+## CH 1. Removing the Blindfold from SAOMs
+
+- What does the distribution look like? 
+- What does an "average network" from an SAOM look like? 
+- Generation / Creation process video
+
+## CH 2. Using visual inference for SAOMs
+
+Explain how I will use / have used visual inference to explore properties of SAOMs. Main research question: are statistically significant model differences also visually significant? 
+
+
+## CH. 3: geomnet: a ggplot2 wrapper for network visualization
 
 Explain the hole filled by the geomnet package. 
 
-### Summary and Impact
+## CH. 4 Summary, Impact, Future Work
 
 Brief walk-through of all topics already covered. Emphasize the holes filled by the work. 
 
-### Other Projects??? 
+## CH 5. Other Projects  
 
-Discuss the Bob Ross and Graphics Awards papers? 
+Discuss the Bob Ross and Graphics Awards papers
+
 
 \newpage
 
-# Introduction {#intro}
-
-Social networks have been studied for decades, beginning with a few foundational works, the most well known of which is the 1967 study, "The Small World Problem" by Stanley Milgram (@goldenberg09). But in recent years, the study of social networks has grown wildly in popularity due to an increase in the availability of and easy of access to social network data. The digital revolution has led to the creation of social media, linking people from all over the world in a way we never have been before. Now that platforms like Facebook, Twitter, and LinkedIn permeate our world, just about everyone knows what social networks are. In academic circles, collaboration networks are a type of social network that have been extensively studied and can even be a point of pride, like a mathematician's Erd&#x00F6;s  number (@erdos). Social networks are a rich source of knowledge, but the data format does not fit easily within traditional data collection paradigms. Traditionally, data collection involves a set of units of the same, or at least similar, kind, on which observations are made. The storage of traditional data is simple and organized: rows contain variable values collected from units. These units can be people, plants, animals, stocks, objects, fields, and anything else under the sun, but one social network consits of many units, yet on the whole is just one observation. When observing a social network, one observes the possibly very numerous actors (also referred to as vertices or nodes) and the relationships (also referred to as edges or ties) between those actors. One can also collect information on the nodes and the edges separately, such as the age or gender of people and the length of their relationship or how strong it is in a friendship network. Thus, information on the entire network is more difficult to store than traditional data with which statisticians usually work. 
-
-This apparent difficulty has not stopped researchers in many different fields from studying social and other types of networks. Sociologists work with human relationship networks of all kinds imaginable, biologists work with protein-protein interaction networks, neurologists use fMRI scans to study biologic neural networks, and the list goes on. These disciplines worked separately for many years, each developing their own measures, softwares, and theories about the fundamental properties of networks. And although statisticians were comparatively late to the party, many statistical models exist for network analysis. Beginning with the classic Erd&#x00F6;s-R&#x00E9;nyi random graph model and varying in structure, complexity, and application to include longitudinal network data, such as continuous time markov chain models (@goldenberg09). The many varying models that exist just for social network analysis are impressive, but I focus my research on one type of continuous time markov chain (CTMC) models, called Stochastic Actor-Oriented Models (SAOMs). A full introduction to the various models that exist for social network analysis is presented in Section \@ref(models), and a full introduction to the structure and theory of SAOMs is presented in Section \@ref(saoms). 
-
-# Stochastic Actor-Oriented Models for Longitudinal Network Data: Removing the Blindfold
-
-The set of models known as stochastic-actor oriented models for longitudinal network data were first formally introduced in @saompaper. This set of models, however, is just one in a long line of statistical models for network analysis. The exposition of the history of this field is crucial to understanding the structure and function of SAOMs. So, I begin by outlining this history and briefly describing the many other models for statistical network analysis in Section \@ref(allmodels). I follow that with a thorough introduction and discussion of SAOMs in Section \@ref(saoms). I conclude this section by discussion the plans I have to add to the literature on SAOMs by creating a way to view the underlying network generative process, determining the "average" network belonging to a given SAOM, and defining the "distribution" of networks over a given set of parameter values in a SAOM.    
-
-##Statistical Models for Social Networks {#allmodels}
-
-The literature on statistical models for networks is extensive. In their thorough "Survey of Statistical Models", Goldenberg et al separate these models in to two primary classes: static and dynamic. I discuss the several types of models in each of these two categories after a brief introductory section on general network terminology and notation. 
-
-### Basic Network Terminology and Notation {#netterm}
-
-Formally, a network is a collection of nodes and the set of ties between them. Nodes are also referred to as vertices primarily in the graph theory literature or actors in the sociology literature, while ties are also called edges or relationships. In graph theory, a network is defined with respect to its nodes and edges, and a network $G$ is equivalently written as $G(\mathcal{N}, \mathcal{E})$, where $\mathcal{N}$ is the collection of nodes, or nodeset, and $\mathcal{E}$ is the collection of edges, or edgeset. Typically, the nodes are numbered so that $\mathcal{N} = {1, 2, \dots, n}$, where $n$ is the total number of nodes in the network. The edgeset $\mathcal{E}$ is usually described as a set of pairs, written as $(i,j)$ or $i \mapsto j$ or simply $ij$, where $i \neq j \in \mathcal{N}$. In an undirected network, the ordering of $i$ and $j$ does not matter: there is no parent-child relationship, to use a term from graph theory, just a connection of some kind. In a directed graph, however, the order does matter: the tie $(i,j)$ is not equivalent to the tie $(j,i)$. In an undirected graph, the number of possible edges is $\binom{n}{2}$, while in directed graphs it is $n(n-1)$, assuming no self-loops (also called self-ties or simply loops) and only allowing for at most one edge between any two nodes. 
-
-In statistical network analysis, a network is denoted by $x$ if it is observed or by $X$ if it is being treated as unobserved or as a random variable. Following this convention, edges in the networks $x$ or $X$ are denoted by $x_{ij}$ or $X_{ij}$, respectively. If the edge $i \mapsto j$ is present, $x_{ij} = 1$, whereas $x_{ij} = 0$ if the edge is not present. If $x$ is undirected, then $x_{ij} = x_{ji} \forall i \neq j \in \mathcal{N}$. If $x$ is directed, then $x_{ij}$ may equal $x_{ji}$, but this is not required and should not be assumed. Note that the definition of binary edge variables makes the assumption that edges are unweighted and that their cannot be more than one edge between two nodes. There are graphs and networks with weighted edges or with multiple ties between nodes, but these are rarely, if ever, dealt with in statistical network analysis (XXX FAIRLY CERTAIN THIS IS TRUE, JUST NEED A SOURCE XXX).
-
-A network $x$ can also be expressed as an $n \times n$ matrix of 0s and 1s called the adjacency matrix, denoted $\mathcal{A}(x)$. The $ij^{th}$ entry of this matrix, $a_{ij}$ is 1 if there is an edge between nodes $i$ and $j$ and 0 otherwise. Typically, in statstical network analysis, the diagonal entries of this matrix, $a_{ii}$ are structurally 0, as self-ties or self-loops are not allowed or do not make sense. 
-
-### Static Network Models {#staticnets}
-
-The Erd&#x00F6;s-R&#x00E9;nyi random graph model is widely regarded as the first random graph model (@goldenberg09). In this model, first introduced in 1959 in  @er59, a random, undirected graph or network, $G$, is described in terms of its nodeset, $N$, and its edgeset, $E$, where $E$ is a random subset of the $\binom{|N|}{2}$ possible edges in the nodeset. The parameter in this model is $p$, the probability of an edge between any two nodes in $N$. The likelihood is written in terms of $|E|$ and $p$, 
-$$f_G(|E| | p, N) = p^{|E|}(1-p)^{\binom{|N|}{2} - |E|}.$$
-The properties and asymptotic behavior of this network model are well-established (@goldenberg09). Nodes in networks generated using this model will all have about the same degree, or number of incident edges, which is a very unrealistic property for networks to have. As such, many other models have been devised over the years as a way to better capture the the network creation process underlying real-world networks. 
-
-A set of models which has also been very extensively studied is the exponential random graph family of models (ERGMs). The first, less general form of these models is the $p_1$ model for social networks, first introduced in @p1model. The $p_1$ model was developed for modelling directed networks, also called directed graphs or digraphs. In this model, the edges state, $(x_{ij}, x_{ji})$ between a pair of nodes, $(i, j)$ for all $i \neq j \in N$, could exist in one of four possible states: $(0,0)$ (no ties between $i,j$), $(1,0)$ (a tie from $i$ to $j$), $(0,1)$ (a tie from $j$ to $i$), or $(1,1)$ (a tie from $i$ to $j$ and from $j$ to $i$). Each one of these states has some probability such that the four state probabilities sum to 1 for each pair $(i,j)$. These probabilities are described in terms of five kinds of parameters: $\theta$, a base rate for edge creation; $\alpha_i$, an effect for an outgoing edge with parent node $i$; $\beta_j$, an effect for an incoming edge with child node $j$; $\rho_{ij}$, an effect of  reciprocated ties; and $\lambda_{ij}$, a normalizing constant to ensure that the four possible edge states of have probabilities summing to 1. Below, let $x_{ij} = 1$ when the edge from $i$ to $j$ exists and $x_{ij} = 0$ otherwise, and let $x_{ji} = 1$ when the edge from $j$ to $i$ exists and $x_{ji} = 0$ otherwise. Then, the edge state, $(x_{ij},x_{ji})$ between nodes $i$ andd $j$ is modeled as:
-$$\log f_X((x_{ij},x_{ji})| \lambda_{ij}, \alpha_i, \alpha_j, \beta_i, \beta_j, 
-\theta, \rho_{ij}) = \lambda_{ij} + x_{ij}(\alpha_i + \beta_j + \theta) + x_{ji}(\alpha_j + \beta_i + \theta) + x_{ij}x_{ji}\rho_{ij} $$
-If each reciprocation parameter, $\rho_{ij}$, were unique to each edge, there would be a lack of identifiability in the model, which can be remedied by (i) not having a reciprocation effect ($\rho_{ij} = 0$ for all $i \neq j$), (ii) having a constant effect for reciprocation ($\rho_{ij} = \rho$ for all $i \neq j$), or (iii) having edge-dependent reciprocation ($\rho_{ij} = \rho + \rho_i + \rho_j$). Assuming scenario (ii), the log-likelihood function for a network $X$ can be written in exponential family form:
-$$\log f_X(x | \boldsymbol{\lambda}, \boldsymbol{\alpha}, \boldsymbol{\beta}, \rho, \theta) \propto \theta \sum_{i,j} x_{ij} + \sum_i x_{i+}\alpha_i + \sum_j x_{+j}\beta_j + \rho\sum_{i,j}x_{ij}x_{ji},$$
-where the minimally sufficient statistics are $x_{i+}$, the outdegree of each node $i$, $\sum_j x_{+j}$, the indegree of each node $j$, and $\sum_{i,j}x_{ij}x_{ji}$, the number of reciprocal ties in the network. This $p_1$ set of models is problematic because, as "the number of {$\alpha_i$} amd {$\beta_j$} increase directly with the number of nodes, [so] we have no consistency results for the maximum likelihood estimation" (@goldenberg09, p. 28). An extension of the $p_1$ model is the $p_2$ model, introduced by @p2model. This model is essentially a mixed-effects model version of the $p_1$ model, with node-level fixed effects for the outgoing edge effects $\boldsymbol{\alpha}$ and the incoming edge effects $\boldsymbol{\beta}$, and edge-level fixed effects for the edge rate effects $\boldsymbol{\theta}$ and reciprocity rates $\boldsymbol{\rho}$. The random effects, added to the covariate effects for $\boldsymbol{\alpha}$ and $\boldsymbol{\beta}$, have normal distribution with mean zero and variance parameters $\sigma^2_{\alpha}$ and $\sigma^2_{\beta}$. 
-
-The final form for ERGMs is far more general than the $p_1$ and $p_2$, and is for undirected, rather than directed, networks. There are many more possible sufficient statistics other than the outdegree, indegree, and reciprocal ties. Other graph structures that are considered are the number of triangles, $T(X) = \sum_{i \neq j \neq h} x_{ij}x_{ih}x_{jh}$, and the number of $k$-stars, $S_k(X) = \sum_i \binom{x_{i+}}{k}$, where $k = 2$ is most commonly chosen. The form of the likelihood for $X$ following this general type of ERGM is 
-$$f(X|\boldsymbol{\theta}, \tau) = \exp\left(\sum_k \theta_k S_k(X) + \tau T(X) + \psi(\theta, \tau)\right),$$ 
-where $\theta_k$ and $\tau$ are parameters and $\psi(\theta, \tau)$ is the normalizing constant.  A problem with this model arises when one considers the nested nature of the sufficient statistics. For example, an edge can be contained in a 2-star, which can be contained in a triangle. So, the sufficent statistics can be dependent. Despite this flaw, this type of ERGM has been studied extensively, and many methods for parameter estimation exist, for example in the \texttt{R} packages \texttt{statnet} and \texttt{sna} (, @Rsoft,@statnet, and @sna). 
-
-Another set of models includes extensions of the Erd&#x00F6;s-R&#x00E9;nyi (ER) random graph model. A natural way to extend the ER model is to vary the expected node degree of the graph. These models include the preferential attachment model or the small world models, which will be discussed further in \@ref(dynamicnets). Another model type, the exchangeable random graph model of @exchange, adds weak dependence into the edge sampling procedure.
-
-Another area of study is community detection or blockmodels. The goal of these models is to simplify the network into a small number of "hubs" in which the members of the same hub form ties much more often with each other than with members of different hubs. These "hubs" are usually referred to as blocks or communities. Two nodes are in the same block if they are found to be "structurally equivalent," meaning that they have similar connectivity with other nodes in the network (@goldenberg09, p. 34). XXXX MORE DETAIL LATER XXX
-
-The last type static network model I'll present here is the latent space model. These models are called latent space models because they assumes that all nodes in the network can be expressed as a point in some $k$-dimensional space for "small" values of $k$ (@latentspace). 
-
-### Dynamic Network Models {#dynamicnets}
-
-Dynamic network models are a very important part of statistical network analysis because discovering how networks form and change over time can help us make predictions.XXX THAT IS A DUMB SENTENCE FIX IT LATER XXXX Like with static models, the literature on dynamic network models begins with a fairly simple random graph model. XXX ADD THE EXAMPLES XXX
-
-## Stochastic Actor-Oriented Models for Longitudinal Social Networks. {#saoms}
-
-The phrase Stochastic Actor-Oriented Model is quite a mouthful, but it contains most of the important information about the model. First, the model is changing in time in order to accomodate for observations from the same network made at different points in time. Second, it allows for changes in network structure due to actor-level covariates. These two properties are crucial to understanding networks as they exist naturally. Most social networks are ever-changing as relationships decay or grow, and most actors (or nodes) in social networks have inherent properties that could affect how they change their place within the network. 
-
-### Terminology, Notation, and Mathematical Definition of SAOMs {#saomsnote}
-
-A longitudinal network is a network consisting of the same set of $n$ nodes that is changing over time, and is observed at $M$ discrete time points, $t_1, \dots, t_M$. Denote these network observations $x(t_1), \dots, x(t_M)$. The SAOM assumes that this longitudinal network is embedded within a continuous time markov process (CTMP), call it $X(T)$. This process is almost entirely unobserved. The process $X(T)$ theoretically exists outside of the range of observation, but for simplicity of notation, assume that the beginning of the process, $X(0)$ is equivalent to the first observation $x(t_1)$, while the end of the process $X(\infty)$ is equivalent to the last observation $x(t_M)$.  The observations $x(t_1), \dots, x(t_M)$ are observed states of the process, $x(t_1) \equiv X(0), x(t_2) \equiv X(T_{t_2}), \dots, x(t_{M-1}) \equiv X(T_{t_{M-1}}), x(t_M) \equiv X(\infty)$, but the time points $t_m$ and $T_{t_m}$ for $m = 2, \dots M-1$ are not equivalent. The process $X(T)$ is a series of single tie changes, in which one actor at a time is given the opportunity to add or remove one outgoing tie.  These opportunities for change can arise at a different rate for each actor, and the overall rate of change, the distribution of the waiting times that *any* actor will be given the opportunity to change is a function of all actors' rates. Additionally, once an actor is given the chance to change a tie, it tries to maximize a sort of utility function based on the current and potential future states of the network. These functions are described in detail in subsections \@ref(saomrate) and \@ref(saomobjective). 
-
-#### The Rate Function {#saomrate}
-
-In the network $x$ and for each actor $i$ in this network, the rate function is most generally denoted $\lambda_i(\alpha, \rho, x, m)$, which dictates how quickly actor $i$ gets opportunities to change one of its ties, $x_{ij}$ in the time period $t_{m} \leq T < t_{m+1}$. In this function, $\alpha$ and $\rho$ are parameters, $x$ is the current network state at time $m$. Note that $x \in \mathcal{X}$, where $\mathcal{X}$ is the space of possible networks given the $n$ nodes in the network, and that $|\mathcal{X}| = 2^{n(n-1)}$. We assume that the actors $i$ are conditionally independent given their current ties, $x_{i1}, \dots, x_{in}$. This assumption gives the rate function for the whole network as $\lambda(\alpha, \rho, x, m) = \sum_i \lambda_i(\alpha, \rho, x, m)$. For any time point, $T$, where $t_m \leq T < t_{m+1}$, the waiting time to the next change opportunity by actor $i$ has distribution *Exponential*$(\lambda_i\alpha, \rho, x, m))$ in order to achieve the memorylessness property of a Markov process. Thus, the waiting time to the next change opportunity by *any* actor in the network has distribution *Exponential*($\sum_i \lambda_i\alpha, \rho, x, m)$). There are many possibilities for the rate function, $\lambda_i$. The simplest is that it is constant over all actors and all unobserved timepoints between observations $x(t_{m-1})$ and $x(t_m)$, $\lambda_i(\alpha, \rho, x, m)) = \alpha_m$. The rate function can also depend on covariate values, call them $\mathbf{z}_{i}(t_m)$, of the actors or structural network elements such as outdegree, or both. For instance, assume $\lambda_i(\alpha, \rho, x, m)) = \lambda_{i1}\lambda_{i2}\lambda_{i3}$, where $\lambda_{i1}$ is constant over $m$, $\lambda_{i2}$ depends on the actor covariates, and $\lambda_{i3}$ depends on a structural network property for node $i$. $\lambda_{i2}$ might be written as $\lambda_{i2} = \exp\left(\sum_h \rho_h z_{ih}(t_m)\right)$, where there are $h = 1, \dots, H$ actor covariates of interest, each with their own parameter $\rho_h$. $\lambda_{i3}$ can be written as a function of the outdegree of node $i$, denoted $x_{i+}$ with its own parameter $\alpha_{H+1}$, so that, for example, $\lambda_{i3} = \frac{x_{i+}}{n-1}\exp(\alpha_{H+1}) + \left(1-\frac{x_{i+}}{n-1}\right)\exp(-\alpha_{H+1})$. When $H=0$, this form of $\lambda_{i3}$ is equivalent to the model proposed by @wassermanrecip, which is one of the first models proposed for modeling dynamic networks as continuous-time Markov processes (@snijders01).  Given that a change occurs, the probability that actor $i$ is given the power to change a tie is $$\frac{\lambda_i(\alpha, \rho, x, m))}{\sum_i \lambda_i(\alpha, \rho, x, m))}$$.
- 
-#### The Objective Function {#saomobjective} 
-
-Thanks to the conditional dependence assumptions in the model, we can consider the objective function for each node separately, since only one tie from one node is changing at a time. The objective function is written as $f_i(\boldsymbol{\beta}, x), x \in \mathcal{X}$. The vector $\boldsymbol{\beta}$ are the parameters of the model and $x$ is any possible state of the network. Given the focal or ego node, $i$, there are $n$ possible steps for the actor $i$ to take: either one of all current ties $x_{ij}$ will be destroyed, a new tie will be created, or no change will occur. 
-
-The parameters, $\beta$, are attached to various actor-level network statistics. There are always at least two parameters, $\beta_1$ for the outdegree of a node, and $\beta_2$ for the number of reciprocal ties held by a node. There are many possible parameters $\beta$ to add to the model. They can be split up into two groups: first, the structural effects, which only depend on the structure of the network. The inclusion of these effects has origin in the ERGMs discussed previously for static networks. The second set of effects are the actor-level or covariate effects. These effects 
-
-## Understanding a SAOM Distribution 
-
-
-# Visual Inference for Networks
-
-## Models
-
-We fit three different stochastic actor-oriented models to a subset of the 50 actor dataset from the ``Teenage Friends and Lifestyle Study" that is provided on the RSiena webpage ```friendsdata. We chose to subset the data to decrease the cognitive load on our experiment's subjects. The subset contained actors 20 through 35 and the ties between them, as well as the drinking behavior of each actor at each of the three waves. This specific subset was chosen because it showed somewhat higher connectivity than other subsets, as we've emphasized in the visualizations of the three network adjacency matrices below. For model fitting, we condition on wave 1 and estimate the parameters of our models from the second and third waves.
-
-
-```{r smallfriends, echo=FALSE, fig.width=8, fig.height=3, message = FALSE, warning = FALSE, fig.cap="Adjacency matrices describing friendship relations between 50 students in waves 1,2, and 3 of the friendship study \\@friendsdata. The red squares identify the subset we focus on for our experiment."}
-#source("docs/VisInfDocs/Code/00e_small_friends.R")
-friend.data.w1 <- as.matrix(read.table("docs/VisInfDocs/Data/s50_data/s50-network1.dat"))
-friend.data.w2 <- as.matrix(read.table("docs/VisInfDocs/Data/s50_data/s50-network2.dat"))
-friend.data.w3 <- as.matrix(read.table("docs/VisInfDocs/Data/s50_data/s50-network3.dat"))
-
-val1 <- data.frame(friend.data.w1) %>% gather(x,y, V1:V50) %>% select(y)
-val2 <- data.frame(friend.data.w2) %>% gather(x,y, V1:V50) %>% select(y)
-val3 <- data.frame(friend.data.w3) %>% gather(x,y, V1:V50) %>% select(y)
-
-all_girls <- expand.grid(x = 1:50, y= 1:50)
-
-view_rs <- data.frame(all_girls, W1 = val1, W2 = val2, W3 = val3)
-names(view_rs)[3:5] <- c('w1', 'w2','w3')
-
-view_rs %>% gather(wave, value, w1:w3) -> view_rs2
-view_rs2$wave <- factor(view_rs2$wave)
-levels(view_rs2$wave) <- c("Wave 1", "Wave 2", "Wave 3")
-ggplot(data= view_rs2, aes(x = x, y=y)) + 
-  geom_tile(aes(fill = as.factor(value))) + 
-  scale_fill_manual("X likes Y", labels=c("no", "yes"), 
-                    values = c('white', 'black')) +
-  geom_rect(data= NULL, inherit.aes = FALSE, color = 'red',
-            aes(xmin = 20, xmax = 35, ymin = 20, ymax = 35, fill =NA)) + 
-  facet_wrap(~wave) + theme_bw() +
-  theme(aspect.ratio=1, axis.text = element_blank(), axis.ticks = element_blank()) 
-
-fd2.w1 <- friend.data.w1[20:35,20:35]
-fd2.w2 <- friend.data.w2[20:35,20:35]
-fd2.w3 <- friend.data.w3[20:35,20:35]
-# read in covariate data
-drink <- as.matrix(read.table("docs/VisInfDocs/Data/s50_data/s50-alcohol.dat"))
-drink2 <- drink[20:35,]
+```{r child = "docs/litreview.Rmd", eval=TRUE}
 ```
 
-The first wave of the network, which is conditioned on in estimation, is given in Figure \@ref(fig:wave1).
-
-
-```{r wave1, echo=FALSE, message=FALSE, warning=FALSE, fig.height=5, fig.cap="Network of friendships of wave 1 of the subset of students that we will be exploring.", fig.align='center', out.width='50%'}
-library(sna)
-library(network)
-actual1 <- merge(data.frame(as.edgelist(as.network(fd2.w1))), 
-                 data.frame(id = 1:16, drink = drink2[,1]), 
-                 by.x = "X1", by.y = "id", all = T)
-for (j in 1:nrow(actual1)){
-      if (!(actual1$X1[j] %in% actual1$X2) & is.na(actual1$X2[j])){
-        actual1$X2[j] <- actual1$X1[j]
-      } else {actual1$X2[j] <- actual1$X2[j]}
-}
-actual2 <- merge(data.frame(as.edgelist(as.network(fd2.w2))), 
-                 data.frame(id = 1:16, drink = drink2[,2]), 
-                 by.x = "X1", by.y = "id", all = T)
-for (j in 1:nrow(actual2)){
-      if (!(actual2$X1[j] %in% actual2$X2) & is.na(actual2$X2[j])){
-        actual2$X2[j] <- actual2$X1[j]
-      } else {actual2$X2[j] <- actual2$X2[j]}
-    }
-actual1$wave <- 1
-actual2$wave <- 2
-
-waves <- rbind(actual1, actual2)
-library(geomnet)
-actual1$behaviour <- factor(actual1$drink)
-levels(actual1$behaviour) <- c("None", "Once or twice a year", "Once a month", "Once a week")
-ggplot(data = actual1, aes(from_id = X1, to_id = X2)) + 
-  geom_net(label = TRUE, hjust = 0.5, vjust=0.5, size=10,  
-           fiteach = T, labelcolour = "grey20", 
-           aes(colour = behaviour)) + 
-  scale_colour_brewer("Drinking behavior", palette="YlOrRd") +
-  theme_net() 
-
-#ggplot(data = waves, aes(from_id = X1, to_id = X2)) + 
-#  geom_net(label = TRUE, hjust = -.5, labelcolour = 'black', fiteach = T,
-#           aes(color = as.factor(drink))) + 
-#  theme_net() + theme(panel.background = element_rect(fill = "white", color = 'black')) + facet_wrap(~wave)
+```{r child = "docs/removingblindfoldsaoms.Rmd", eval = TRUE}
 ```
 
-```{r modelfit, echo=FALSE, eval = FALSE, results = 'hide', message=FALSE, warning = FALSE, cache = T}
-source("docs/VisInfDocs/Code/03c_complete_lineup_creation.R")
-lineup1 <- create_smfriend_lu(null_eff_struct = null_model_eff2, test_eff_struct = eff_models_smallFriends[[39]], M = 3)
+```{r child = "docs/visualinferencenets.Rmd", eval = TRUE}
 ```
 
-The two models we fit are a "null model" (model $M_1$) and two "alternative models" (model $M_2$ and $M_3$). The null model only includes the default parameters that are included in the RSiena estimation: the reciprocity and outdegree parameters. The alternative model $M_2$ includes one additional covariate parameter that was determined to be significant by the Wald test in the RSienaTest package, while the alternative model $M_3$ includes one additional structural parameter whose significance was determined in the same way. Details on these effects are given in Table \@ref(tab:models).
-
-```{r readsimu, echo=FALSE}
- nulls <- read.csv("docs/VisInfDocs/Data/distribution_null_model.csv")
-# names(nulls)[-1] <- c("alpha1", "alpha2", "beta1", "beta2")
-# nulls$Sim <- 1:nrow(nulls)
-# nulls$Model <- "M1"
-# 
- alt <- read.csv("docs/VisInfDocs/Data/distribution_jumpTT_model.csv")
-# names(alt)[-1] <- c("alpha1", "alpha2", "beta1", "beta2", "beta3")
-# alt$Sim <- 1:nrow(alt)
-# alt$Model <- "M2"
-# 
- alt2nd <- read.csv("docs/VisInfDocs//Data/distribution_dblpairs_model.csv")
-# names(alt2nd)[-1] <- c("alpha1", "alpha2", "beta1", "beta2", "beta4")
-# alt2nd$Sim <- 1:nrow(alt2nd)
-# alt2nd$Model <- "M3"
-# 
-# alt2 <- gather(alt, parameter, estimate, 2:6)
-# null2 <- gather(nulls, parameter, estimate, 2:5)
-# alt2nd2 <- gather(alt2nd, parameter, estimate, 2:6)
-# 
-# simu <- rbind(alt2[,-1], null2[,-1])
-# write.csv(simu, "Data/simulation-1000-M1-M2.csv", row.names=FALSE)
-
-
-simu2 <- read.csv("docs/VisInfDocs/Data/simulation-1000-M1-M2-M3.csv")
-means <- simu2 %>% group_by(Model, parameter) %>% summarize(
-  mean = mean(estimate)
-)
-library(dplyr)
-null_mod_sv <- as.numeric(nulls[,-c(1,6,7)] %>% summarise_each(funs(mean)))
-alt_mod_sv <- as.numeric(alt[,-c(1, 7,8)] %>% summarise_each(funs(mean)))
-alt_mod2_sv <- as.numeric(alt2nd[,-c(1,7,8)] %>% summarise_each(funs(mean)))
+```{r child= "docs/geomnetpaper.Rmd", eval = TRUE}
 ```
 
-\begin{table}[h]
-\caption{(\#tab:models) Parameters and estimates of models $M_1$, $M_2$, and $M_3$. Estimates are the mean of 1000 iterations of the model estimates. The lineups that follow are simulated from models using these values.}
-\centering
-\scalebox{0.8}{
-\begin{tabular}{lccrrr}
-Effect name & Parameter & Corresponding Statistic & $M_1$  & $M_2$  & $M_3$ \\
-\hline
-\hline
-Rate 1 (wave 1 $\rightarrow$ 2) & $\alpha_1$ & $\sum\limits_{i,j = 1 i\neq j}^n (x_{ij}(t_2) - x_{ij}(t_1))^2 $ & 
-`r round(null_mod_sv[1], 2)` &
-`r round(alt_mod_sv[1], 2)` & 
-`r round(alt_mod2_sv[1], 2)` 
-\\
-Rate 2 (wave 2 $\rightarrow$ 3) & $\alpha_2$ & $\sum\limits_{i,j = 1 i\neq j}^n (x_{ij}(t_3) - x_{ij}(t_2))^2 $ & 
-`r round(null_mod_sv[2], 2)` &
-`r round(alt_mod_sv[2], 2)` & 
-`r round(alt_mod2_sv[2], 2)`
-\\
-Outdegree & $\beta_1$ & $s_{i1}(x) = \sum\limits_{j=1}^n x_{ij}$ & 
-`r round(null_mod_sv[3], 2)` &
-`r round(alt_mod_sv[3], 2)` & 
-`r round(alt_mod2_sv[3], 2)`
-\\
-Reciprocity & $\beta_2$ & $s_{i2}(x) = \sum\limits_{j=1}^n x_{ij}x_{ji}$ & `r round(null_mod_sv[4], 2)` &
-`r round(alt_mod_sv[4], 2)` & 
-`r round(alt_mod2_sv[4], 2)`
-\\
-Jumping Transitive Triplets & $\beta_3$ & $s_{i3}(x) = \sum\limits_{\forall j\neq h} x_{ij}x_{ih}x_{hj} \mathbb{I}(v_i = v_h \neq v_j)$ & -- & 
-`r round(alt_mod_sv[5], 2)` & -- \\
-\# doubly achieved distances & $\beta_4$ & $s_{i4}(x) = |\{j : x_{ij} = 0, \sum\limits_h x_{ih}x_{hj} \geq 2\}|$ & -- & -- &
-`r round(alt_mod2_sv[5], 2)`
-\end{tabular}}
-\end{table}
-
-
-
-```{r hist-estimates, dependson='read-simu', echo=FALSE, fig.width=8, fig.height=5, out.width='.8\\linewidth', fig.align='center', fig.cap="Histogram of the distribution of model parameters based on 1,000 simulation runs. Model parameter $\\beta_3$ for jumping transitive triplets in model $M_2$ is significantly different from zero, but its inclusion also leads to significant changes in the  other model parameters of model $M_1$. The parameter $\\beta_4$ for doubly acheived distances is also significantly different from zero, but has larger variance. The inclusion of $\\beta_4$ also changes the estimates of the other model parameters, but not as much as the inclusion of $\\beta_3$."}
-qplot(data=simu2, estimate, fill=Model, geom="density", alpha=I(0.65)) + facet_wrap(~parameter, scales="free") + theme_bw()
+```{r child = "docs/futurework-and-otherwork.Rmd", eval=TRUE}
 ```
-
-After estimating the parameters in each of these models, we simulate from them to obtain realizations of each of the models. The objective function for each actor in each model is given below. 
-  \begin{align*}
-  f^{M_1}_{i}(x) & = \hat{\beta}_1^{M_1}s_{i1}(x) +  \hat{\beta}_2^{M_1}s_{i2}(x) \\
-  f^{M_2}_{i}(x) & = \hat{\beta}_1^{M_2}s_{i1}(x) +  \hat{\beta}_2^{M_2}s_{i2}(x) + \hat{\beta}_3^{M_2}s_{i3}(x) \\
-  f^{M_3}_{i}(x) & = \hat{\beta}_1^{M_3}s_{i1}(x) +  \hat{\beta}_2^{M_3}s_{i2}(x) + \hat{\beta}_4^{M_3}s_{i4}(x) 
-  \end{align*}
-The rate parameters, $\alpha_1$ and $\alpha_2$ represent how many opportunities for change each actor gets when moving from wave 1 to 2 and from wave 2 to 3, respectively. The outdegree parameter, $\beta_1$, represents how likely an actor is to change outgoing ties. If the estimate, $\hat{\beta}_1$, is positive, the actor is more likely to create outgoing ties, while a negative estimate leads the actor to deleting outgoing ties. This effect is highly correlated with the reciprocity parameter, $\beta_2$. A negative estimate of this parameter implies that the actor is discouraged from reciprocating its incoming ties, while a positive estimate implies that the actor is encouraged to reciprocate all ties. The additional parameter in $M_2$, $\beta_3$, is a covariate parameter. The covariate in this model is the drinking behaviour of the 16 students in our data. The possible values are 1, 2, 3, and 4, which means the student drinks never, once or twice a year, once a month, or once a week. This jumping transitive triplet effect impacts the transitive closure of actors from different groups. Thus, a positive estimate encourages transitive closure when one of three actors is in a different covariate group than the other two, while a negative estimate discourages this behavior. An example of this type of closure is given in Figure \@ref(fig:jtt). With the directed edges we also distinguish between 'i likes j' and 'j likes i'. Finally, the doubly achieved distances effect is defined by the number of actors to whom actor $i$ is not directly tied, and tied through two paths via at least two intermediaries. This is a structural effect, like the density and reciprocity effects. A positive coefficient value encourages indirect ties, while a negative value discourages the formation of indirect ties. 
-
-```{r jtt, echo=FALSE, fig.width=2, fig.height=2, message = FALSE, warning = FALSE, fig.align='center', fig.cap="Structural network effects. On the left, a jumping transitive triplet (JTT). On the right, a doubly achieved distance between $i$ and $k$. At left, a realization of a jumping transitive triplet, where $i$ is the focal actor, $j$ is the target actor, and $h$ is the intermediary. The group of the actors is represented by the shape of the node. At right, doubly achieved distance between actors $i$ and $k$.", out.width = "50%", fig.show='hold'}
-jTTe <- data.frame(from = c('i', 'i', 'h'), to = c('h', 'j', 'j'))
-jTTn <- data.frame(id = letters[8:10], group = c(1,1,2))
-
-jTT <- merge(jTTe, jTTn, by.x = 'from', by.y = "id", all = T)
-
-set.seed(12345) 
-ggplot(data = jTT, aes(from_id = from, to_id = to)) + 
-  geom_net(aes(shape = as.factor(group)), directed = T, label = T, 
-           labelcolour='grey80',vjust = 0.5, hjust =0.5, arrowgap = .15, 
-           colour = 'black', size=10, 
-           ecolour = c("red", "grey40", "grey40", "grey40")) + 
-  expand_limits(x=c(-0.1,1.1), y=c(-0.1,1.1)) +
-  theme_net() +
-  theme(legend.position = "none")
-
-dade <- data.frame(from = c('i', 'i', 'h', 'j'), to = c('h', 'j', 'k', 'k'))
-dadn <- data.frame(id = letters[8:11], group = c(1,1,1,1))
-
-dad <- merge(dade, dadn, by.x = 'from', by.y = "id", all = T)
-
-set.seed(12345) 
-ggplot(data = dad, aes(from_id = from, to_id = to)) + 
-  geom_net(aes(shape = as.factor(group)), directed = T, label = T, labelcolour='grey80',vjust = 0.5, hjust =0.5, arrowgap = .15, colour = 'black', size=10) + 
-  expand_limits(x=c(-0.1,1.1), y=c(-0.1,1.1)) +
-  theme_net() +
-  theme(legend.position = "none")
-```
-
-
-The parameters in the objective function are tested for significance using $t$-tests. The test statistic is the ratio of the parameter estimate to its standard error. If this value is larger than 2 in absolute value, then the parameter is said to be significant at the $\alpha = 0.05$ level and should be included in the model. This is a fairly simple statistical test, so we wanted to test whether this significance can be detected visually just as simply as the statistical test detects it. If visualizations of simulated networks from two nested models have a much different appearance when placed side-by-side, then the difference in appearance can be attributed to the additional parameter in one. If, however, there is no visually detectable difference, then the additional parameter does not appear to have changed the network structure all that much. Because model selection and diagnostics for network models are less developed areas of the theory, testing network parameters in this visual way could lead to additional methods of model selection for networks. 
-
-
-## Lineup Simulation
-
-Needs more specifics: how many lineups were created for each model?
-
-At the moment we are just considering models M2 and M3 for an inclusion in the lineup study. We are trying to nail down what to include and what not to include in the experiment.
-
-To create the lineups that will be used in our experiment, we used the values given in Table \@ref(tab:models) as starting values in simulation. For each lineup simulated, the same default RSiena algorithm was used as was used to generate the fitted models with the exception that the algorithm only simulated from the given set of parameters. Each lineup and plot within lineup was generated idependent of all the others.
-
-
-## Parameter Estimation from Lineups
-
-After the lineups were created, we re-fit each of our three models to each graph in each lineup. 
-
-Questions that should be answered in this section:
-
-1. Why do we want to get the parameters for each model? 
- We fit all three models to every plot in the lineups. Fitting all models to all lineup plots allows us to gauge tha ability of the parameter estimates to provide a measure of lineup identification difficulty. XXX ? not quite sure ? XXX For instance, when comparing models 1 and 2 in a lineup, the estimates from fitting model 2 to plots which were simulated from model 2 should be significantly different from the model 2 estimates from plots simulated from model 
-0. Convergence issues
-
-```{r convergence, fig.width=8, fig.height=3, echo = FALSE, warning = FALSE, fig.cap="Pattern of convergence. A total of 67.7\\% of all lineup data converged in 5,000 iterations. The simplest model, $M_1$ has the highest rate of convergence. For models $M_2$ and $M_3$ data generated from the model converged at a higher rate than data generated from the other model."}
-load("docs/VisInfDocs/Data/lus_ests_truth.rda")
-lus_ests_truth$param_name <- 
-  factor(lus_ests_truth$param_name,
-    levels = c("rate", "outdegree (density)", "reciprocity",
-               "transitive triplets jumping alcohol2",
-               "number pairs at doubly achieved distance 2"))        
-
-ggplot(data=lus_ests_truth) +
-  geom_bar(aes(x=model, fill=convergence), position="fill", alpha = 0.6) + 
-  facet_grid(.~true_model, labeller="label_both") +
-  theme_bw() +
-  theme(legend.position="bottom") + ylab("Ratio") +
-  scale_fill_brewer("Convergence", palette="Set1") +
-  xlab("Estimated Model")
-```
-
-
-
-```{r convergence-ests, fig.cap="Difference between parameter estimate and true value. Panels with a light grey background show model fits with data sampled from the same model. Densities are drawn for both converged and non-converged data. The red-filled densities should have a mode near zero, idicating that the model converged toward the correct value. For data from model $M_1$, estimates for parameters $\\beta_3$ and $\\beta_4$ converge to a wrong value.", fig.width=8, fig.height=8, echo = FALSE, warning = FALSE}
-load("docs/VisInfDocs/Data/lus_ests_truth.rda")
-lus_ests_truth$param_name <- 
-  factor(lus_ests_truth$param_name,
-    levels = c("rate", "outdegree (density)", "reciprocity",
-               "transitive triplets jumping alcohol2",
-               "number pairs at doubly achieved distance 2"))        
-lus_ests_truth$model_label <- lus_ests_truth$model
-lus_ests_truth$true_model_label <- sprintf("True~Model:~%s", lus_ests_truth$true_model)
-lus_ests_truth$param_label <- c("alpha", "beta[1]", "beta[2]", "beta[3]", "beta[4]")[as.numeric(lus_ests_truth$param_name)]
-ggplot(data=lus_ests_truth %>% 
-         filter(
-           !is.na(convergence),
-           (true_model=="M3" & model != "M2") | (true_model=="M1") |
-             (true_model=="M2" & model != "M3")
-           )) +
-  geom_rect(xmin=-25, xmax=25, ymin=-0.5, ymax = 1, fill=rgb(.25,.25,.25,alpha=.25), data=unique(subset(lus_ests_truth, (true_model==model) & (!is.na(param_est)) )[,c("true_model_label", "model_label", "param_label")]) ) +
-  geom_vline(xintercept = 0, colour="grey50") +
-  geom_density(aes(x=param_est-true_value, fill=convergence), 
-               alpha= 0.6) +
-  facet_grid(model_label+param_label~true_model_label, drop=TRUE, labeller=label_parsed) +
-  theme_bw() +
-  theme(legend.position="bottom", 
-        strip.text.y = element_text(angle=0)) + 
-  scale_fill_brewer("Convergence", palette="Set1") +
-  xlab("Difference between parameter estimate and true value") + 
-    xlim(c(-15,15))
-```
-
-
-
-1. The smaller the difference between these estimates, the harder it should be to identify the different model in the lineup. XXX IDEA: should we consider some sort of distance metric comparing all estimates from the models at once in addition to the differences in the $\beta_3$/$\beta_4$ values? XXX}
-
-2. How is the fitting done, exactly?
-XXX get into nitty gritty from RSiena model XXX
-
-Because the likelihood function for these complicated models is intractable, RSiena implements a Monte Carlo simulation to obtain method of moments estimates of the parameter values. This fitting procedure was first introduced in @saompaper. 
-
-The model fitting in RSiena is done in three phases. Briefly, in the initial phase, sensitivity of the statistics to the parameter values is determined, then in the second phase, parameter values are fit iteratively. Finally, in the third phase, networks are simulated from the fitted models and the model is checked for convergence. 
-
-4. What parameters are in the output?
-In RSiena, the convergence of a non-rate parameter is determined through the simulated values from Phase 3 of the SienaFit algorithm. XXX more detail will be above later XXX  The simulations are compared to the observed values of the statistics observed in the data. The values from the simulations should be fairly close to the observed values, but because the fitting is done stochastically, deviations from statistics will not be exactly zero. Checking for convergence is based on a t-ratio of the average of these deviations to the standard deviation of these deviations. RSiena also performs an overall maximum convergence check by finding the maximum t-ratio value for any linear combination of the observed statistics.  According to the RSiena Manual, ``convergence is excellent when the overall maximum convergence ratio is less than 0.2", and for the non-rate parameters, the threshold for ``reasonable" convergence is set at 0.3 with excellent convergence when the t-ratio is less than or equal to 0.1 in absolute value. (@RSiena).
-
-5. What are the results?
-
-
-```{r comparison, fig.width=8, fig.height=6, out.width='\\linewidth', echo = FALSE, warning = FALSE, fig.cap = "Comparison of model estimates under all three models under investigation."}
-l1 <- levels(lus_ests_truth$param_name)
-l1 <- stringr::str_trim(gsub("2","", l1))
-l1[5] <- "#pairs at doubly achieved distance"
-
-# subset on ones that are actually converged. XXX No - that kills the zeroes in estimates that should be zero
-ggplot(data = subset(lus_ests_truth)) + #, convergence=="Converged")) + 
-  geom_vline(aes(xintercept = 0), colour="grey50") +
-  geom_density(alpha = .5, aes(x = param_est, fill = param_name)) + 
-  facet_grid(model~true_model, scales = 'free', 
-             labeller = "label_both") + xlim(c(-20,20)) +
-  theme_bw() + 
-  scale_fill_brewer("Parameter", palette="Dark2",
-     labels=c(bquote(paste(alpha,": ", .(l1[1]), sep="")), 
-              bquote(paste(beta[1],": ", .(l1[2]), sep="")),
-              bquote(paste(beta[2],": ", .(l1[3]), sep="")),
-              bquote(paste(beta[3],": ", .(l1[4]), sep="")),
-              bquote(paste(beta[4],": ", .(l1[5]), sep="")))) +
-  theme(legend.position = "bottom") +
-  xlab("Parameter Estimate") + 
-  guides(fill = guide_legend(nrow = 3, byrow = TRUE))
-```
-
-
-```{r est, echo = FALSE}
-#For model $M_2$, parameter $\beta_3$ is estimated to be significantly different from zero in almost all cases (XXX how many exactly? XXX).
-
-# get beta3s where true model and fit model are M2
-beta3sig <- lus_ests_truth %>% 
-  filter(true_model == "M2", model == "M2", 
-         param_name == "transitive triplets jumping alcohol2")
-convergebeta3 <- length(which(beta3sig$convergence == "Converged")) / nrow(beta3sig)
-
-# get ones that converged.
-beta3sig2 <- beta3sig %>% 
-  filter(convergence == "Converged") %>%
-  mutate(tstat = param_est/param_est_se,
-         ttestpval = 2*dt(tstat, df = 1))
-beta3sig05 <- sum(beta3sig2$ttestpval <= 0.05) / nrow(beta3sig2)
-beta3sig10 <- sum(beta3sig2$ttestpval <= 0.10) / nrow(beta3sig2)
-```
-Figure \@ref(fig:comparison) shows an overview of model estimates for each simulated data set. What we expect to see is that estimates do not change values (much) if they are estimated under a model different from the one they are generated from. This is true for all data sets estimated under model $M_1$ independently of which model they were generated from (top row of Figure \@ref(fig:comparison). For data fit under model $M_2$ we see that parameter $\beta_3$ (jumping transitive triplets) are estimated to be about zero, if the data is generated from models $M_1$ and $M_3$.
-For model $M_2$, parameter $\beta_3$ is estimated to be significantly different from zero in `r round(100 * beta3sig10, 1)`\% of cases. This coincides with our expectation.
-
-However, the bottom row of Figure \@ref(fig:comparison) shows that independently of which model data is generated from, $\beta_4$, the number of pairs at doubly achieved distance, is estimated to be significantly different from zero in a large number of cases (about half of the data generated from model $M_2$ and more than that in model $M_1$). While $\beta_4$ is a highly significant parameter in model $M_3$, this questions the way that parameters are fitted and tells us that we are not likely to be able to visually distinguish between data generated from model $M_3$ and data generated from models $M_1$ and $M_2$. We might, however, be able to distinguish between data sets for which $\beta_4$ is estimated to be significantly different from zero and non-significant ones. XXX can we see differences in the pilot study?
-
-
-```{r lusparms, echo=FALSE, fig.width=8, fig.height = 8, out.width='.6\\linewidth', fig.align = 'center', warning = FALSE, fig.cap="Scatterplots of smallfriends and smallfriends-rev: comparing the ratio of null plots with smaller estimates of $\\beta_3$ in the nulls than in the data panel (top row) and larger estimates of $\\beta_3$ in the nulls than in the data panel. In lineups with a ratio of 1 the data should be 'easy' to identify in both scenarios."}
-load("docs/VisInfDocs/Data/lus_ests_truth.rda")
-
-lus_ests_truth$true_panel <- lus_ests_truth$true_model == lus_ests_truth$model
-lus_spread <- tidyr::spread(lus_ests_truth[,c("lineupid","model", "true_model", "panel_num", "param_name", "param_est")], model, param_est)
-
-# parameters should be most different between data plot and null plots
-
-# merge in true values:
-truth <- unique(subset(lus_ests_truth, true_panel==TRUE)[,c("lineupid", "true_model","param_name","true_value")])
-
-lus_spread <- merge(lus_spread, truth, by=c("lineupid","true_model", "param_name"), all.x=TRUE)
-lus_spread$true_value[is.na(lus_spread$true_value)] <- 0
-
-# compute a distance between the data panel and the closest null panel
-lus_spread$part <- gsub("(.*)-[0-9]*-[0-9]*", '\\1', lus_spread$lineupid)
-
-lus_summary_2 <- lus_spread %>% dplyr::group_by(part, lineupid, param_name) %>%
-  dplyr::summarize(
-    data_n = sum(true_model=="M2"),
-    data_est = mean(M2[true_model=="M2"]),
-    data_sd = sd(M2[true_model=="M2"], na.rm=TRUE),
-    data_dist = data_est - max(M2[true_model=="M1"]),
-    upper_qu = sum(data_est > M2[true_model=="M1"]) / (n()-1),
-    data_panel = mean(panel_num[true_model=="M2"])
-)
-
-p1 <- qplot(data_dist, upper_qu, data = subset(lus_summary_2, !is.na(upper_qu) & param_name=="transitive triplets jumping alcohol2")) +
-  facet_grid(.~part) + xlab("Difference in M2 estimate of data panel and maximum of the null panels (from M1)") +
-  ylab("Ratio of null panels with smaller M2 estimate") +
-  ggtitle("jumping transitive triplets")
-
-
-lus_summary_2b <- lus_spread %>% dplyr::group_by(part, lineupid, param_name) %>%
-  dplyr::summarize(
-    data_n = sum(true_model=="M1"),
-    data_est = mean(M2[true_model=="M1"]),
-    data_sd = sd(M2[true_model=="M1"], na.rm=TRUE),
-    data_dist = data_est - min(M2[true_model=="M2"]),
-    lower_qu = sum(data_est < M2[true_model=="M2"]) / (n()-1) 
-)
-
-p2 <- qplot(data_dist, lower_qu, data = subset(lus_summary_2b, part %in% c("smallfriends", "smallfriends-rev") & param_name=="transitive triplets jumping alcohol2")) +
-  facet_grid(.~part) + xlab("Difference in M2 estimate of data panel and minimum of the null panels (from M2)") +
-  ylab("Ratio of null panels with larger M2 estimate") +
-  ggtitle("jumping transitive triplets")
-
-gridExtra::grid.arrange(p1,p2)
-```
-
-
-```{r }
-jtts <- read.csv("docs/VisInfDocs/Data/lineups-jtt.csv")
-jtts$lineupid <- with(jtts, paste(model, m, rep, sep="-"))
-jtts$data_panel <- jtts$plot_order
-lus_summary_2 <- merge(lus_summary_2, jtts[, c("lineupid", "jtt", "data_panel")], by=c("lineupid","data_panel"), all.x=TRUE)
-qplot(data=subset(lus_summary_2, param_name=="transitive triplets jumping alcohol2" & part=="smallfriends"), data_est, jtt, geom="jitter") + geom_label(data=subset(lus_summary_2, param_name=="transitive triplets jumping alcohol2" & jtt > 20 & part=="smallfriends"), aes(label=lineupid), alpha=.6)
-```
-
-
-
-```{r lusparms-eff2, echo=FALSE, fig.width=8, fig.height = 8, out.width='.6\\linewidth', fig.align = 'center', warning=FALSE}
-lus_summary_3 <- lus_spread %>% group_by(part, lineupid, param_name) %>%
-  summarize(
-    data_n = sum(true_model=="M3"),
-    data_est = mean(M3[true_model=="M3"]),
-    data_sd = sd(M3[true_model=="M3"], na.rm=TRUE),
-    data_dist = min(M3[true_model=="M1"]) - data_est,
-    lower_qu = sum(data_est < M3[true_model=="M1"])/(n()-1)
-  )
-
-p1 <- qplot(data_dist, lower_qu,  data = subset(lus_summary_3, !is.na(lower_qu) & param_name=="number pairs at doubly achieved distance 2")) +
-  facet_grid(.~part) +
-  xlab("Difference in M3 estimate of data panel and minimum of the null panels (M1 nulls)") +
-  ylab("Ratio of null panels with larger M3 estimate") +
-  ggtitle("doubly achieved distance")
-
-lus_summary_3b <- lus_spread %>% group_by(part, lineupid, param_name) %>%
-  summarize(
-    data_n = sum(true_model=="M1"),
-    data_est = mean(M3[true_model=="M1"]),
-    data_sd = sd(M3[true_model=="M1"], na.rm=TRUE),
-    data_dist = max(M3[true_model=="M3"]) - data_est,
-    upper_qu = sum(data_est > M3[true_model=="M3"])/(n()-1)
-  )
-
-p2 <- qplot(data_dist, upper_qu,  data = subset(lus_summary_3b, !is.na(upper_qu) & param_name=="number pairs at doubly achieved distance 2" &
-part %in% c("smallfriends-eff2", "smallfriends-eff2-rev"))) +
-  facet_grid(.~part) +
-  xlab("Difference in M3 estimate of data panel and minimum of the null panels (M3 nulls)") +
-  ylab("Ratio of null panels with smaller M3 estimate") +
-  ggtitle("doubly achieved distance")
-
-gridExtra::grid.arrange(p1,p2)
-#p1
-```
-
-6. How do the results influence our decision for the lineups?
-
-The strong influence of the inclusion of $\beta_4$ in model 3 has made any comparison between model 1 and model 3 impossible. The $\beta_4$ estimate is always significantly greater than zero in fitted models that converged. Thus, $\beta_4$ should have been included from the beginning.
-% at end of param est we know that model m3 is useless. m3 messes with structure of m1. should have been in cluded in all of the models. nice & important but doesn't help for lineup study
-
-%  results from the the pilot study. how do estimates combine with pilot study ? have 10 non-m3 ones that are good. also want to see that m1 v m3 is way worse than m1 v m2. now have a reason for m1 v m3 is so bad. m1 v m3 ids should be NO GOOD. 
-
-
-
-## Results from the pilot study
-
-Big goal: Can we derive measures from the model estimates or the visual representation (ie. the network structure) that help us determine which lineups are more difficult than others, i.e. based on these estimates, how relaibly can we predict which panel will be picked from a lineup? 
-XXX For that, we could also calculate the number of JTTs in each network - use `jtt` for that.
-
-
-Littler goal: evaluate pilot study and see whether the results line up with the conjectures made in the previous section.
-
-
-The pilot study consisted of an evaluation of a set of 20 lineups by 11 volunteers. For each of the model situations ($M_1$ vs $M_2$, $M_2$ vs $M_1$, $M_1$ vs $M_3$ and $M_3$ vs $M_1$) one lineup of size $m = 3, 6, 9, 12$ was used. Overall, the number of data identifications in the lineups was very low (34 out of 220 evaluations). Participants identified the data plot in two to four of the lineups they evaluated. The mode was three data identifications out of twenty per participant. 
-
-\paragraph{Suitability of $M_3$ in lineups:}
-
-```{r data-picks, echo=FALSE, fig.align='center', fig.width=10, fig.height=5, out.width='0.85\\linewidth', fig.cap="Barchart summarizing the number of responses from the pilot study by model and lineup. Color shows the number of times the data panel was chosen from the lineup. Clearly, the first two sets of lineups ($M_1$ vs $M_2$ and $M_2$ vs $M_1$) have on average higher number of data identifications." }
-pdffiles <- dir("docs/VisInfDocs/GGExperimentApr28/", pattern="pdf")
-pdffiles <- gsub(".pdf","",pdffiles)
-#pdffiles <- gsub("-m","",pdffiles)
-#pdffiles <- gsub("-rep","",pdffiles)
-
-dframe <- strsplit(pdffiles, split=" ") %>% plyr::ldply(function(x) x)
-names(dframe) <- c("stimulus", "lineupid")
-
-results <- read.csv("docs/VisInfDocs/GGExperimentApr28/responses_GGExpApr28.csv")
-lus <- results %>% group_by(Lineup, ChosenLU) %>% summarize(
-  tally = n(),
-  data = Answer[1],
-  reason = paste(Reasoning, collapse="|")
-)
-names(lus)[2] <- "panel"
-
-dframe_res <- merge(dframe, lus, all=TRUE, by.x="stimulus", by.y="Lineup")
-dframe_res$data_pick <- with(dframe_res, data==panel)
-dframe_res$model <- factor(gsub("(.*)-m.*", "\\1", dframe_res$lineupid))
-levels(dframe_res$model) <- c("M1 vs M2",  "M1 vs M3", "M3 vs M1", "M2 vs M1")
-dframe_res$model <- factor(dframe_res$model, levels = c("M1 vs M2",  "M2 vs M1", "M1 vs M3", "M3 vs M1"))
-dframe_res$label <- gsub(".*-(m.*)", "\\1", dframe_res$lineupid)
-
-dframe_res$data_pick <- factor(dframe_res$data_pick, levels=c("TRUE", "FALSE"))
-dframe_res$res <- factor(dframe_res$data_pick, levels=c("TRUE", "FALSE"))
-qplot(label, weight=tally, fill=data_pick, data=dframe_res) +
-  facet_grid(.~model, scales="free", space="free") + theme_bw() +
-  theme(axis.text.x = element_text(angle=45, hjust=1)) + 
-  scale_fill_brewer("Data panel chosen", palette="Set1", na.value="grey80") + xlab("Lineup")
-```
-
-Figure \@ref(fig:data-picks) shows barcharts of responses from the pilot study detailing the number of data identifications in each lineup. 
-It is more difficult to identify the data plot in lineups of graphs based on data from models $M_1$ and $M_3$ than  in lineups of graphs based on data from models $M_1$ and $M_2$.
-
-
-
-## Amazon Turk Experiment
-
-### Methods 
-
-In order to test our hypothesis, we set up an Amazon Mechanical Turk experiment (@turk) using the lineup protocal of @Bujaetal. We presented four types of lineups: M1 v. M2, M2 v. M1, M1 v. M3, and M3 v. M1, where M1, M2, and M3 have the objective functions given in Table \@ref(tab:models). We created a total of 25 lineups to show to Amazon Turk users taking our experiment: 10 for M1 v. M2 and 5 each for the other three types of lineups. In each lineup, there were 12 plots shown: 11 of the plots were simulated from the first model (the "null" model) and 1 was simulated from the second model (the "alternative" model). We chose to show lineups of size 12 because we felt that showing more than 12 would be too large of a cognitive load, while showing fewer than 12 would leave too much of the experiment to random chance. The order of the plots within the lineups was randomly assigned. We selected five lineups presented from each group based on the following criteria: first, for M1 v M2 and M1 v M3, we selected the lineups where the additional parameter in the objective function, $\beta_3$ and $\beta_4$, respectively, had the largest estimated value among the 12 networks presented. There were not many of these in the size 12 lineups, so our other selection criteria was that the estimated parameter value was larger in the alternative panel than in at least half of the other lineups and it was close to the estimate from the panel that did have the largest value. For the M2 v were chosen where the smallest parameter estimate belonged to the alternative model. If there more lineups were needed, we next selected those which had estimates smaller than at least half of the other panels and were close to the minimum estimate in the lineup. For the remaining five plots of type M1 v M2, we chose the lineups where the alternative plot had the largest number of jumping transitive triplets appear in the network. We chose this  statistic because its value has great effect on both the estimation of the $\beta_3$ parameter and on the visual appearance of the plot.
-
-In order to become a subject in our experiment, the Amazon turk user had to first read through some introductory material and prove they could identify the correct plot in two test lineups, one for M1 v. M2 and one for M2 v. M1. These two lineups were constructed to be very simple in order to train the turkers. Once the turker made it into the experiment, they looked at 10 lineups selected at random from a pool of 25. There were five lineups for each of the four types with an additional five lineups of the type M1 v. M2 which were chosen for their high counts of jumping transitive triplets in the alternative model network in an attempt to gauge how important this statistic is to the visualization of the network. If there are many jumping transitive triplets in the alternative model plot and more turkers correctly choose that plot, that would be evidence that the jumping transitive triplets are very noticeable to the user.
-
-### Procedure 
-
-Each Amazon Turk user was greeted with the following message: ``In this survey a series of similar looking charts will be presented. We would like you to respond to the following questions.
-\begin{enumerate}
-\item Pick the plot based on the survey question
-\item Provide reasons for choice
-\item How certain are you?
-\end{enumerate}
-Finally we would like to collect some information about you. (age category, education and gender)."  Then, they were led through a training page about how to identify the correct plot in a lineup, seen in Figure \@ref(fig:lineupex). Then, they saw two trial plots that they had to get correct in order to proceed to the rest of the experiment. They chose the plot that looked the most different from the others, why they chose is (most complex, least complex, or other), and how certain they were that they had chosen correctly (Very Uncertain, Uncertain, Neutral, Certain, Very Certain). These trial plots are shown in Figure \@ref(fig:lineuptrial)
-
-```{r lineupex, out.width="50%", fig.cap="The first training page in the Amazon Turk experiment.", fig.show='hold'}
-knitr::include_graphics(c("docs/VisInfDocs/Results/Ex1","docs/VisInfDocs/Results/Ex2"))
-```
-
-```{r lineuptrial, out.width="50%", fig.cap=" The trial plots that users had to get correct in order to participate in the Amazon Turk experiment.", fig.show='hold'}
-knitr::include_graphics(c("docs/VisInfDocs/Results/Trial1","docs/VisInfDocs/Results/Trial2"))
-
-```
-
-Once the turk user chose the correct plot in the two trial plots, the experiment proceeded with the same interface and users selecting which plot they thought was most different, why they thought that, and how certain they were for 10 plots chosen at random. 
-
-### Results
-
-```{r get_res, echo=FALSE, warning=FALSE, message=FALSE, fig.align="center", fig.cap="Boxplot showing the percent of users correctly choosing the alternative model in all 25 lineups. In 15 out of 25 lineups, no user picked the correct plot. The maximum was 64.00\\%, and the second highest was 35.29\\% correct.", fig.height=3}
-ids <- readr::read_csv("https://raw.githubusercontent.com/erichare/lineups/f19635a00507210013ba9e631761ad0c89a6564d/experiments/turk21/details/picture-details.csv")
-tab <- read.csv("docs/VisInfDocs/Results/turk21_users.csv")
-tab2 <- unique(tab)
-#length(unique(tab2$nick_name))
-#head(sort(table(tab2$nick_name),decreasing = T))
-#tab2 %>% filter(nick_name == "A3U3L1XQVR362A")
-#tab2 %>% filter(nick_name == "ADTIO3A6TM9CG")
-#tab2 %>% filter(nick_name %in% names(table(res$nick_name))[table(res$nick_name) != 10])
-res <- read.csv("docs/VisInfDocs/Results/turk21_feedback.csv", stringsAsFactors = F)
-# remove people who only completed 1 plot
-res <- res %>% filter(!(nick_name %in% names(table(res$nick_name))[table(res$nick_name) != 10]))
-# need to repeat rows with weights for people who selected multiple plots.
-res_norpt <- res[-grep(",", res$response_no),]  
-res_rpt <- res[grep(",", res$response_no),]  
-
-library(stringr)
-# count # of responses (ttr = times to repeat)
-ttr <- str_count(string = res_rpt$response_no, pattern = ",") + 1
-rpt_rows <- rep(1:nrow(res_rpt), ttr)
-rpt_rows2 <- res_rpt[rpt_rows,]
-rpt_rows2$count_response <- unlist(sapply(ttr, seq_len))
-rpt_rows2$weight <- 1/rep(ttr, ttr)
-split_rows <- strsplit(rpt_rows2$response_no, ",")
-rpt_rows2$tot_response <- rep(ttr, ttr)
-rpt_rows2$response_no2 <- NA
-for(i in 1:nrow(rpt_rows2)){
-  rpt_rows2$response_no2[i] <- split_rows[[i]][rpt_rows2$count_response[i]]
-}
-
-res_norpt$count_response <- 1 
-res_norpt$weight <- 1
-res_norpt$response_no2 <- res_norpt$response_no
-res_norpt$tot_response <- 1 
-
-# res with weight column   
-new_res <- rbind(res_norpt, rpt_rows2)
-
-#intersect(names(ids), names(res))
-res2 <- left_join(new_res, ids, by = 'pic_id')
-res2$correct <- res2$response_no == res2$obs_plot_location
-res2$time <- res2$end_time - res2$start_time
-res2$lineup_name <- as.factor(paste(res2$test_param, res2$param_value))
-# with the correct labels (in order of data plot w/value most different from rest to least different)
-more_details <- read.csv("docs/VisInfDocs/experimentdetails_Aug31.csv", stringsAsFactors = F)
-res3 <- left_join(res2, more_details, by = c("data_name" = "lineup_filename"))
-# higest jtts are: reps 18, 20, 6, 19, 3 with 
-              # jtts of 40, 24, 18,17, 9
-res3$group_name <- paste0(res3$group, " #", res3$group.rep)
-
-# get the weights
-res3 %>% group_by(group_name, response_no2, correct) %>% summarise(tot_wt = sum(weight)) -> summ_res_wts
-
-# res3 %>% group_by(group_name) %>% 
-#   summarize(total = n(), tot_correct = sum(correct), perc_correct = tot_correct/total) %>% 
-#   arrange(desc(perc_correct)) -> lineup_by_perc_correct
-#lineup_by_perc_correct[which.max(lineup_by_perc_correct$total),]
-#lineup_by_perc_correct[which.min(lineup_by_perc_correct$total),]
-# box plot no - ew. 
-# ggplot(data = lineup_by_perc_correct, aes(x = 1, y = perc_correct)) + geom_boxplot() + 
-#   scale_y_continuous(breaks = seq(0, 1, .10), labels = paste0(seq(0, 1, .10)*100, "%")) + 
-#   coord_flip() + theme_classic() + 
-#   theme(axis.text.y = element_blank(), axis.ticks.y = element_blank()) + 
-#   labs(x = "", title = "Percent of Users Correctly Identifying Alternate Model", y = "")
-```
-
-We collected 10 lineups each from 77 Amazon Turk users. A table of demographic information collected on the participants in the experiment is in Table \@ref(fig:demos). 
-```{r demos}
-t1 <- t(data.frame(table(tab2$gender)))
-rownames(t1) <- c("Gender:", "Count:")
-colnames(t1) <- t1[1,]
-t1 <- t1[2,]
-t1[as.numeric(t1) < 5] <- "*"
-t3 <- t(data.frame(table(tab2$academic_study)))
-rownames(t3) <- c("Highest Education:", "Count:")
-colnames(t3) <- t3[1,]
-t3 <- t3[2,]
-t3[as.numeric(t3) < 5] <- "*"
-t2 <- t(data.frame(table(tab2$age)))
-rownames(t2) <- c("Age:", "Count:")
-colnames(t2) <- t2[1,]
-t2 <- t2[2,]
-t2.2 <- t2
-t2.2 <- t2.2[1:7]
-names(t2.2)[6:7] <- c("46-55", "Over 55")
-t2.2[6:7] <- c(sum(as.numeric(t2[6:7])), sum(as.numeric(t2[8:9])))
-knitr::kable(
-  list(
-    t1,
-    t2,
-    t3
-  ),
-  caption = 'Demographic information collected from experiment participants. An asterisk (*) indicates fewer than 5 participants.', booktabs = TRUE
-)
-```
-
-
-
-Because of the random assignment of the 25 plots to users, almost every lineup was seen by a different number of people. Repetition 3 of M1 v. M3 was seen by 47 different users while repetition 2 of the same type was seen by only 6 different users. The mean number of times seens was 30.8 and the median was 31. In 15 of the 25 lineups, no user chose the correct plot, and in the remaining 10 lineups, the users correctly identified the alternative plot a minimum of 4.35\% of the time and a maximum of 64\% of the time. A plot showing the number of different plots chosen, how many times they were chosen, and whether or not it was the correct choice is given in Figure \@ref(fig:facetscorrect). 
-
-```{r facetscorrect, echo=FALSE, fig.align="center", fig.cap="Plots chosen for each of the 25 lineups in the experiment. The x-axis ticks do not have a label because the label is less important than the number of different plots users chose and whether or not they chose the correct plot, shown in the coloring of the bars.", fig.height=9}
-ggplot(data = summ_res_wts, 
-       aes(x = reorder(as.factor(response_no2), -tot_wt), 
-                                y = tot_wt,
-                                fill = correct)) + 
-  geom_bar(color = 'black', stat = 'identity') + 
-  scale_fill_manual(values = c("white", "grey30"), 
-                    name = "Correct?") + 
-  facet_wrap(~group_name, scales = "free", nrow = 5) +
-  theme_bw() + 
-  theme(legend.position = 'bottom') + 
-  labs(x = "User Response" , y = "Number of Responses") 
-```
-
-This plot shows us the abysmal ability of the Turkers to identify the alternative plot correctly. There are also a few other interesting results from this plot. First, there are several lineups where a majority of participants selected the same wrong alternative plot. Additionally, we see a lot of variation in the number of different plots selected at the alternate plot by the Turkers. At most, there were 10 different plots selected, compared to 2 at the opposite end. XXX is it worth exploring these ``interesting things" more in-depth? XXX
-
-Next, we investigate the confidence of the experiment's participants in selecting the most different plot from the others. Overall, in 40\% of the responses, the respondent was certain they were correct. User confidence in the remaining categories, neutral, uncertain, very certain, and very uncertain, was 26.88\%, 16.88\%, 9.48\%, and 6.76\%, respectively. These results are summarized by lineup in Figure \@ref(fig:certplot). We also performed a 5-sample test for equality of proportions in order to test the null hypothesis that the proportion of correct responses is the same in all 5 certainty categories. This test resulted in a $p$-value of 0.5881, so there is no evidence that the certainty of a user's response affects whether or not they choose the correct plot. This provides further evidence that detecting a network simulated from a different model is an extremely difficult problem. 
-
-```{r certplot, echo=FALSE, warning = FALSE, message = FALSE, fig.align='center', fig.height=4, fig.cap="All responses for all lineups, separated by whether the plot selected was the true alternative plot (TRUE) or not (FALSE) and colored by the respondent's uncertainty levels. We see here that most respondents were certain in their answer whether or not they were correct."}
-res2$conf_level <- ordered(res2$conf_level, levels = c("Very Uncertain", "Uncertain", "Neutral", "Certain", "Very Certain"))
-
-ggplot(data = res2, aes(x = lineup_name)) + 
-  geom_bar(aes(fill = conf_level), color = 'grey60') + 
-  scale_fill_brewer(palette = "RdBu") + 
-  coord_flip() + 
-  facet_wrap(~correct) + 
-  theme_bw() + 
-  theme(legend.position = 'bottom')
-
-summary.conf <- data.frame(table(res2$conf_level, res2$correct))
-summary.conf %>% tidyr::spread(Var2, Freq) -> summary.conf
-rownames(summary.conf) <- as.character(summary.conf[,1])
-names(summary.conf) <- c("Var1", "Failures", "Successes")
-summary.conf <- summary.conf[,-1]
-summary.conf <- summary.conf[,c(2,1)]
-prop_test_for_conf_corr <- prop.test(as.matrix(summary.conf))
-```
-
-We next investigate the length of time that users' took to respond to each lineup. The minimum was 3.762 seconds and the maximum was 578.8 seconds (nearly 10 minutes). The median was 13.01 seconds and the mean was 20.32 seconds. First, a 2-sample Kolmogorov-Smirnov test for equality of distribution was done to see if the distribution of times for correct plots chosen is the same as the distribution of times for incorrect plots chosen. This two-sided test resulted in a $p$-value of 1, so there is no evidence that the distribution of times is different whether or not the response was correct. 
-
-```{r time_plot, echo=FALSE}
-#qplot(x = res2$time, binwidth = 2)
-ggplot(data = res2, aes(x = conf_level, y = time)) + geom_boxplot() + coord_flip()
-ggplot(data = res2, aes(x = correct, y = time)) + geom_boxplot() + coord_flip() + theme_bw()
-ggplot(data = res2, aes(x = time)) + geom_histogram(binwidth = 5, fill ='white', color = 'black') + facet_wrap(~correct, nrow = 2)
-ggplot(data = res2, aes(x = lineup_name, y = time)) + 
-  geom_boxplot() + 
-#  facet_wrap(~conf_level) + 
-  coord_flip() + 
-  theme_bw() + 
-  labs(y = "Time (in seconds)", x = "Lineup Name")
-# 2-sample kolmogorov-smirnov test for equality of distributions
-# ks.test(x = summary(res2$time[res2$correct]), y = summary(res2$time[!res2$correct]))
-# fail to reject null
-```
-
-### Discussion/Future Work
-
-This small experiment suggests that detecting a network model difference from just one simulation from one model and 11 from the other model is just about impossible. This result is fairly unsurprising: drawing a single random point from, say, a $\chi^2_1$ distribution and placing it in a lineup with 11 separate draws from a standard normal distribution would likely have similar results. Every once in a while, a chi-square value would appear that would be too large to belong with draws from a standard normal distribution, but values near 1, the mean, would probably not appear that different from some random standard normal draws. This means that we need to develop a different way to compare two network models. We need a way to visualize many samples from a network model in one panel.
-
-
-
-
 
 # References {#refs}
 
