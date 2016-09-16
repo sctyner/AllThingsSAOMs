@@ -2,9 +2,17 @@
 title: "Proposal"
 author: "Sam Tyner"
 date: "`r Sys.Date()`"
+header_includes: 
+  - \usepackage{RJournal}
+  - \usepackage{booktabs}
+  - \usepackage{adjustbox}          
+  - \usepackage[font=small,skip=5pt]{caption}
+  - \usepackage{subcaption}
+  - \usepackage{afterpage}
+  - \usepackage{color}
 output:
   bookdown::pdf_book:
-    keep_tex: no   
+    keep_tex: no 
     toc: true
     number_sections: true
 bibliography: docs/bigbib.bib
@@ -853,7 +861,8 @@ This small experiment suggests that detecting a network model difference from ju
 
 This next section is a paper I authored with Heike Hofmann (Iowa State University) and François Briatte (European School of Political and Social Sciences) that will be published in the R Journal.  
 
-
+```{r child="docs/tyner-briatte-hofmann.Rnw"}
+```
 
 
 # References {#refs}

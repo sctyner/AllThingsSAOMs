@@ -1,0 +1,34 @@
+\documentclass{article}
+\usepackage{RJournal}
+\usepackage{booktabs}
+\usepackage{adjustbox}           
+\usepackage[font=small,skip=5pt]{caption}
+\usepackage{subcaption}
+\usepackage{afterpage}
+\usepackage{color}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,array}
+\usepackage{amsfonts, mathrsfs,fancyhdr,syntonly,lastpage,hyperref,enumitem,graphicx, lscape, forloop, url, natbib}
+\usepackage[font=small,skip=5pt]{caption}
+\usepackage{subcaption}
+\hypersetup{colorlinks=true,urlcolor=black}
+
+\begin{document}
+
+<<setup1, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE>>=
+library(knitr)
+opts_chunk$set(echo = FALSE, message = FALSE, 
+               warning = FALSE, cache = TRUE)
+library(dplyr)
+library(ggplot2)
+library(geomnet)
+library(tidyr)
+library(RSiena)
+library(knitr)
+@
+
+<<lineupspaper, child="docs/VisInfDocs/lineups.Rnw", eval=TRUE>>=
+@
+
+\end{document}
