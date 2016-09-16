@@ -5,8 +5,14 @@
 .Ruserdata
 *.pdf
 *.toc
+*.bbl
+*.log
 *.aux
 *.html
+*.tex
 docs/visualinferencenets_*
 *.Rapp.*
 *cache/*
+*/cache/*
+*.gz
+*blg

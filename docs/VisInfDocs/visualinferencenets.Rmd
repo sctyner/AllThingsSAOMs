@@ -1,25 +1,13 @@
-<<setup, fig.keep='all', cache=FALSE, echo=FALSE, eval=TRUE, message=F, warning=F>>=
-#rm(list=ls())
-#wd <- getwd()
-library(knitr)
+---
+title: "Visual Inference for Networks"
+author: "Sam Tyner"
+date: "September 14, 2016"
+output: pdf_document
+---
 
-options(replace.assign=TRUE,scipen=3, digits=2)
-
-library(ggplot2)
-library(RColorBrewer)
-library(dplyr)
-library(gridExtra)
-theme_set(theme_bw())
-@
-\section{Introduction}
-
-Stochastic actor-oriented models (SAOMs) are a set of network models that consider both network and actor effects when determining how and why a network changes over time. Network effects, like reciprocity and outdegree, only consider the ties between actors as important to network change, while actor effects allow for covariate values associated with each actor to influence ties between actors. In the SAOM literature, a network is denoted by $x(t_m)$, has $n$ actors, and for two actors $i \neq j \in \{1, 2, \dots, n\}$, the relationship between them is denoted by $x_ij$. This relationship $x_{ij}$ is equal to 1 if there is a tie between actors $i$ and $j$ and it is 0 if there is not a tie between them. The time component, $t_m$, represents the $m = 1, 2, \dots, M$ points of observation of the network. These networks $x(t_1), \dots, x(t_M)$ are modeled as observations of a continuous-time Markov chain, where most of the steps in the chain are unobserved. 
-
-\par Between any two discrete time points, $t_{m}$ and $t_{m-1}$ for $m = 2, \dots, M$, each actor gets the opportunity to change one of their ties at a rate of $\alpha_{m-1}$. This is due to the properties of the Markov chain, and it also assumes that the rate of change is identical and constant for each actor between $t_{m-1}$ and $t_{m}$. When an actor is given an opportunity to change, it tries to maximize its objective function, $f_i(\beta, x)$, where $x$ is the potential new network state that actor $i$ can reach by changing one of its ties, $x_{ij}$. In model estimation, the parameters to be estimated are $\alpha_1, \dots, \alpha_{M-1}$ and the (possibly vector-valued) $\beta$. The objective function takes the form 
-
-$$ f_i(\beta, x) = \sum_k \beta_k s_{ki}(x)$$ 
-
-where $k = 1, \dots, K$, $K$ the number of non-rate parameters in the models and $s{ki}(x)$ is the corresponding statistic. There are several parameters that can be chosen for use in the objective function. Examples of these parameters and their corresponding statistics are given in Table~\ref{tab:models}. 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
 
 \section{Models}
 
@@ -741,61 +729,56 @@ ggplot(data = res2, aes(x = lineup_name, y = time)) +
 This small experiment suggests that detecting a network model difference from just one simulation from one model and 11 from the other model is just about impossible. This result is fairly unsurprising: drawing a single random point from, say, a $\chi^2_1$ distribution and placing it in a lineup with 11 separate draws from a standard normal distribution would likely have similar results. Every once in a while, a chi-square value would appear that would be too large to belong with draws from a standard normal distribution, but values near 1, the mean, would probably not appear that different from some random standard normal draws. This means that we need to develop a different way to compare two network models. We need a way to visualize many samples from a network model in one panel.
 
 
+\section{Model $M_1$ versus $M_2$ lineup size 3}
+\newcounter{k}
+\forloop{k}{1}{\value{k} < 21}{smallfriends-m-3-rep-\arabic{k}\newline
+\includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-m-3-rep-\arabic{k}} \\ }
 
+\section{Model $M_1$ versus $M_2$ lineup size 6}
+\newcounter{k1}
+\forloop{k1}{1}{\value{k1} < 21}{
+Lineup-Images/pdfs/smallfriends-m-6-rep-\arabic{k1}\newline
+\includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-m-6-rep-\arabic{k1}} \\ }
 
-\bibliographystyle{apalike}
-\bibliography{bigbib}
+\section{Model $M_1$ versus $M_2$ lineup size 9}
+\newcounter{k2}
+\forloop{k2}{1}{\value{k2} < 21}{Lineup-Images/pdfs/smallfriends-m-9-rep-\arabic{k2}\newline
+\includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-m-9-rep-\arabic{k2}} \\ }
 
-% \section{Model $M_1$ versus $M_2$ lineup size 3}
-% \newcounter{k}
-% \forloop{k}{1}{\value{k} < 21}{smallfriends-m-3-rep-\arabic{k}\newline
-% \includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-m-3-rep-\arabic{k}} \\ }
-% 
-% \section{Model $M_1$ versus $M_2$ lineup size 6}
-% \newcounter{k1}
-% \forloop{k1}{1}{\value{k1} < 21}{
-% Lineup-Images/pdfs/smallfriends-m-6-rep-\arabic{k1}\newline
-% \includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-m-6-rep-\arabic{k1}} \\ }
-% 
-% \section{Model $M_1$ versus $M_2$ lineup size 9}
-% \newcounter{k2}
-% \forloop{k2}{1}{\value{k2} < 21}{Lineup-Images/pdfs/smallfriends-m-9-rep-\arabic{k2}\newline
-% \includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-m-9-rep-\arabic{k2}} \\ }
-% 
-% \section{Model $M_1$ versus $M_2$ lineup size 12}
-% \newcounter{k3}
-% \forloop{k3}{1}{\value{k3} < 21}{Lineup-Images/pdfs/smallfriends-m-12-rep-\arabic{k3}\newline
-% \includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-m-12-rep-\arabic{k3}} \\ }
-% 
-% \section{Model $M_1$ versus $M_2$ lineup size 16}
-% \newcounter{k4}
-% \forloop{k4}{1}{\value{k4} < 21}{smallfriends-m-16-rep-\arabic{k4}\newline
-% \includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-m-16-rep-\arabic{k4}} \\ }
-% 
-% \section{Model $M_2$ versus $M_1$ lineup size 3}
-% \newcounter{k5}
-% \forloop{k5}{1}{\value{k5} < 21}{smallfriends-rev-m-3-rep-\arabic{k5}\newline
-% \includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-rev-m-3-rep-\arabic{k5}} \\ }
-% 
-% \section{Model $M_2$ versus $M_1$ lineup size 6}
-% \newcounter{k6}
-% \forloop{k6}{1}{\value{k6} < 21}{smallfriends-rev-m-6-rep-\arabic{k6}\newline
-% \includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-rev-m-6-rep-\arabic{k6}} \\ }
-% 
-% \section{Model $M_2$ versus $M_1$ lineup size 9}
-% \newcounter{k7}
-% \forloop{k7}{1}{\value{k7} < 21}{smallfriends-rev-m-9-rep-\arabic{k7}\newline
-% \includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-rev-m-9-rep-\arabic{k7}} \\ }
-% 
-% \section{Model $M_2$ versus $M_1$ lineup size 12}
-% \newcounter{k8}
-% \forloop{k8}{1}{\value{k8} < 21}{smallfriends-rev-m-12-rep-\arabic{k8}\newline
-% \includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-rev-m-12-rep-\arabic{k8}} \\ }
-% 
-% \section{Model $M_2$ versus $M_1$ lineup size 16}
-% \newcounter{k9}
-% \forloop{k9}{1}{\value{k9} < 21}{smallfriends-rev-m-16-rep-\arabic{k9}\newline
-% \includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-rev-m-16-rep-\arabic{k9}} \\ }
+\section{Model $M_1$ versus $M_2$ lineup size 12}
+\newcounter{k3}
+\forloop{k3}{1}{\value{k3} < 21}{Lineup-Images/pdfs/smallfriends-m-12-rep-\arabic{k3}\newline
+\includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-m-12-rep-\arabic{k3}} \\ }
+
+\section{Model $M_1$ versus $M_2$ lineup size 16}
+\newcounter{k4}
+\forloop{k4}{1}{\value{k4} < 21}{smallfriends-m-16-rep-\arabic{k4}\newline
+\includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-m-16-rep-\arabic{k4}} \\ }
+
+\section{Model $M_2$ versus $M_1$ lineup size 3}
+\newcounter{k5}
+\forloop{k5}{1}{\value{k5} < 21}{smallfriends-rev-m-3-rep-\arabic{k5}\newline
+\includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-rev-m-3-rep-\arabic{k5}} \\ }
+
+\section{Model $M_2$ versus $M_1$ lineup size 6}
+\newcounter{k6}
+\forloop{k6}{1}{\value{k6} < 21}{smallfriends-rev-m-6-rep-\arabic{k6}\newline
+\includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-rev-m-6-rep-\arabic{k6}} \\ }
+
+\section{Model $M_2$ versus $M_1$ lineup size 9}
+\newcounter{k7}
+\forloop{k7}{1}{\value{k7} < 21}{smallfriends-rev-m-9-rep-\arabic{k7}\newline
+\includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-rev-m-9-rep-\arabic{k7}} \\ }
+
+\section{Model $M_2$ versus $M_1$ lineup size 12}
+\newcounter{k8}
+\forloop{k8}{1}{\value{k8} < 21}{smallfriends-rev-m-12-rep-\arabic{k8}\newline
+\includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-rev-m-12-rep-\arabic{k8}} \\ }
+
+\section{Model $M_2$ versus $M_1$ lineup size 16}
+\newcounter{k9}
+\forloop{k9}{1}{\value{k9} < 21}{smallfriends-rev-m-16-rep-\arabic{k9}\newline
+\includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-rev-m-16-rep-\arabic{k9}} \\ }
 
 % \section{Model $M_1$ versus $M_3$ lineup size 3}
 % \newcounter{k10}
@@ -847,5 +830,3 @@ This small experiment suggests that detecting a network model difference from ju
 % \forloop{k19}{1}{\value{k19} < 21}{smallfriends-eff2-rev-m-16-rep-\arabic{k19}\newline
 % \includegraphics[width = \textwidth]{Lineup-Images/pdfs/smallfriends-eff2-rev-m-16-rep-\arabic{k19}} \\ }
 
-
-\end{document}

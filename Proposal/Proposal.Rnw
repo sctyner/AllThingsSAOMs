@@ -1,18 +1,13 @@
 \documentclass{article}
-\usepackage{RJournal}
-\usepackage{booktabs}
-\usepackage{adjustbox}           
+\usepackage{amsmath,amssymb,amsfonts, mathrsfs,fancyhdr,syntonly,lastpage,hyperref,enumitem, graphicx, lscape, forloop, url, natbib}
 \usepackage[font=small,skip=5pt]{caption}
 \usepackage{subcaption}
-\usepackage{afterpage}
-\usepackage{color}
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-\usepackage{amsmath,amssymb,array}
-\usepackage{amsfonts, mathrsfs,fancyhdr,syntonly,lastpage,hyperref,enumitem,graphicx, lscape, forloop, url, natbib}
-\usepackage[font=small,skip=5pt]{caption}
-\usepackage{subcaption}
+
 \hypersetup{colorlinks=true,urlcolor=black}
+
+\newcommand{\hh}[1]{{\color{magenta} #1}}
+\newcommand{\st}[1]{{\color{red} #1}}
+
 
 \begin{document}
 
@@ -28,7 +23,11 @@ library(RSiena)
 library(knitr)
 @
 
+\section{FUCK YOU KNITR}
+
 <<lineupspaper, child="lineups.Rnw", eval=TRUE>>=
 @
+
+
 
 \end{document}
