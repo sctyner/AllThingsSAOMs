@@ -28,7 +28,7 @@ library(RSiena)
 library(knitr)
 @
 
-<<lineupspaper, child="docs/VisInfDocs/lineups.Rnw", eval=TRUE>>=
+<<lineupspaper, child="lineups.Rnw", eval=TRUE>>=
 @
 
 \end{document}
