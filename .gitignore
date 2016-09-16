@@ -3,7 +3,6 @@
 .Rhistory
 .RData
 .Ruserdata
-*.pdf
 *.toc
 *.bbl
 *.log
