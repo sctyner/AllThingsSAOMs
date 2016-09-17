@@ -41,13 +41,23 @@ Another area of study is community detection or blockmodels. The goal of these m
 
 The last type static network model I'll present here is the latent space model. These models are called latent space models because they assumes that all nodes in the network can be expressed as a point in some $k$-dimensional space for "small" values of $k$ (@latentspace). These models condition on the unknown locations of the nodes, $\mathbf{Z}_i \in \mathbb{R}^k$. Thus, the conditional probability model for the adjacency matrix $Y$, where $y_{ij} = 1$ for an edge between $i,j$ and $y_{ij} = 0$ otherwise, can be written in the form 
 $$Pr(Y|\mathbf{Z}, \mathbf{X}, \boldsymbol{\Theta}) = \prod_{i\neq j} Pr(y_{ij}|\mathbf{Z}_i, \mathbf{Z}_j, \mathbf{X}_{ij}, \boldsymbol{\Theta}),$$
-where $\mathbf{X}$ are covariates, $\boldsymbol{\Theta}$ are parameters, and $\mathbf{Z}$ is the matrix of node positions in $\mathbb{R}^k$.
-
-XXX TALK ABOUT THE OTHER COUPLE OF STATIC ONES
+where $\mathbf{X}$ are covariates, $\boldsymbol{\Theta}$ are parameters, and $\mathbf{Z}$ is the matrix of node positions in $\mathbb{R}^k$. The individual edge probabilities $y_{ij}$ are modeled in terms of  $\boldsymbol{\Theta} \equiv (\alpha, \boldsymbol{\beta})$:
+$$\text{logit}(Pr(y_{ij} = 1)) = \alpha + \boldsymbol{\beta}'\mathbf{X}_{ij} - |\mathbf{Z_i} - \mathbf{Z_i}| \equiv \eta_{ij}.$$
+This leads to the log likelihood function, 
+$$\log(Pr(Y | \boldsymbol{\eta}) = \sum_{i \neq j} (\eta_{ij}Y_{ij} - \log(1+e^{\eta_{ij}}).$$
+This model can also be extended to include edge weights. 
 
 ### Dynamic Network Models {#dynamicnets}
 
-Dynamic network models are a very important part of statistical network analysis because discovering how networks form and change over time can help us make predictions.XXX THAT IS A DUMB SENTENCE FIX IT LATER XXXX Like with static models, the literature on dynamic network models begins with a fairly simple random graph model. XXX ADD THE EXAMPLES XXX
+Dynamic network models are "the neglected sibling of static network" models (@goldenberg09, p. 41). Dynamic networks, however, are extremely important because of how realistic they are. Social networks do not form spontaneously: they evolve over time. Ties can be added and deleted, and new nodes can join the network. Modeling the process of network changes over time is more complex but ultimately more useful if done correctly. Like with static models, the literature on dynamic network models begins with fairly straightforward random graph models that are extensions of the classic Erdös-Rényi model. 
+
+#### Quasi-Dynamic Models
+
+A model is quasi-dynamic if it models a static network via an underlying dynamic process. The first is the quasi-dynamic preferential attachment model of @pamodel. Given $n_0$ nodes to start, at each time point $t$ a new node is added with $n_t \leq n_0$ ties to the nodels already in the network. The $n_t$ new ties are assigned proportionally based on the degree of each existing node. It is quasi-dynamic because it is usually used to model one scale-free network oberervation. The preferential attachment model is also referred to as the "rich-get-richer" model because it results in a network where there are a few nodes with very high degree. 
+
+Another quasi-dynamic model is the small-world model of @Watts98. Given $n$ nodes to start, each with $k$ edges that form a ring lattice (nodes layed out in a circle and connected to their $k$ closest neigbors), edges are randomly "rewired" with probability $p$. This results in networks with the small-world property: let $L$ be the average distance between any two nodes in the graph, and if the graph has the small-world property, $L \propto \log(n)$ as $n$ increases (@Watts98).
+
+The last quasi-dynamic model is the duplication-attachment model originally studied in computer science theory in order to study the structure of the world wide web (@goldenberg09). This model is for directed, rather than undirected graphs like the previous two models. Generally speaking, this model is constructed as follows: start with a graph $G$ with nodeset $\mathcal{N}$ and edgeset $\mathcal{E}$. At each time point $t$, one new node is added to $G$. This node is connected to a "prototype" node, call it $m$, that was selected at random from $\mathcal{N}$. In addition to this connection to node $m$, there are $d$ links added from the new node to other nodes in $\mathcal{N}$. Each new link is added randomly with probability $\alpha$ 
 
 ## Stochastic Actor-Oriented Models for Longitudinal Social Networks. {#saoms}
 
