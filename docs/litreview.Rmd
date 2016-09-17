@@ -57,7 +57,13 @@ A model is quasi-dynamic if it models a static network via an underlying dynamic
 
 Another quasi-dynamic model is the small-world model of @Watts98. Given $n$ nodes to start, each with $k$ edges that form a ring lattice (nodes layed out in a circle and connected to their $k$ closest neigbors), edges are randomly "rewired" with probability $p$. This results in networks with the small-world property: let $L$ be the average distance between any two nodes in the graph, and if the graph has the small-world property, $L \propto \log(n)$ as $n$ increases (@Watts98).
 
-The last quasi-dynamic model is the duplication-attachment model originally studied in computer science theory in order to study the structure of the world wide web (@goldenberg09). This model is for directed, rather than undirected graphs like the previous two models. Generally speaking, this model is constructed as follows: start with a graph $G$ with nodeset $\mathcal{N}$ and edgeset $\mathcal{E}$. At each time point $t$, one new node is added to $G$. This node is connected to a "prototype" node, call it $m$, that was selected at random from $\mathcal{N}$. In addition to this connection to node $m$, there are $d$ links added from the new node to other nodes in $\mathcal{N}$. Each new link is added randomly with probability $\alpha$ 
+The last quasi-dynamic model is the duplication-attachment model originally studied in computer science theory in order to study the structure of the world wide web (@goldenberg09). This model is for directed, rather than undirected graphs like the previous two models. Generally speaking, this model is constructed as follows: start with a graph $G$ with nodeset $\mathcal{N}$ and edgeset $\mathcal{E}$. At each time point $t$, one new node is added to $G$. This node is connected to a "prototype" node, call it $m$, that was selected at random from $\mathcal{N}$. In addition to this connection to node $m$ (from $m$ to the new node), there are $d$ links added from the new node to other nodes in $\mathcal{N}$. Each new link is added randomly with probability $\alpha$ to one of the nodes in $\mathcal{N}$, selected with uniform probability. With probability $1-\alpha$, the new link is directed to a node which is linked from $m$, say $\ell$ so that a path from $m$ to $\ell$ through the new node. This model can be expressed in many different ways, but I do not present them here as they are not related to the dynamic model I have chosen to study. 
+
+#### Truly Dynamic Models
+
+XXX Discuss discrete-time models (ERGM, latent space, DCFM) XXX
+
+XXX Discuss continuous time markov models (lead in to next section) XXX
 
 ## Stochastic Actor-Oriented Models for Longitudinal Social Networks. {#saoms}
 
