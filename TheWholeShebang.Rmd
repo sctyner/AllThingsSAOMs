@@ -40,19 +40,19 @@ This section will be removed once I'm done writing this thing!
 
 In this section I will discuss in greater detail the models that are out there for network analysis. These include:
 
-* Classics:
+* ~~Classics:~~
     + ~~ERGMs~~
     + ~~Erdos-Renyi~~ and its variations
     + ~~Random graphs with fixed degree distribution~~
-    + Blockmodels and their relatives
-    + Latent space models
-* Social Networks:
+    + ~~Blockmodels and their relatives~~
+    + ~~Latent space models~~
+* ~~Social Networks:~~
     + ~~"$p_1$" models~~
     + ~~"$p_2$" models~~
 * Dynamic:
-    + Preferential attachment
-    + Small-world
-    + Duplication-attachment
+    + ~~Preferential attachment~~
+    + ~~Small-world~~
+    + ~~Duplication-attachment~~
     + Discrete time MC models
     + Continuous time MC models (SAOMs a kind of CTMC)
   
