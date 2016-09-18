@@ -59,7 +59,7 @@ Another quasi-dynamic model is the small-world model of @Watts98. Given $n$ node
 
 The last quasi-dynamic model is the duplication-attachment model originally studied in computer science theory in order to study the structure of the world wide web (@goldenberg09). This model is for directed, rather than undirected graphs like the previous two models. Generally speaking, this model is constructed as follows: start with a graph $G$ with nodeset $\mathcal{N}$ and edgeset $\mathcal{E}$. At each time point $t$, one new node is added to $G$. This node is connected to a "prototype" node, call it $m$, that was selected at random from $\mathcal{N}$. In addition to this connection to node $m$ (from $m$ to the new node), there are $d$ links added from the new node to other nodes in $\mathcal{N}$. Each new link is added randomly with probability $\alpha$ to one of the nodes in $\mathcal{N}$, selected with uniform probability. With probability $1-\alpha$, the new link is directed to a node which is linked from $m$, say $\ell$ so that a path from $m$ to $\ell$ through the new node. This model can be expressed in many different ways, but I do not present them here as they are not related to the dynamic model I have chosen to study. 
 
-#### Truly Dynamic Models
+#### Truly Dynamic Models {#truedynamo}
 
 XXX Discuss discrete-time models (ERGM, latent space, DCFM) XXX
 
@@ -79,9 +79,46 @@ In the network $x$ and for each actor $i$ in this network, the rate function is 
  
 ### The Objective Function {#saomobjective} 
 
-Thanks to the conditional dependence assumptions in the model, we can consider the objective function for each node separately, since only one tie from one node is changing at a time. The objective function is written as $f_i(\boldsymbol{\beta}, x), x \in \mathcal{X}$. The vector $\boldsymbol{\beta}$ are the parameters of the model and $x$ is any possible state of the network. Given the focal or ego node, $i$, there are $n$ possible steps for the actor $i$ to take: either one of all current ties $x_{ij}$ will be destroyed, a new tie will be created, or no change will occur. 
+Thanks to the conditional dependence assumptions in the model, we can consider the objective function for each node separately, since only one tie from one node is changing at a time. The objective function is written as $f_i(\boldsymbol{\beta}, x) = \sum_k \beta_k s_{ik}(x, \mathbf{Z}), x \in \mathcal{X}$ and $\mathbf{Z}$ the matrix of covariates. The vector $\boldsymbol{\beta}$ are the parameters of the model and $x$ is any possible state of the network. Given the focal or ego node, $i$, there are $n$ possible steps for the actor $i$ to take: either one of all current ties $x_{ij}$ will be destroyed, a new tie will be created, or no change will occur. 
 
-The parameters, $\beta$, are attached to various actor-level network statistics. There are always at least two parameters, $\beta_1$ for the outdegree of a node, and $\beta_2$ for the number of reciprocal ties held by a node. There are many possible parameters $\beta$ to add to the model. They can be split up into two groups: first, the structural effects, which only depend on the structure of the network. The inclusion of these effects has origin in the ERGMs discussed previously for static networks in section \@ref(staticnets). The second set of effects are the actor-level or covariate effects. These effects 
+The parameters, $\beta$, are attached to various actor-level network statistics, $s_{ik}(x)$. There are always at least two parameters, $\beta_1$ for the outdegree of a node, and $\beta_2$ for the number of reciprocal ties held by a node (@snijders01 p. 371). There are many possible parameters $\beta$ to add to the model. They can be split up into two groups: first, the structural effects, which only depend on the structure of the network. The inclusion of these effects has origin in the ERGMs discussed previously for static networks in section \@ref(staticnets). These effects are written in terms of the edge variables $x_{ij}$, for $i \neq j$. The second set of effects are the actor-level or covariate effects. These effects also depend on the structure of the network. They are written in terms of $x_{ij}$ but also in terms of the covariates, $\mathbf{Z}$. A table of some possible structural and covariate effects is given in \@ref(tab:saom-effects). 
+
+\begin{table}
+\caption{(\#tab:effects) Some of the possible effects to be included in the stochastic actor-oriented models in RSiena. There are many more possible effects, but we only consider a select few here. For a complete list, see the RSiena manual (@RSiena).}
+\centering
+\begin{tabular}{ll}
+\textbf{Structural Effects} \\
+outdegree  & $s_{i1}(x) = \sum_j x_{ij}$ \\
+reciprocity  & $s_{i2}(x) = \sum_j x_{ij}x_{ji}$ \\
+transitive triplets  & $s_{i3}(x) = \sum_{j,h} x_{ij}x_{jh}x_{ih}$ \\
+\textbf{Covariate Effects}\\
+covariate-alter  & $s_{i4}(x) = \sum_j x_{ij}z_j$ \\
+covariate-ego  & $s_{i5}(x) = z_i\sum_j x_{ij}$ \\
+same covariate & $s_{i6}(x) = \sum_j x_{ij} \mathbb{I}(z_i = z_j)$ \\
+jumping transitive triplets  & $s_{i7}(x) = \sum_{j \neq h} x_{ij}x_{ih}x_{hj} \mathbb{I}(z_i = z_h \neq z_j)$
+\end{tabular}
+\end{table}
+
+When node $i$ is given the chance to change a node, we assume that they wish to maximize the value of their objective function $f_i(\boldsymbol{\beta}, x)$ plus a random element, $U_i(x)$, where the $U_i(x)$ are from "the type 1 extreme value distribution (or Gumbel distribution) with mean 0 and scale parameter 1" (@snijders01, p. 368). This distribution, which is also known as the log-Weibull distribution, has probability distribution function, using $\mu$ for the mean parameter and $\sigma$ for the scale parameter, of
+
+$$f(u|\mu, \sigma) = \frac{1}{\sigma}\exp\left\{-\left(\frac{x-\mu}{\sigma} + e^{-\frac{x-\mu}{\sigma}}\right)\right\}.$$
+
+Using this distribution is convenient because it allows the probablity the actor $i$ chooses to change its tie to actor $j$ in terms of the objective function alone. Let $p_{ij}(\boldsymbol{\beta}, x)$ be this probability. Next, write the network $x$ in its potential future state, where the tie $x_{ij}$ has changed to $1-x_{ij}$, as $x(i \leadsto j)$. Then, the probility that the tie $x_{ij}$ changes is 
+
+$$p_{ij}(\boldsymbol{\beta}, x) = \dfrac{\exp\left\{f_i(\boldsymbol{\beta}, x(i\leadsto j))\right\}}{\sum_{h \neq i} \exp\left\{f_i(\boldsymbol{\beta}, x(i \leadsto h))\right\}}$$
+
+### A SAOM as a CTMP
+
+In order to fit this model definition back into the original context of the CTMP described in section \@ref(truedynamo), it must be written in terms of its intensity matrix, $\mathbf{Q}$.  This matrix describes the rate of change between states of the process. For networks, there are a very large number of possible states, $2^{n(n-1)}$, so the intensity matrix is a square matrix of that dimension. But, thanks to the property of SAOM that the states are allowed to change only one tie at a time, there are only $n$ possible states given the current state, $n-1$ of which are uniquely determined by the node $i$ that is given the opportunity to change. Thus, the intensity matrix $\mathbf{Q}$ is very sparse, with only $n(n-1) + 1$ non-zero entries in each row. Note that $n(n-1)$ of these represent the possible states that are one edge different from a given state, and the additional non-zero entry is for the state to remain the same. All other entries in a row are zero because those column states cannot be reached from the row state by just one change as dictated by the SAOM. The entries of $\mathbf{Q}$ are defined as follows: let $b \neq c \in \{1, 2, \dots, 2^{n(n-1)} \}$ be indices of two different possible states of the network, $x^b, x^c \in \mathcal{X}$.  Then the $bc^{th}$ entry of $Q$ is:
+\[ q(x^b, x^c) = \begin{cases} 
+      \lambda_i(\alpha, \rho, x^b, m)p_{ij}(\boldsymbol{\beta}, x^b) & \text{if } x^c \in \{x^b(i \leadsto j) | \text{ any } i \neq j \in \mathcal{N}\} \\
+      0 & \text{if } x^c \text{ differs from } x^b \text{ by more than 1 tie} \in \mathcal{N} \\
+      -\sum_{i\neq j} \lambda_i(\alpha, \rho, x^b, m)p_ij(\boldsymbol{\beta}, x^y) & \text{if } x^b = x^c 
+   \end{cases}
+\]
+
+Thus, the rate of change between any two states that differ by only one tie, $x_{ij}$, is the product of the rate at which actor $i$ gets to change a tie and the probability that the tie that will change is the tie to node $j$.^[Just to be clear, the change is from $x^b_{ij}$ to $x^c_{ij} = 1 - x^b_{ij}$.] Furthermore, the theory of continuous time Markov chains gives that the matrix of transition probabilities between observation times $t_{m-1}$ and $t_{m}$ is dependent only on the difference between timepoints, $t_m - t_{m-1}$ and is equal to $e^{(t_m - t_{m-1})\mathbf{Q}}$, where $\mathbf{Q}$ is the matrix defined above and $e^X$ for a real or complex square matrix $X$ is equal to $\sum_{k=0}^{\infty} \frac{1}{k!} X^k$.
+
 
 ## Model Fitting and Diagnostics for SAOMs
 
