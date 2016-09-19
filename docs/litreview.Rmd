@@ -122,11 +122,30 @@ Thus, the rate of change between any two states that differ by only one tie, $x_
 
 ## Model Fitting and Diagnostics for SAOMs
 
+
+
 ## What is Visual Inference?
+
+The concept of visual inference was first introduce in @Bujaetal. In this seminal work, the authors outline two protocol for visual tests of hypotheses, the "Rorschach" the "lineup". The former allows one "to measure a data analyst’s tendency to overinterpret plots in which there is no or only spurious structure," while the latter has the viewer "identify the plot of the real data from among a set of decoys [...] under the veil of ignorance" (@Bujaetal, p. 4368-9). 
+
+Viewing plots of data is an important part of exploratory data analysis (EDA) and of model diagnostics (MD). In EDA, plots guide the analyst on their quest to choose a model, while in MD, plots help the analyst determine if the model chosen is appropriate. In EDA, the analyst may notice that a covariate is strongly correlated with the dependent variable by drawing a scatterplot, leading the analyst to choose a simple linear model. But in MD, the analyst could later notice a pattern in the residuals plotted against the covariate, indicating that the variance of the dependent variable is not constant across changing values of the covariate. These steps of EDA and MD have become so engrained in statistical practice that they are taught in introductory statistics courses. 
+
 
 ## Network Visualization
 
+Network visualization, also called network mapping, is a very well-established subfield of network analysis. As networks have such a non-traditional data structure, visualization has always been of the utmost importance to understanding the structre of a network.
+
 ### Layout Algorithms
+
+The key difficulty with network visualization that does not arise with most other types of data visualization is the lack of a well-defined axis. This is not something one has to think hard about for most data visualizations. If the variables are numerical, histograms, scatterplots, or time series plots are straightforward to construct: one variable on the x-axis, another on the y-axis in 2D Euclidean space. If the variables are categorical, bar charts and mosaic plots can be constructed in this same space. If the data are spatial, there is a well-defined space In pretty much any case, the location and labels of the data and axes can be defined with very little struggle. With network data, however, this is a more difficult problem. 
+
+Network visualizations are made by representing nodes with points in 2D Euclidean space, just like one would with any other data set, and then by representing edges by connecting the points with lines if there is an edge between the two nodes. But, because there is no natural placement of the points, a random placement is used, then adjusted iteratively via a layout algorithm, of which there are many kinds.
+
+XXX Talk about the various network layout algorithms XXX
+
+Kamada-Kawai
+Fruchterman-Reingold
+MDS
 
 ### R Packages
 
