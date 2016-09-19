@@ -51,7 +51,7 @@ This model can also be extended to include edge weights.
 
 Dynamic network models are "the neglected sibling of static network" models (@goldenberg09, p. 41). Dynamic networks, however, are extremely important because of how realistic they are. Social networks do not form spontaneously: they evolve over time. Ties can be added and deleted, and new nodes can join the network. Modeling the process of network changes over time is more complex but ultimately more useful if done correctly. Like with static models, the literature on dynamic network models begins with fairly straightforward random graph models that are extensions of the classic Erdös-Rényi model. 
 
-#### Quasi-Dynamic Models
+#### Quasi-Dynamic Models {#quasidynamo}
 
 A model is quasi-dynamic if it models a static network via an underlying dynamic process. The first is the quasi-dynamic preferential attachment model of @pamodel. Given $n_0$ nodes to start, at each time point $t$ a new node is added with $n_t \leq n_0$ ties to the nodels already in the network. The $n_t$ new ties are assigned proportionally based on the degree of each existing node. It is quasi-dynamic because it is usually used to model one scale-free network oberervation. The preferential attachment model is also referred to as the "rich-get-richer" model because it results in a network where there are a few nodes with very high degree. 
 
@@ -64,6 +64,17 @@ The last quasi-dynamic model is the duplication-attachment model originally stud
 XXX Discuss discrete-time models (ERGM, latent space, DCFM) XXX
 
 XXX Discuss continuous time markov models (lead in to next section) XXX
+
+### Placing Network Analysis in the Statistical Framework
+
+Network analysis has earned much interest in fields suchs as sociology or computer science. Many methods of analysis for networks have been derived from researchers in these fields, and the interest in network analysis in these fields has grown exponentially throughout the last two decades. There are now entire journals dedicated to network analysis, including *Network Science* and *Social Networks*. In the field of statistics, however, not much attention has been given to this area. There are several possible reasons for this, the first being that statistical network analysis does not fit easily into the statistician’s workflow and way of thinking. 
+
+First and foremost, when modelling, statisticians consider the population from which their data were generated. In some social network problems, this is easy, like in the students at a university example. In others, however, it might not be so straightforward, like when mapping the interconnectedness of scientific disciplines (@Kolaczyk09). Next, statisticians consider the representativeness of their data. Usually, a random sample of the population has been carefully selected for analysis to be representative. But in network analysis, there may not be a well-designed, appropriate sampling procedure. Social media networks have become very popular and very large, so many researchers have interest in studyin them, but how can they be sampled? Additionally, how does one avoid biases in social network sampling, and can these biases be corrected for (@Kolacyk09). If one wants to summarize their network data, what statistics should be used? Measure such as like mean and variance are available and presented for most types of statistical, but there is no definition for a "mean" or a "variance" on a network. So, other statistics like average outdegree are often used. But ultimately, these statistics cannot describe the network structure as well as the mean and variance can describe the distribution of a random variable. As was shown in section \@ref(models) there are many models for network analysis, but once a network is modeled, how can we make predictions for what new networks will be or what new edges will form? 
+
+Furthermore, traditional statistical models have some common properties that network models might not always have. First, the models have to be well-grounded in measure and probability theory so that their behavior can be well-understood based on the fundamentals of these areas of study. This may be true in many network models, but they may also be analytically intractable. Second, the models have to be estimable from the data at hand. Again, this is possible in many of the network models, but some may only be estimable with advanced simulation methods that have only recently become available with respect to computing power. Next, a crucial element within statistics is the quantification of uncertainty in estimation. Since there is not a measure of "variance" on a network, how then can the estimation of network model parameters be qualified to include uncertainty? 
+
+Now that statisticians are increasingly becoming interested in network analysis, many of the “holes” have been filled. The theory and methodology underlying statistical network analysis, however, show some gaps in a few important areas.  WHAT ARE THE AREAS?
+
 
 ## Stochastic Actor-Oriented Models for Longitudinal Social Networks. {#saoms}
 
@@ -139,15 +150,42 @@ Network visualization, also called network mapping, is a very well-established s
 
 The key difficulty with network visualization that does not arise with most other types of data visualization is the lack of a well-defined axis. This is not something one has to think hard about for most data visualizations. If the variables are numerical, histograms, scatterplots, or time series plots are straightforward to construct: one variable on the x-axis, another on the y-axis in 2D Euclidean space. If the variables are categorical, bar charts and mosaic plots can be constructed in this same space. If the data are spatial, there is a well-defined space In pretty much any case, the location and labels of the data and axes can be defined with very little struggle. With network data, however, this is a more difficult problem. 
 
-Network visualizations are made by representing nodes with points in 2D Euclidean space, just like one would with any other data set, and then by representing edges by connecting the points with lines if there is an edge between the two nodes. But, because there is no natural placement of the points, a random placement is used, then adjusted iteratively via a layout algorithm, of which there are many kinds.
+Network visualizations are made by representing nodes with points in 2D Euclidean space, just like one would with any other data set, and then by representing edges by connecting the points with lines if there is an edge between the two nodes. But, because there is no natural placement of the points, a random placement is used, then adjusted iteratively via a layout algorithm, of which there are many kinds. I will focus on the 2D layout algorithms only because I work later with the `ggplot2` package to visualize networks, and this package only has 2D drawing capabilities.
 
-XXX Talk about the various network layout algorithms XXX
+Some layout algorithms were designed to mimic physical systems, drawing the graphs based on the "forces" connecting them. The network's edges act as springs pushing and pulling the nodes in 2D space. The force-directed layout algorithms are:
 
-Kamada-Kawai
-Fruchterman-Reingold
-MDS
+- Kamada-Kawai
+- Fruchterman-Reingold
+- Spring embedding
+- Target diagram
+- Graphopt
+- OpenORD or VxORD
+
+
+Other layout algorithms depend on the mathematical properties of the network's adjacency matrix or some other function or propterty of the network. Algorithms of this kind are:
+
+- Eigen
+- Hall
+- Multidimensional Scaling (MDS)
+
+Some layout algorithms only exists for certain types of networks:
+
+- Reingold-Tilford: for trees
+- Sugiyama: for layerd directed acyclic graphs
+
+Finally, some layout methods just place the nodes randomly or in a simple ordering:
+
+- Random: according to some distribution
+- Grid: 
+- Circle: 
 
 ### R Packages
+
+There is a multitude of R packages that exist for network analysis, and many, if not most, of them contain some sort of built-in functionality for visualizing networks. The most popular of these is probably the `igraph` package by @igraph. This package is extensive, and contains much more than methods for network visualization. It contains tools for both 2D and 3D visualization of networks. The 2D layouts it contains are `random`, `circle`, `star`, `grid`, `graphopt`, `bipartite`, `fruchterman_reingold`,`kamada_kawai`, `mds`, `grid_fruchterman_reingold`, `lgl`, `reingold_tilford`, `reingold_tilford_circular`, and `sugiyama`.  
+
+Another popular package for network analysis is `sna` by @sna. This package was designed specifically for social network analysis (sna), so it also contains much more capabilities for network analysis in addition to visualization. Like `igraph`, `sna` contains both 2D and 3D layout methods. The 2D layout algorithms available in `sna` are `circle`, `circrand`, `eigen`, `fruchtermanreingold`, `geodist`, `hall`, `kamadakawai`, , `mds`, `princoord`, `random`, `rmds`, `segeo`, `seham`, `spring`, `springrepulse`, and `target`. 
+
+Research into possible layout algorithms is important, but it ignores some of the things that statisticians usually consider when visualizing data. For instance, since the location of points in 2D space contains no information about the data, how else should this information be visualized? As an example, consider a friendship network of students at a university. Representing this network as simple points and lines leaves a lot of information out. Some information that could be incorporated includes the students’ majors, year in school, and whether the students have ties through their classes or their extracurricular activities. In the network visualization, this information can be mapped to color of point, shape of point, and linetype, respectively. Adding this aesthetic information helps to make up for the loss of two dimensions of visual perception and to bring the network visualization into the world of statistical graphics.   
 
 ### The Importance of `ggplot2`
 
