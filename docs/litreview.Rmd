@@ -146,22 +146,71 @@ Using this distribution is convenient because it allows the probablity the actor
 
 $$p_{ij}(\boldsymbol{\beta}, x) = \dfrac{\exp\left\{f_i(\boldsymbol{\beta}, x(i\leadsto j))\right\}}{\sum_{h \neq i} \exp\left\{f_i(\boldsymbol{\beta}, x(i \leadsto h))\right\}}$$
 
-### A SAOM as a CTMP
+### A SAOM as a CTMP {#saomctmp}
 
 In order to fit this model definition back into the original context of the CTMP described in section \@ref(truedynamo), it must be written in terms of its intensity matrix, $\mathbf{Q}$.  This matrix describes the rate of change between states of the process. For networks, there are a very large number of possible states, $2^{n(n-1)}$, so the intensity matrix is a square matrix of that dimension. But, thanks to the property of SAOM that the states are allowed to change only one tie at a time, there are only $n$ possible states given the current state, $n-1$ of which are uniquely determined by the node $i$ that is given the opportunity to change. Thus, the intensity matrix $\mathbf{Q}$ is very sparse, with only $n(n-1) + 1$ non-zero entries in each row. Note that $n(n-1)$ of these represent the possible states that are one edge different from a given state, and the additional non-zero entry is for the state to remain the same. All other entries in a row are zero because those column states cannot be reached from the row state by just one change as dictated by the SAOM. The entries of $\mathbf{Q}$ are defined as follows: let $b \neq c \in \{1, 2, \dots, 2^{n(n-1)} \}$ be indices of two different possible states of the network, $x^b, x^c \in \mathcal{X}$.  Then the $bc^{th}$ entry of $Q$ is:
 \[ q(x^b, x^c) = \begin{cases} 
-      \lambda_i(\alpha, \rho, x^b, m)p_{ij}(\boldsymbol{\beta}, x^b) & \text{if } x^c \in \{x^b(i \leadsto j) | \text{ any } i \neq j \in \mathcal{N}\} \\
+      q_{ij}(\alpha, \rho, \boldsymbol{\beta}, x^b) = \lambda_i(\alpha, \rho, x^b, m)p_{ij}(\boldsymbol{\beta}, x^b) & \text{if } x^c \in \{x^b(i \leadsto j) | \text{ any } i \neq j \in \mathcal{N}\} \\
       0 & \text{if } x^c \text{ differs from } x^b \text{ by more than 1 tie} \in \mathcal{N} \\
-      -\sum_{i\neq j} \lambda_i(\alpha, \rho, x^b, m)p_ij(\boldsymbol{\beta}, x^y) & \text{if } x^b = x^c 
+      -\sum_{i\neq j} q_{ij}(\alpha, \rho, \boldsymbol{\beta}, x^b)  & \text{if } x^b = x^c 
    \end{cases}
 \]
 
 Thus, the rate of change between any two states that differ by only one tie, $x_{ij}$, is the product of the rate at which actor $i$ gets to change a tie and the probability that the tie that will change is the tie to node $j$.^[Just to be clear, the change is from $x^b_{ij}$ to $x^c_{ij} = 1 - x^b_{ij}$.] Furthermore, the theory of continuous time Markov chains gives that the matrix of transition probabilities between observation times $t_{m-1}$ and $t_{m}$ is dependent only on the difference between timepoints, $t_m - t_{m-1}$ and is equal to $e^{(t_m - t_{m-1})\mathbf{Q}}$, where $\mathbf{Q}$ is the matrix defined above and $e^X$ for a real or complex square matrix $X$ is equal to $\sum_{k=0}^{\infty} \frac{1}{k!} X^k$.
 
 
-## Model Fitting and Diagnostics for SAOMs
+### Model Fitting for SAOMs
 
-XXX JUST DO IT XXX
+Stochastic actor-oriented models are "too complicated for the calculation of likelihoods or estimators in closed form, but they represent stochastic processes which can be easily simulated" (@snijders2010, p. 568). Thus, maximum likelihood estimation of the parameters in SAOMs is done via Markov Chain Monte Carlo (MCMC) approximation. The algorithm presented here was presented first in @snijders2010. 
+
+First, some definitions and notation are needed. Let $x(t_m)$ denote the observed state of the network at time $t_m$. Then, let $\mathcal{A}(x(t_m) = \mathcal{A}_1(x(t_m)) \cup \mathcal{A}_2(x(t_m)) \cup \cdots \cup \mathcal{A}_n(x(t_m))$ denote the set of all networks that are one tie away from the current state $x(t_m)$. For all nodes $i = 1, \dots, n$, $\mathcal{A}_{i}(x(t_m)) \subset \mathcal{X}$ is formally defined as $$\mathcal{A}_{i}(x(t_m)) = \left\{x(t_m) \cup \{x \in \mathcal{X} | x_{ij} = 1 - x_{ij}(t_m) \text{for only one } j \neq i \in \mathcal{N}\}\right\}.$$ 
+Next, let $x(t_{m+1})$ denote the next observed network state. When moving from $x(t_m)$ to $x(t_{m+1})$, there are many possible unobserved steps in between. Moving from the observation $x(t_{m-1})$ to the observation $x(t_m)$ requires $C$ changes or steps in the Markov process $X(t)$ where $C = \sum_{i,j \in \mathcal{N}} |x_{ij}(t_m) - x_{ij}(t_{m-1})|$. Note that the observed network change from $x(t_{m-1})$ to $x_(t_m)$ is conditionally independent of all other network observations given $x(t_{m-1})$. Denote the $C$ timepoints in the the Markov process that correspond to the unobserved changes in the network as $T_1, T_2, \dots, T_{C}$ and define $T_0 = t_{m-1}$ and $T_C \leq t_{m} < T_{C+1}$. For each timepoint $T_c$, for $c = 1, \dots c$, there is a single actor, denoted $I_c$ that gets an opportunity to change at this timepoint. This actor changes one of its ties to one node, $J_c$, i.e. $X_{I_c J_c}(T_c) = 1 - X_{I_c J_c}(T_{c-1})$. If there is no change, $I_c = J_c$. Formally, the pair $(I_c,J_c)$ is the only $(i,j)$ pair for which $x_{ij}(T_{c-1}) \neq x_{ij}(c_r)$ if such a pair exists, and $(I_c, J_c) = (I_c, I_c)$ otherwise. The triplet $(T_c, I_c, J_c)$ forms a stochastic process for $c = 1, \dots, C$ that, given the prior observation, $x(t_{m-1})$ for $m = 2, \dots, M$, completely determines $X(T)$ for $t_{m-1} < t < t_m$. Next, define the set of augmenting data as $\{C \cup (I_c, J_c): c = 1, \dots, C\}$ Note the timepoints $T_c$ are left out of the augmenting data. Also define the sample path as the stochastic process $\mathbf{V} = ((I_c, J_c):c = 1, \dots, C)$. Note that the elements of $V$ where $I_c = J_c$ are redundant. However, they are kept in the process because they help with computation of the likelihood. At each step in the sample path, the networks $X(T_{c-1})$ and $X(T_{c})$ differ by only one tie, $X_{I_c J_c}$. The distribution of the sample path can then be written down as follows: 
+$$ f_{sp}(V|\alpha_m, \boldsymbol{\beta}, x(t_1)) = Pr(T_c \leq t_m < T_{C+1} | x(t_1), V, \alpha_m, \boldsymbol{\beta}) \times \prod_{c=1}^C q_{I_c J_c}(\alpha, \rho, \boldsymbol{\beta}, X(T_c)). $$
+The first component, $Pr(T_C \leq t_m < T_{C+1} | x(t_1), V, \alpha, \beta)$ is the probability that your next network observation at time point $t_m$ comes *before* the next change in the continuous time Markov chain, $X(T_{C+1})$. Assuming the rate function $\lambda_i(\alpha_m, \rho, x)$ as defined in Section \@ref(saomrate) is constant, $\lambda_i(\alpha_m, \rho, x) = \alpha_m$, for all nodes $i = 1, \dots, n$ and each timepoint $m = 2, \dots, M$ this probability can be written as:
+$$\kappa(\alpha_m, x(t_{m-1}), \mathbf{V}) = \exp(-n\alpha(t_{m} - t_{m-1}))\frac{n\alpha(t_m - t_{m-1})^C}{C!}.$$
+There is a more general formulation of this probability presented in @snijders2010 for non-constant rates of change, but I do not present it here because I do not have non-constant rates in any of the SAOMs I work with in Chapters \@ref(ch1) and \@ref(ch2). The second component, $\prod_{c=1}^C q_{I_c J_c}(\alpha_m, \rho, \boldsymbol{\beta}, X(T_c))$, is the product of the corresponding values of the intensity matrix $\mathbf{Q}$ for the sample path $\mathbf{V}$, where $\mathbf{Q}$ is as defined in Section \@ref(saomctmp).   
+
+#### Method of Moments Estimation
+
+Let $\theta = (\boldsymbol{\alpha}, \boldsymbol{\beta})$ be the parameter vector. $\theta$ is of length $L = M-1+K$, where $M$ is the number of network observations and $K$ is the number of parameters included in the objective function $f_{i}(\boldsymbol{\beta}, x)$. Let $Z = (C_1, \dots, C_M, S_{1k}, \dots, S_{Mk})$ denote the vector of statistics corresponding to the values of $\theta$, where $C_m = \sum_{i\neq j } |x_{ij}(t_{m+1}) - x_{ij}(t_{m})|$ and $S_{mk} = \sum_i s_{ik}(x(t_{m+1}))$ for $m = 1, \dots, M-1$. 
+
+The method of moments estimator of $\theta$ is the solution to $E_{\theta}[Z] = z$ where $z$ are the observed values of $Z$ from $x(t_1), \dots, x(t_M)$.  The estimate $\hat{\theta}$ can be separated into the vectors $\hat{\boldsymbol{\alpha}}$ and $\hat{\boldsymbol{\beta}}$, the solutions to the system of equations $E_{\boldsymbol{\alpha}}[C_m|x(t_m)] = c_m$ and $\sum_{m = 1}^{M-1} E_{\boldsymbol{\beta}}[S_{mk}|x(t_m)] = \sum_{m=1}^{M-1} s_{mk}$ (@snijders01). 
+
+These moment equations are often not able to be calculated explicitly. Because of this, random simulation of networks with the desired distribution can be used in Markov Chain Monet Carlo simulation of the moment estimates. The updating step of the simulation is, for iterations $b = 1, \dots, B$: 
+$$\theta^{(b+1)} = \theta^{(b)} + a_b D_0^{-1}(Z_b - z)$$
+where $Z_b$ is drawn from the distribution of the model under $\theta = \theta^{(b)}$, $z$ are the observed statistics, $D_0$ is a positive diagonal matrix, usually the identity, and $a_b$ is called the *gain sequence* and is a sequence of positive values that approach 0 as $b\to \infty$ at about the same rate as $b^{-r}$ for some $0.5 < r < 1$. The method of moments estimator, $\hat{\theta}^{(1)}$ is then an average of the $B$ iterations, $\hat{\theta}^{(1)} = \frac{1}{B}\sum_{b = 1}^B \theta^{(b)}$. It must be the average in order to obtain opimal convergence (@snijders01). 
+
+#### Maximum Likelihood Estimation 
+
+Sketch of Algorithm:
+\begin{enumerate}
+\item Use the first network observation, $x(t_1)$, as a starting value. All analysis proceeds conditioning on $x(t_1)$.  
+\item For $m = 2, 3, \dots, M$ where $M$ is the total number of observed networks, augment the observed data with random draws from the sequence of intermediate steps in the Markov process, $X(T)$, that could have led from $x(t_{m-1})$ to $x(t_m)$. i.e. draw from the set {\small $$\{(X(T_1), \dots, X(T_{C-1}))' | X(T_1) \in \mathcal{A}(x(t_{m-1})) \& X(T_2) \in \mathcal{A}(X(T_1)) \& \cdots \& x(t_{m}) \in \mathcal{A}(X(T_{C-1})) \}$$ } where $C = \sum_{i,j \in \mathcal{N}} |x_{ij}(t_m) - x_{ij}(t_{m-1})|$. Note that $C$ in the number of single edge changes needed to get from $x(t_{m-1})$ to $x(t_m)$, so $C-1$ is the number of intermediate networks. These draws can be simulated using a Metropolis-Hastings algorithm. 
+\item Use the draws from 2 as updates in a Robbins-Monro algorithm (see @robbinsmonro) to find the solution of the likelihood equation. 
+\end{enumerate}
+
+Full Iterative Algorithm: For each iteration $b = 1, 2, \dots, B$
+\begin{enumerate}
+\item For each $m = 2, \dots, M$, make a large number of Metropolis-Hastings steps of the following form.  Let $\underline{v} = ((i_1, j_1), \dots, (i_C, i_C))$ be a given path from $x(t_{m-1})$ to $x(t_m)$ in the whole possible set of paths $\mathbf{V}$. Then propose a new path, $\tilde{\underline{v}}$ from the proposal distribution that consists of all of the possible small changes: 
+  \begin{enumerate}
+  \item "Paired Deletions" - Of all pairs of indices $c_1, c_2$ such that $(i_{c_1}, j_{c_1}) = (i_{c_2}, j_{c_2})$, $i_{c_1} \neq j_{c_1}$, randomly select a pair $(c_1, c_2)$ and delete both from the current path.
+  \item "Paired Insertions" - Randomly select an edge $(i,j) \in \mathcal{b} \times \mathcal{b}$ with $i \neq j$. Randomly choose 2 indices, $c_1, c_2$. Insert $(i,j)$ immediately before $c_1$ and $c_2$.  
+  \item "Single Insertions" - At a random place in the current path, insert $(i,i)$ for a random $i \in \mathcal{b}$.
+  \item ``Single Deletions" - Of all elements in the current path that satisfy $i_c = j_c$, randomly delete one of them. 
+  \item ``Permutations" - For randomly chosen $c_1 < c_2$, where $c_2 - c_1$ is bounded from above by some smallish number to avoid lengthy computation (tuning parameter?), the segment of consecutive elements $(i_c,j_c)$, $r = c_1, \dots, c_2$ is randomly permuted. 
+  \end{enumerate}
+Denote the proposal probabilities $u(\tilde{\underline{v}} | \underline{v})$ and the target probabilities $p(\underline{v})$. The target distribution is $p(\underline{v}) \propto f_{sp}(\underline{v} | \alpha, \beta, x(t_{m-1}))$. Then the acceptance probability for a proposal path $\tilde{\underline{v}}$ and a current path $\underline{v}$ is: $\min \left\{ 1, \frac{p(\tilde{\underline{v}})u(\underline{v}|\tilde{\underline{v}})}{p(\underline{v})u(\tilde{\underline{v}}| \underline{v})}\right\}$. The series of M-H steps will result in a new set of augmenting data, $(v^{(b)}) = (v_2^{(b)}, \dots, v_M^{(b)})$. 
+\item Let $\theta = (\alpha, \boldsymbol{\beta})$. Compute 
+  $$ S_{XV}(\hat{\theta^{(b)}}; x(t_{m-1}), v^{(b)}) = \sum_{m=2}^M S_m(\hat{\theta^{(b)}}; x(t_{m-1}), v_m^{(b)}) $$
+$S_{XV}(\hat{\theta^{(b)}}; x, v^{(b)})$ is the complete data score function. $S_m(\hat{\theta^{(b)}}; x(t_{m-1}), v_m^{(b)}) = \frac{\partial \log p_m(v_m; \theta | x(t_{m-1}))}{d\theta}$ is the total data score function at step $m$. $p_m$ is $p_{sp}(v_m; \theta | x(t_{m-1}))$, the probability of the sample path $v_m$. 
+\item Update $$\theta^{(b+1)} =(\alpha^{(b+1)}, \boldsymbol{\beta}^{(b+1)}) = \theta^{(b)} + a_b D^{-1} S_{XV}(\hat{\theta^{(b)}}; x, v^{(b)})$$
+where $D$ is a MC estimate of the complete data observed Fisher information matrix, $D_{XV}(\theta) = -\frac{\partial S_{XV}(\theta: x, V)}{\partial \theta}$ estimated for evaluated at the starting value of $\theta$, $\theta^{(1)}$. A good starting value is the method of moments estimator, $\hat{\theta}^{(1)}$.
+\item Calculate $\hat{\theta} = (B - b_0 + 1)^{-1} \sum_{b = b_0}^B \theta^{(b)}$ for some large value $b_0 < B$. 
+\end{enumerate}
+
+#### Model Selection and Testing for SAOMs
+
+A likelihood ratio test was also developed in @snijders2010, but it has yet to be implemented in the software RSIENA for parameter estimation of SAOMs. Tests of the elements of $\boldsymbol{\beta}$ are, however, availabile in RSIENA. Both $t$-tests and Wald-type tests are implemented. A goodness-of-fit test is also implemented, but it only assesses the fit of a model with respect to the "auxiliary statistics of networks [...] that are not explicitly fit by a particular effect" (@RSienaManual, p. 53). It is this lack of goodness-of-fit testing that led my research down the path of applying visual inference principles and protocols to hypothesis testing for SAOMs.  
 
 ## What is Visual Inference?
 
@@ -169,7 +218,13 @@ Viewing plots of data is an important part of exploratory data analysis (EDA) an
 
 The idea of visual inference was first introduced in @Bujaetal. In this seminal work, the authors outline two protocol for visual tests of hypotheses, the "Rorschach" the "lineup". The former allows one "to measure a data analyst’s tendency to overinterpret plots in which there is no or only spurious structure," while the latter has the viewer "identify the plot of the real data from among a set of decoys [...] under the veil of ignorance" (@Bujaetal, p. 4368-9). 
 
+They begin my formalizing the definition of the set of discoverable (i.e. visible) features of a plot as a set of test statistics, denoted $T^{(i)}(\mathbf{y})(i \in I)$. The value $\mathbf{y}$ is the data in the plot, and the set $I$ is the hard to define set of all possible visual features one could discover in a plot. Then
+
 XXX MORE DETAIL XXX
+
+There have been two distinct areas of application of visual inference since @Bujaetal. The first is true application of the methodology, while the second is understanding the methodology via application of the protocols. In true applications, researchers have one or more alternative hypotheses and corresponding nulls on which that they perform visual inference tests. One such paper, @Loy2016, considers the visual inference tests for normality via lineups of Q-Q plots and compares these tests to traditional statistical normality tests. The authors found that visual inference used in this way is a more powerful test for normality than classical tests (@Loy2016).  In another direct application, @Zhao13 use visual inference to establish the existence of a structrue in the RNA sequence of soybean plants where different treatments and conditions alter the gene expression. Yet another application is that of @Hofmann12, in which the authors use visual inference to determine which view of a dataset to present so that the important data properties are communicated most accurately and efficiently.
+
+The second type of application, understanding the methodology through application is the type that I pursue in \@ref(ch2). One such instance of this type of application is @Chowd14, in which visual inference is used to better understand problems that arise when viewing high dimension, low sample size data. A second application is that of @Loy2015 in which the authors use visual inference to determine hierarchical model misspecification. In both of these applications, visual inference is used to discover more about the models or structures under investigation. This is how I intend to use visual inference for SAOMs. By using the lineup protocol, I hope to learn more about the effects of parameter selection on SAOMs. 
 
 
 ## Network Visualization
