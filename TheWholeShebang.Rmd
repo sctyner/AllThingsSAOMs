@@ -7,6 +7,8 @@ output:
     keep_tex: no 
     toc: true
     number_sections: true
+    includes:
+      before_body: body.tex
 header-includes:
 - \usepackage{booktabs}  
 bibliography: docs/bigbib.bib
@@ -116,7 +118,8 @@ Discuss the Bob Ross and Graphics Awards papers
 ```{r child = "docs/visualinferencenets.Rmd", eval = TRUE}
 ```
 
-```{r child= "docs/geomnetpaper.Rmd", eval = TRUE}
+```{r child= "../../NetworksResearch/ggnet-paper/RJwrapper.pdf", eval = FALSE}
+# change options above until you figure out how to get the stupid pdf in there. 
 ```
 
 ```{r child = "docs/futurework-and-otherwork.Rmd", eval=TRUE}
