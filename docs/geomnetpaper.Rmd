@@ -1,7 +1,7 @@
 ---
 output: html_document
 ---
-# Drawing Networks with the R package `ggplot2` 
+# Drawing Networks with the R package `ggplot2` {#ch3}
 
 This next section is a paper I authored with Heike Hofmann (Iowa State University) and François Briatte (European School of Political and Social Sciences) that will be published in the R Journal.  
 

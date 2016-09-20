@@ -1,4 +1,4 @@
-# Stochastic Actor-Oriented Models for Longitudinal Network Data: Removing the Blindfold
+# Stochastic Actor-Oriented Models for Longitudinal Network Data: Removing the Blindfold {#ch1}
 
 As this is the least-developed section of my thesis, this section will describe the work I intend to do in as much detail as possible. 
 

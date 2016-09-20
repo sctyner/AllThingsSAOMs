@@ -182,21 +182,20 @@ The key difficulty with network visualization that does not arise with most othe
 
 Network visualizations are made by representing nodes with points in 2D Euclidean space, just like one would with any other data set, and then by representing edges by connecting the points with lines if there is an edge between the two nodes. But, because there is no natural placement of the points, a random placement is used, then adjusted iteratively via a layout algorithm, of which there are many kinds. I will focus on the 2D layout algorithms only because I work later with the `ggplot2` package to visualize networks, and this package only has 2D drawing capabilities.
 
-Some layout algorithms were designed to mimic physical systems, drawing the graphs based on the "forces" connecting them. The network's edges act as springs pushing and pulling the nodes in 2D space. The force-directed layout algorithms are:
+Some layout algorithms were designed to mimic physical systems, drawing the graphs based on the "forces" connecting them. The network's edges act as springs pushing and pulling the nodes in 2D space. Some force-directed layout algorithms are:
 
-- Kamada-Kawai
-- Fruchterman-Reingold
-- Spring embedding
-- Target diagram
-- Graphopt
-- OpenORD or VxORD
-
+- Kamada-Kawai: first introduced in @kamadakawai. Has "symmetric drawings, a
+relatively small number of edge crossings, and almost congruent drawings of isomorphic graphs" (@kamadakawai, p. 15)
+- Fruchterman-Reingold: first introduced in @fruchterman-reingold. Primary advantage is speed over Kamada-Kawai (@fruchterman-reingold, p. 1161).
+- Spring embedding: first introduced in @springs. Other force-directed layouts are refinements of this original algorithm.
+- Target diagram: nodes placed in concentric circles with hig-centrality nodes placed nearer to the center of the circle. First introduced in @Brandes2003.
 
 Other layout algorithms depend on the mathematical properties of the network's adjacency matrix or some other function or propterty of the network. Algorithms of this kind are:
 
-- Eigen
-- Hall
-- Multidimensional Scaling (MDS)
+- Eigen: node placement is based on the eigenvalues of the adjacency matrix
+- Hall: node placement is based on the last two eigenvectors of the Laplacian of the adjacency matrix
+- Multidimensional Scaling (MDS): node placement is based on metric multidimensional scaling of a given distance matrix. Distance metric can vary.
+- Principal Coordinates: node placement is based on the eigenvalues of a given covariance or correlation matrix. 
 
 Some layout algorithms only exists for certain types of networks:
 
@@ -205,9 +204,11 @@ Some layout algorithms only exists for certain types of networks:
 
 Finally, some layout methods just place the nodes randomly or in a simple ordering:
 
-- Random: according to some distribution
-- Grid: 
-- Circle: 
+- Random: places nodes randomly according to some distribution, usually uniform or some Gaussian distribution.
+- Grid: places nodes on a 2D grid
+- Circle: places nodes in a circle in numerical order by ID number
+
+These layout algorithms have been provided in several R packages for network visualization. 
 
 ### R Packages
 
@@ -221,6 +222,19 @@ Research into possible layout algorithms is important, but it ignores some of th
 
 The `gg` of `ggplot2` is for the "grammar of graphics". The grammar of graphics is a well-defined theory for creating statistical graphics described in @wilkinson:1999 and @ggplot2. In the grammar, a plot has layers, each of which has four distinct pieces: the data and aesthetic mapping, a statistical transformation, a geometric object, and a position adjustment. The aesthetic mapping takes the data and *maps* the variables in the data frame to visual features. Some of these features are horizontal and vertical placement in the plane, size of the geometric object and color of the geometric object. The statistical transformation dictates how to transform the data to the values that create the visual feature. Some `stats` are `identity` (no change in data), `bin`, and `smooth`. The geometric object or `geom` is the tool used to draw a plot layer. Some `geoms` are `point`, `line` and `bar`. Finally, the position adjustment is there to slightly change the position of the visual features in order to better view the data. This is typically only a probelm with discrete data, where overplotting can occur. Some position adjustments are `identity`, `jitter`, and `dodge`. 
 
-With the theory well defined and constructed, the `ggplot2` package allows for creation of dense plots. The user can combine multiple aesthetic mappings to view four variables at once or view many data sets of similar scale at once. The widespread use of `ggplot2` and the many packages that have built upon `ggplot2` to create visualizations above and beyond what it is capable of by itself make the `ggplot2` package an ideal framework on which to build additional methods of network visualization in R.
+With the theory well defined and constructed, the `ggplot2` package allows for creation of rich, visually dense plots. The user can combine multiple aesthetic mappings to view four variables at once or view many data sets of similar scale at once. The widespread use of `ggplot2` and the many packages that have built upon `ggplot2` to create visualizations above and beyond what it is capable of by itself make the `ggplot2` package an ideal framework on which to build additional methods of network visualization in R.
+
+First, the data structure required in `ggplot2` is fairly simple: data frames. Some other network packages contain network data structures unique to them, like the `igraph` class of data in the `igraph` packages or the `network` class of data in the `network` package. These unique structures come with unqiue syntax that can make customizing visualizations tricky. Additionally, the default visualizations in these packages are not very pleasing to the eye, as is shown with the random graph examples from `igraph` and `network` in Figure \@ref(fig:graphvizex). 
+```{r graphvizex, out.width="50%", fig.cap="The same random network plotted with the default options in \texttt{igraph} (at left) and \texttt{network} (at right.", fig.show='hold'}
+set.seed(123456)
+m <- matrix(rbinom(25,1,.4),5,5)
+migraph <- igraph::graph_from_adjacency_matrix(m, mode = "directed")
+mnetwork <- network::as.network(m, loops = TRUE)
+plot(migraph)
+plot(mnetwork)
+```
+
+As I will discuss in \@ref(ch3), network visualization within the `ggplot2` framework results in beautiful, easily customizable plots. 
 
 ## Lead-in to Thesis
+
