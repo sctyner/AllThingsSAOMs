@@ -63,53 +63,49 @@ In this section I will discuss in greater detail the models that are out there f
     + ~~Discrete time MC models~~
     + ~~Continuous time MC models (SAOMs a kind of CTMC)~~
   
-### Full introduction and discussion of SAOMs
+### ~~Full introduction and discussion of SAOMs~~
 
-I will completely flesh out the form and theory of SAOMs. This will come primarily from the detailed document I created last year and anything else from Snijders' papers. 
+~~I will completely flesh out the form and theory of SAOMs. This will come primarily from the detailed document I created last year and anything else from Snijders' papers.~~
 
-### Why focus on SAOMs
+### ~~Why focus on SAOMs~~
 
-I will discuss the lack of model checking tools specific to SAOMs due to model intractibility. This will be brief and will lead into the next section, an introduction to visual inference. 
+~~I will discuss the lack of model checking tools specific to SAOMs due to model intractibility. This will be brief and will lead into the next section, an introduction to visual inference. ~~
 
 
 ### Lead-in to Visual Inference 
 
-Take the theory of SAOMs and lead into the discussion of why visual inference could be useful for model checking and other things for SAOMs. 
+*I don't think I actually ended up doing much of this but I also don't think it was that necessary.*
 
-### Introduction to Visual Inference
+~~Take the theory of SAOMs and lead into the discussion of why visual inference could be useful for model checking and other things for SAOMs.~~ 
 
-Fully introduce the concept of visual inference as laid out in Buja et al. (2009). Also include discussion of Majumder et al. 
+### ~~Introduction to Visual Inference~~
 
-### Intro to visualizing networks
+~~Fully introduce the concept of visual inference as laid out in Buja et al. (2009). Also include discussion of Majumder et al. ~~
 
-Discuss the many ways to visualize networks (also called network mapping). Ubiquitous view is 2D represetation of points and lines. Discuss the many layout algorithms. Discuss the many packages in R that can do this. Discuss the difficulty of using these package for people not intimately familiar with them. Lead into next section with discussion of ggplot2 and its importance and popularity in data visualization.
+### ~~Intro to visualizing networks~~
+
+~~Discuss the many ways to visualize networks (also called network mapping). Ubiquitous view is 2D represetation of points and lines. Discuss the many layout algorithms. Discuss the many packages in R that can do this. Discuss the difficulty of using these package for people not intimately familiar with them. Lead into next section with discussion of ggplot2 and its importance and popularity in data visualization.~~
 
 ### Lead-in to the full thesis. 
 
-Briefly outline the 3 chapters and tie them all together. 
+*Definitely didn't do this all the way. But also, not sure how necessary it is?* 
 
-## CH 1. Removing the Blindfold from SAOMs
+~~Briefly outline the 3 chapters and tie them all together.~~~
 
-- What does the distribution look like? 
-- What does an "average network" from an SAOM look like? 
-- Generation / Creation process video
+## ~~CH 1. Removing the Blindfold from SAOMs~~
 
-## CH 2. Using visual inference for SAOMs
+## ~~CH 2. Using visual inference for SAOMs~~
 
-Explain how I will use / have used visual inference to explore properties of SAOMs. Main research question: are statistically significant model differences also visually significant? 
-
-
-## CH. 3: geomnet: a ggplot2 wrapper for network visualization
-
-Explain the hole filled by the geomnet package. 
+## ~~CH. 3: geomnet: a ggplot2 wrapper for network visualization~~
 
 ## CH. 4 Summary, Impact, Future Work
+*Didn't do this. Save for later?*
 
 Brief walk-through of all topics already covered. Emphasize the holes filled by the work. 
 
-## CH 5. Other Projects  
+## ~~CH 5. Other Projects~~  
 
-Discuss the Bob Ross and Graphics Awards papers
+~~Discuss the Bob Ross and Graphics Awards papers~~
 
 
 \newpage
@@ -117,11 +113,17 @@ Discuss the Bob Ross and Graphics Awards papers
 ```{r child = "docs/litreview.Rmd", eval=TRUE}
 ```
 
+\newpage 
+
 ```{r child = "docs/removingblindfoldsaoms.Rmd", eval = TRUE}
 ```
 
+\newpage
+
 ```{r child = "docs/visualinferencenets.Rmd", eval = TRUE}
 ```
+
+\newpage
 
 # Drawing Networks with the R package `ggplot2` {#ch3}
 
@@ -129,6 +131,11 @@ This next section is a paper I authored with Heike Hofmann (Iowa State Universit
 
 \includepdf[fitpaper=false, pages={1-26}]{RJwrapperasof9-20.pdf}
 
+\newpage
+
+# Other Projects
+
+I have also completed a couple of other significant research projects that I feel have been important in my studies. The first of these is a project on clustering digital images of paintings of the artist Bob Ross. This was originally a project assignment for STAT 503: Exploratory Methods and Data Mining in Spring 2015. I entered a version of the project assignment into Significance Magazine's 2015 Young Statisticians Writing Competition, where it was among the final three choices for the top prize.^[See [](https://www.statslife.org.uk/culture/2553-the-joy-of-clustering).] The other project is a visual exploration of the Trans-Atlantic Slave Trade Database, in which I used the `geomnet` package to better understand the structure and impact of the trans-atlantic slave trade. I submitted this paper to the 2016 Student Paper Competition sponsored by the ASA Section on Statistical Graphics and Computing, where it won top prize for a student paper in Graphics.^[See [](http://stat-computing.org/awards/student/winners.html).]  
 
 # References {#refs}
 

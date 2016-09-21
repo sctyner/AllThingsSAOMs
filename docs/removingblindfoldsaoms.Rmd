@@ -1,6 +1,6 @@
 # Stochastic Actor-Oriented Models for Longitudinal Network Data: Removing the Blindfold {#ch1}
 
-As this is the least-developed section of my thesis, this section will describe the work I intend to do in as much detail as possible. I also got the idea for the title and general framework of this paper from @Wickham2015.  
+**Abstract**: In this chapter, I will "remove the blindfold" from some aspects of modeling social networks with stochastic actor-oriented models. I will follow procedures similar to those in @Wickham2015 in order to better understand the latent process of edge creation and destruction that characterizes a SAOM. I will also visualize, compare, and contrast several different networks simulated from a SAOM with a particular set of parameters and parameter values in order to better understand what the distribution of networks under SAOM looks like. Finally, I will compare large numbers of networks using tools like structural principal components analysis in order to determine how differences in model structure and parameter values affect the overall structure of a social network. 
 
 ## Introduction
 
