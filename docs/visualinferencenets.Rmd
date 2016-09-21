@@ -584,7 +584,7 @@ knitr::kable(
 )
 ```
 
-Because of the random assignment of the 25 plots to users, almost every lineup was seen by a different number of people. Repetition 3 of $M1$ v. $M3$ was seen by 47 different users while repetition 2 of the same type was seen by only 6 different users. The mean number of times seens was 30.8 per lineup and the median was 31. In 15 of the 25 lineups, no user identified the correct plot, and in the remaining 10 lineups, the users correctly identified the alternative plot in the lineup a minimum of 4.35\% of the time and a maximum of 64\% of the time. A plot showing the number of different plots chosen, how many times they were chosen, and whether or not it was the correct choice is given in Figure \@ref(fig:facets-correct). 
+Because of the random assignment of the 25 plots to users, almost every lineup was seen by a different number of people. Repetition 3 of $M1$ v. $M3$ was seen by 47 different users while repetition 2 of the same type was seen by only 6 different users. The mean number of times seens was 30.8 per lineup and the median was 31. In 15 of the 25 lineups, no user identified the correct plot, and in the remaining 10 lineups, the users correctly identified the alternative plot in the lineup a minimum of 4.35\% of the time and a maximum of 64\% of the time. A plot showing the number of different plots chosen, how many times they were chosen, and whether or not it was the correct choice is given in Figure \@ref(fig:facets-correct). Since the turk users were allowed to select multiple plots, the values shown in the histogram are actually the total weights received for each plot in the lineup. If the user selected only one plot, then that plot received a weight of 1, but if the user selected $n \geq 2$ plots, then each plot selected received a weight of $\frac{1}{n}$. 
 
 ```{r facets-correct, echo=FALSE, fig.align="center", fig.cap="Plots chosen for each of the 25 lineups in the experiment. The x-axis ticks do not have a label because the label is less important than the number of different plots users chose and whether or not they chose the correct plot, shown in the coloring of the bars.", fig.height=9}
 ggplot(data = summ_res_wts, 
@@ -608,7 +608,7 @@ Next, we investigate the confidence of the experiment's participants in selectin
 res2$conf_level <- ordered(res2$conf_level, levels = c("Very Uncertain", "Uncertain", "Neutral", "Certain", "Very Certain"))
 
 ggplot(data = res2, aes(x = lineup_name)) + 
-  geom_bar(aes(fill = conf_level), color = 'grey60') + 
+  geom_bar(aes(fill = conf_level), color = 'grey60', position = 'fill') + 
   scale_fill_brewer(palette = "RdBu") + 
   coord_flip() + 
   facet_wrap(~correct) + 
@@ -626,28 +626,34 @@ prop_test_for_conf_corr <- prop.test(as.matrix(summary.conf))
 
 We next investigate the length of time that users' took to respond to each lineup. The minimum was 3.762 seconds and the maximum was 578.8 seconds (nearly 10 minutes). The median was 13.01 seconds and the mean was 20.32 seconds. First, a 2-sample Kolmogorov-Smirnov test for equality of distribution was done to see if the distribution of times for correct plots chosen is the same as the distribution of times for incorrect plots chosen. This two-sided test resulted in a $p$-value of 1, so there is no evidence that the distribution of times is different whether or not the response was correct. 
 
-```{r time-plot, echo=FALSE}
+```{r time-plot, echo=FALSE, fig.height=4, out.width="75%", fig.cap="Log of time taken to complete a lineup for all responses, separated by whether or not the response was correct. The distribution is roughly the same for correct and incorrect responses, with more right skew on incorrect responses."}
 #qplot(x = res2$time, binwidth = 2)
-ggplot(data = res2, aes(x = conf_level, y = log(time))) + geom_boxplot() + coord_flip() + theme_bw()
-ggplot(data = res2, aes(x = correct, y = log(time))) + geom_boxplot() + coord_flip() + theme_bw()
+#ggplot(data = res2, aes(x = conf_level, y = log(time))) +
+#  geom_boxplot() + coord_flip() + theme_bw()
+#ggplot(data = res2, aes(x = correct, y = log(time))) + geom_boxplot() + coord_flip() + theme_bw()
 ggplot(data = res2, aes(x = log(time))) + 
-  geom_histogram(binwidth = .5, fill ='white', color = 'black') +
-  facet_wrap(~correct, nrow = 2, scales = 'free_y') + theme_bw()
-ggplot(data = res2, aes(x = lineup_name, y = log(time))) + 
-  geom_boxplot() + 
-#  facet_wrap(~conf_level) + 
-  coord_flip() + 
-  theme_bw() + 
-  labs(y = "Time (in seconds)", x = "Lineup Name")
+  geom_histogram(aes(y = ..density..),binwidth = .5, fill ='white', color = 'black') +
+  #geom_density(color = 'red', alpha = .8) +
+  facet_wrap(~correct, nrow = 2, scales = 'free_y', labeller = label_both) + theme_bw()
+# ggplot(data = res2, aes(x = lineup_name, y = log(time))) + 
+#   geom_boxplot() + 
+# #  facet_wrap(~conf_level) + 
+#   coord_flip() + 
+#   theme_bw() + 
+#   labs(y = "Time (in seconds)", x = "Lineup Name")
 # 2-sample kolmogorov-smirnov test for equality of distributions
 # ks.test(x = summary(res2$time[res2$correct]), y = summary(res2$time[!res2$correct]))
 # fail to reject null
 ```
 
-### Discussion/Future Work
+### Discussion
 
-This small experiment suggests that detecting a network model difference from just one simulation from one model and 11 from the other model is just about impossible. This result is fairly unsurprising: drawing a single random point from, say, a $\chi^2_1$ distribution and placing it in a lineup with 11 separate draws from a standard normal distribution would likely have similar results. Every once in a while, a chi-square value would appear that would be too large to belong with draws from a standard normal distribution, but values near 1, the mean, would probably not appear that different from some random standard normal draws. This means that we need to develop a different way to compare two network models. We need a way to visualize many samples from a network model in one panel.
+This small experiment suggests that detecting a network model difference from just one simulation from one model and 11 from the other model is just about impossible. This result is fairly unsurprising: drawing a single random point from, say, a $\chi^2_1$ distribution and placing it in a lineup with 11 separate draws from a standard normal distribution would likely have similar results. Every once in a while, a chi-square value would appear that would be too large to belong with draws from a standard normal distribution, but values near 1, the mean, would probably not appear that different from some random standard normal draws. This means that we need to develop a different way to compare two network models. We need a way to visualize many samples from a network model in one panel. 
 
+We have also discovered that a high value of the JTT statistic leads to correct lineup selection more than a high estimated parameter value. This leads us to question whether statistical significance has any relation to visual detectability at all.  
 
+## Future Work
+
+The next part of this paper requires several more experiments to be performed. We will simulate data from many more models, each with different parameters and parameter values included in the model. Then, networks simulated from null models like $M1$ will be placed in lineups with a network simulated from one of the several alternative models we will define. By performing visual inference on SAOMs in this way, we hope to determine which parameters, when included, cause significant change in the visible network structure. 
 
 
