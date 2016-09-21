@@ -112,7 +112,7 @@ The objective function for each actor in each model is given below.
   f^{M_3}_{i}(\boldsymbol{\beta}, x) & = \beta_1 s_{i1}(x) +  \beta_2 s_{i2}(x) + \beta_4 s_{i4}(x) 
   \end{align*}
 
-The outdegree parameter, $\beta_1$, represents how likely an actor is to change outgoing ties. If the estimate, $\hat{\beta}_1$, is positive, the actor is more likely to create outgoing ties, while a negative estimate leads the actor to deleting outgoing ties. This effect is highly correlated with the reciprocity parameter, $\beta_2$. A negative estimate of this parameter implies that the actor is discouraged from reciprocating its incoming ties, while a positive estimate implies that the actor is encouraged to reciprocate all ties. The additional parameter in $M_2$, $\beta_3$, is a the covariate parameter that takes into account the girls' drinking behavior. This jumping transitive triplet effect impacts the transitive closure of actors from different groups. Thus, a positive estimate encourages transitive closure when one of three actors is in a different covariate group than the other two, while a negative estimate discourages closure when one member is from a different group. An example of this type of closure is given in Figure \@ref(fig:jtt). With the directed edges we also distinguish between 'i likes j' and 'j likes i'. Finally, the doubly achieved distances effect is defined by the number of actors to whom actor $i$ is not directly tied, but to which it is connected through two different paths via at least two intermediary actors. This is a structural effect, like the density and reciprocity effects. A positive coefficient value encourages indirect ties, while a negative value discourages the formation of indirect ties in favor of direct ties. 
+The form of the statistics, $s_{ik}(x)$ for $k = 1, \dots, 4$ are given in Table \@ref(tab:models). The outdegree parameter, $\beta_1$, represents how likely an actor is to change outgoing ties. If the estimate, $\hat{\beta}_1$, is positive, the actor is more likely to create outgoing ties, while a negative estimate leads the actor to deleting outgoing ties. This effect is highly correlated with the reciprocity parameter, $\beta_2$. A negative estimate of this parameter implies that the actor is discouraged from reciprocating its incoming ties, while a positive estimate implies that the actor is encouraged to reciprocate all ties. The additional parameter in $M_2$, $\beta_3$, is a the covariate parameter that takes into account the girls' drinking behavior. This jumping transitive triplet effect impacts the transitive closure of actors from different groups. Thus, a positive estimate encourages transitive closure when one of three actors is in a different covariate group than the other two, while a negative estimate discourages closure when one member is from a different group. An example of this type of closure is given in Figure \@ref(fig:jtt). With the directed edges we also distinguish between 'i likes j' and 'j likes i'. Finally, the doubly achieved distances effect is defined by the number of actors to whom actor $i$ is not directly tied, but to which it is connected through two different paths via at least two intermediary actors. This is a structural effect, like the density and reciprocity effects. A positive coefficient value encourages indirect ties, while a negative value discourages the formation of indirect ties in favor of direct ties. 
 
 ```{r jtt, echo=FALSE, fig.width=2, fig.height=2, message = FALSE, warning = FALSE, fig.align='center', fig.cap="Structural network effects. On the left, a jumping transitive triplet (JTT). On the right, a doubly achieved distance between $i$ and $k$. At left, a realization of a jumping transitive triplet, where $i$ is the focal actor, $j$ is the target actor, and $h$ is the intermediary. The group of the actors is represented by the shape of the node. At right, doubly achieved distance between actors $i$ and $k$.", out.width = "50%", fig.show='hold'}
 jTTe <- data.frame(from = c('i', 'i', 'h'), to = c('h', 'j', 'j'))
@@ -143,7 +143,7 @@ ggplot(data = dad, aes(from_id = from, to_id = to)) +
   theme(legend.position = "none")
 ```
 
-### Model Fitting and Simulation
+### Model Fitting and Simulation {#fitting}
 ```{r readsimu, echo=FALSE}
  nulls <- read.csv("../VisInfDocs/Data/distribution_null_model.csv")
 # names(nulls)[-1] <- c("alpha1", "alpha2", "beta1", "beta2")
@@ -178,7 +178,7 @@ alt_mod_sv <- as.numeric(alt[,-c(1, 7,8)] %>% summarise_each(funs(mean)))
 alt_mod2_sv <- as.numeric(alt2nd[,-c(1,7,8)] %>% summarise_each(funs(mean)))
 ```
 
-Each model, $M1$, $M2$, and $M3$, was fit to the data 1000 times in order to obtain a distribution of parameter estimates. These distributions are shown in Figure \@ref(hist-estimates). Then, the overall mean of the 1000 estimates for each parameter was calculated and used as the plug-in values for simulating from each of the three models. These values are presented in Table \@ref(tab:models). 
+Each model, $M1$, $M2$, and $M3$, was fit to the data 1000 times in order to obtain a distribution of parameter estimates. These distributions are shown in Figure \@ref(fig:hist-estimates). Then, the overall mean of the 1000 estimates for each parameter was calculated and used as the plug-in values for simulating from each of the three models. These values are presented in Table \@ref(tab:models). 
 
 \begin{table}[h]
 \caption{(\#tab:models) Parameters and estimates of models $M_1$, $M_2$, and $M_3$. Estimates are the mean of 1000 iterations of the model estimates. The lineups that follow are simulated from models using these values.}
@@ -235,11 +235,13 @@ To create the lineups that we used in our experiment, we used the values given i
 
 We initially constructed lineups of various sizes, $M \in \{3,6,9,12,16\}$. We ultimately decided to use lineups of size $M=12$ because these lineups appeared to be the most square, and contained enough plots to make the probability of choosing the correct plot at random fairly low, at $\frac{1}{12} = 0.083$ while not overwhelming the viewer with too many plots to examine at once.  
 
-## Parameter Estimation from Lineups
+### Parameter Estimation from Lineups
 
 After the lineups were created, we re-fit each of our three models to each panel in each lineup of all sizes. Fitting all models to all lineup plots allows us to gauge the ability of the parameter estimates to provide a measure of lineup identification difficulty. For instance, when comparing models 1 and 2 in a lineup, the estimates from fitting model 2 to plots which were simulated from model 2 should be significantly different from the model 2 estimates from plots simulated from model 1. The smaller the difference between these estimates, the harder it should be to identify the different model in the lineup. 
 
-```{r convergence, fig.width=8, fig.height=3, echo = FALSE, warning = FALSE, fig.cap="Pattern of convergence. A total of 67.7\\% of all lineup data converged in 5,000 iterations. The simplest model, $M_1$ has the highest rate of convergence. For models $M_2$ and $M_3$ data generated from the model converged at a higher rate than data generated from the other model."}
+We did run into convergence problems when estimating parameter values from the lineup data. In about $\frac{1}{3}$ of cases, the algoritm did not converge, as determined by phase 3 of the fitting process and the convergence values stated in Section \@ref(fitting). Convergence by the model that was fit to the data and the model from which the data were simulated is sumarized in Figure \@ref(fig:convergence). Additionally, distributions of parameter values for all fitted models according to the fitted model, the model from which the data were simulated, and whether or not the estimation converged are shown in Figure \@ref(convergence-ests). For the estimates of $M1$ that did not converge, the distributions of the estimates were very different from what they should have been, i.e. distributions of $\hat{\beta}_3$ and $\hat{\beta}_4$ should be near 0 when the true model was model $M1$, but this is not the case for instances where the algorithm did not converge. 
+
+```{r convergence, fig.width=8, fig.height=3, echo = FALSE, warning = FALSE, fig.cap="Pattern of convergence. A total of 67.7\\% of all lineup data converged in 5,000 iterations. The simplest model, $M_1$ has the highest rate of convergence. For true models $M_2$ and $M_3$, data generated from the true model converged at a higher rate than data generated from the other model."}
 load("../VisInfDocs/Data/lus_ests_truth.rda")
 lus_ests_truth$param_name <- 
   factor(lus_ests_truth$param_name,
@@ -331,7 +333,7 @@ For model $M_2$, the parameter $\beta_3$ is estimated to be significantly differ
 
 However, the bottom row of Figure \@ref(fig:comparison) shows that independently of which model data is generated from, $\beta_4$ is estimated to be significantly different from zero in a large number of cases (about half of the data generated from model $M_2$ and more than that in model $M_1$). While $\beta_4$ is a highly significant parameter in model $M_3$, this questions the way that parameters are fitted and tells us that we are not likely to be able to visually distinguish between data generated from model $M_3$ and data generated from models $M_1$ and $M_2$. We might, however, be able to distinguish between data sets for which $\beta_4$ is estimated to be significantly different from zero and those where $\beta_4$ is not significant. We hypothesize that the strong influence of the inclusion of $\beta_4$ in $M3$ makes the probability of being able to visually distiguish $M1$ from $M3$ extremely low. The $\beta_4$ estimate is always significantly greater than zero in fitted models that converged. Thus, $\beta_4$ should have been included from the beginning.
 
-```{r lusparms, echo=FALSE, fig.width=8, fig.height = 8, out.width='.6\\linewidth', fig.align = 'center', warning = FALSE, fig.cap="Scatterplots of smallfriends and smallfriends-rev: comparing the ratio of null plots with smaller estimates of $\\beta_3$ in the nulls than in the data panel (top row) and larger estimates of $\\beta_3$ in the nulls than in the data panel. In lineups with a ratio of 1 the data should be 'easy' to identify in both scenarios."}
+```{r lusparms, echo=FALSE, fig.width=8, fig.height = 8, out.width='.6\\linewidth', fig.align = 'center', warning = FALSE, fig.cap="Scatterplots of smallfriends and smallfriends-rev: comparing the ratio of null plots with smaller estimates of $\\beta_3$ in the nulls than in the data panel (top row) and larger estimates of $\\beta_3$ in the nulls than in the data panel. In lineups with a ratio of 1 the data should be 'easy' to identify in both scenarios.", eval = FALSE}
 load("../VisInfDocs/Data/lus_ests_truth.rda")
 
 lus_ests_truth$true_panel <- lus_ests_truth$true_model == lus_ests_truth$model
@@ -386,10 +388,10 @@ jtts <- read.csv("../VisInfDocs/Data/lineups-jtt.csv")
 jtts$lineupid <- with(jtts, paste(model, m, rep, sep="-"))
 jtts$data_panel <- jtts$plot_order
 lus_summary_2 <- merge(lus_summary_2, jtts[, c("lineupid", "jtt", "data_panel")], by=c("lineupid","data_panel"), all.x=TRUE)
-qplot(data=subset(lus_summary_2, param_name=="transitive triplets jumping alcohol2" & part=="smallfriends"), data_est, jtt, geom="jitter") + geom_label(data=subset(lus_summary_2, param_name=="transitive triplets jumping alcohol2" & jtt > 20 & part=="smallfriends"), aes(label=lineupid), alpha=.6)
+#qplot(data=subset(lus_summary_2, param_name=="transitive triplets jumping alcohol2" & part=="smallfriends"), data_est, jtt, geom="jitter") + geom_label(data=subset(lus_summary_2, param_name=="transitive triplets jumping alcohol2" & jtt > 20 & part=="smallfriends"), aes(label=lineupid), alpha=.6)
 ```
 
-```{r lusparms-eff2, echo=FALSE, fig.width=8, fig.height = 8, out.width='.6\\linewidth', fig.align = 'center', warning=FALSE}
+```{r lusparms-eff2, echo=FALSE, fig.width=8, fig.height = 8, out.width='.6\\linewidth', fig.align = 'center', warning=FALSE, eval = FALSE}
 lus_summary_3 <- lus_spread %>% group_by(part, lineupid, param_name) %>%
   summarize(
     data_n = sum(true_model=="M3"),
@@ -430,7 +432,6 @@ gridExtra::grid.arrange(p1,p2)
 We performed a pilot study that consisted of an evaluation of a set of 20 lineups by 11 volunteers. For each of the model situations ($M_1$ vs $M_2$, $M_2$ vs $M_1$, $M_1$ vs $M_3$ and $M_3$ vs $M_1$) one lineup of size $m = 3, 6, 9, 12$ was used. Overall, the number of data identifications in the lineups was very low (34 out of 220 evaluations). Participants identified the data plot in two to four of the lineups they evaluated. The mode was three data identifications out of twenty per participant. 
 
 \paragraph{Suitability of $M_3$ in lineups:}
-
 ```{r data-picks, echo=FALSE, fig.align='center', fig.width=10, fig.height=5, out.width='0.85\\linewidth', fig.cap="Barchart summarizing the number of responses from the pilot study by model and lineup. Color shows the number of times the data panel was chosen from the lineup. Clearly, the first two sets of lineups ($M_1$ vs $M_2$ and $M_2$ vs $M_1$) have on average higher number of data identifications." }
 pdffiles <- dir("../VisInfDocs/GGExperimentApr28/", pattern="pdf")
 pdffiles <- gsub(".pdf","",pdffiles)
@@ -471,26 +472,19 @@ Figure \@ref(fig:data-picks) shows barcharts of responses from the pilot study d
 
 In order to test our hypotheses, we set up an Amazon Mechanical Turk experiment [@turk] using the lineup protocal of @Bujaetal. We presented four types of lineups:  We created a total of 25 lineups to show to Amazon Turk users taking our experiment: 10 for M1 v. M2 and 5 each for the other three types of lineups. In each lineup, there were 12 plots shown: 11 of the plots were simulated from the first model (the "null" model) and 1 was simulated from the second model (the "alternative" model). We chose to show lineups of size 12 because we felt that showing more than 12 would be too large of a cognitive load, while showing fewer than 12 would leave too much of the experiment to random chance. The order of the plots within the lineups was randomly assigned. We selected five lineups presented from each group based on the following criteria: first, for M1 v M2 and M1 v M3, we selected the lineups where the additional parameter in the objective function, $\beta_3$ and $\beta_4$, respectively, had the largest estimated value among the 12 networks presented. There were not many of these in the size 12 lineups, so our other selection criteria was that the estimated parameter value of interest was larger in the alternative panel than in at least half of the other lineups, and that it was close to the estimate from the panel that did have the largest value. For the $M2$ v $M1$ and $M3$ v $M1$ lineups, we first selected lineups of size 12 where the smallest parameter estimate belonged to the alternative model. If more lineups were needed, we next selected those which had estimates *smaller* than at least half of the other panels and were close to the *minimum* estimate in the lineup. For the remaining five plots of type $M1$ v $M2$, we chose the lineups where the alternative plot had the largest number of jumping transitive triplets, i.e. with the highest value of $\sum_i s_{i3}(x)$, appear in the network. We chose this statistic because its value has great effect on both the estimation of the $\beta_3$ parameter and on the visual appearance of the plot.
 
-In order to become a subject in our experiment, the Amazon turk user had to first read through some introductory material and prove they could identify the correct plot in two test lineups, one for M1 v. M2 and one for M2 v. M1. These two lineups were constructed to be very simple in order to train the turkers. Once the turker made it into the experiment, they looked at 10 lineups selected at random from a pool of 25. There were five lineups for each of the four types with an additional five lineups of the type M1 v. M2 which were chosen for their high counts of jumping transitive triplets in the alternative model network in an attempt to gauge how important this statistic is to the visualization of the network. If there are many jumping transitive triplets in the alternative model plot and more turkers correctly choose that plot, that would be evidence that the jumping transitive triplets are very noticeable to the user.
+In order to become a subject in our experiment, the Amazon turk user had to first read through some introductory material and prove they could identify the correct plot in two test lineups. Each user was greeted with a brief welcome message and experiment description, seen in Figure \@ref(fig:directions). Then, a training page about how to identify the correct plot in a lineup, seen in Figure \@ref(fig:lineupex) was present. After the training page, two trial plots were presented. In order to complete the experiment, the user had to correctly identify the alternative plot. In the trial they identified a plot, provided reasoning for this choice (most complex, least complex, or other), and provided their confidence level in their choice (Very Uncertain, Uncertain, Neutral, Certain, Very Certain). Two of these trial plots with the correct responses selected are shown in Figure \@ref(fig:lineuptrial) one lineup of type $M1$ v. $M2$ and one of type $M2$ v. $M1$. The training lineups shown to the Turkers were randomly selected from ten lineups that were constructed to be very simple for training purposes. Once the turk user chose the correct plot in the two trial plots, the experiment proceeded with the same interface as the trial plots, with users selecting which plot they thought was most different, why they thought that, and how certain they were of their choice of different plot for 10 lineups chosen at random from the aforementioned pool of 25. The users were also allowed to select multiple plots for their response. 
 
-Each Amazon Turk user was greeted with the following message: ``In this survey a series of similar looking charts will be presented. We would like you to respond to the following questions.
-\begin{enumerate}
-\item Pick the plot based on the survey question
-\item Provide reasons for choice
-\item How certain are you?
-\end{enumerate}
-Finally we would like to collect some information about you. (age category, education and gender)."  Then, they were led through a training page about how to identify the correct plot in a lineup, seen in Figure \@ref(fig:lineupex). Then, they saw two trial plots that they had to get correct in order to proceed to the rest of the experiment. They chose the plot that looked the most different from the others, why they chose is (most complex, least complex, or other), and how certain they were that they had chosen correctly (Very Uncertain, Uncertain, Neutral, Certain, Very Certain). These trial plots are shown in Figure \@ref(fig:lineuptrial)
+```{r directions, out.width="50%", fig.cap="The welcome message shown to the Amazon Turk users."}
+knitr::include_graphics(c("VisInfDocs/Results/Directions"))
+```
 
 ```{r lineupex, out.width="50%", fig.cap="The first training page in the Amazon Turk experiment.", fig.show='hold'}
 knitr::include_graphics(c("VisInfDocs/Results/Ex1","VisInfDocs/Results/Ex2"))
 ```
 
-```{r lineuptrial, out.width="50%", fig.cap=" The trial plots that users had to get correct in order to participate in the Amazon Turk experiment.", fig.show='hold'}
+```{r lineuptrial, out.width="50%", fig.cap="Two of trial plots that users had to correctly answer in order to participate in the Amazon Turk experiment. The lineup on the left is representative of the $M1$ v $M2$ type of lineup, while the lineup on the right is representative of the $M2$ v $M1$ type.", fig.show='hold'}
 knitr::include_graphics(c("VisInfDocs/Results/Trial1","VisInfDocs/Results/Trial2"))
-
 ```
-
-Once the turk user chose the correct plot in the two trial plots, the experiment proceeded with the same interface and users selecting which plot they thought was most different, why they thought that, and how certain they were for 10 plots chosen at random. 
 
 ### Results
 
@@ -560,7 +554,7 @@ res3 %>% group_by(group_name, response_no2, correct) %>% summarise(tot_wt = sum(
 #   labs(x = "", title = "Percent of Users Correctly Identifying Alternate Model", y = "")
 ```
 
-We collected 10 lineups each from 77 Amazon Turk users. A table of demographic information collected on the participants in the experiment is in Table \@ref(fig:demos). 
+We collected on ten lineups each from 77 Amazon Turk users. A table of demographic information collected on the participants in the experiment is in Table \@ref(fig:demos). 
 ```{r demos}
 t1 <- t(data.frame(table(tab2$gender)))
 rownames(t1) <- c("Gender:", "Count:")
@@ -590,9 +584,7 @@ knitr::kable(
 )
 ```
 
-
-
-Because of the random assignment of the 25 plots to users, almost every lineup was seen by a different number of people. Repetition 3 of M1 v. M3 was seen by 47 different users while repetition 2 of the same type was seen by only 6 different users. The mean number of times seens was 30.8 and the median was 31. In 15 of the 25 lineups, no user chose the correct plot, and in the remaining 10 lineups, the users correctly identified the alternative plot a minimum of 4.35\% of the time and a maximum of 64\% of the time. A plot showing the number of different plots chosen, how many times they were chosen, and whether or not it was the correct choice is given in Figure~\ref{fig:facets-correct}. 
+Because of the random assignment of the 25 plots to users, almost every lineup was seen by a different number of people. Repetition 3 of $M1$ v. $M3$ was seen by 47 different users while repetition 2 of the same type was seen by only 6 different users. The mean number of times seens was 30.8 per lineup and the median was 31. In 15 of the 25 lineups, no user identified the correct plot, and in the remaining 10 lineups, the users correctly identified the alternative plot in the lineup a minimum of 4.35\% of the time and a maximum of 64\% of the time. A plot showing the number of different plots chosen, how many times they were chosen, and whether or not it was the correct choice is given in Figure \@ref(fig:facets-correct). 
 
 ```{r facets-correct, echo=FALSE, fig.align="center", fig.cap="Plots chosen for each of the 25 lineups in the experiment. The x-axis ticks do not have a label because the label is less important than the number of different plots users chose and whether or not they chose the correct plot, shown in the coloring of the bars.", fig.height=9}
 ggplot(data = summ_res_wts, 
@@ -608,9 +600,9 @@ ggplot(data = summ_res_wts,
   labs(x = "User Response" , y = "Number of Responses") 
 ```
 
-This plot shows us the abysmal ability of the Turkers to identify the alternative plot correctly. There are also a few other interesting results from this plot. First, there are several lineups where a majority of participants selected the same wrong alternative plot. Additionally, we see a lot of variation in the number of different plots selected at the alternate plot by the Turkers. At most, there were 10 different plots selected, compared to 2 at the opposite end. XXX is it worth exploring these ``interesting things" more in-depth? XXX
+This plot shows us the abysmal ability of the Turkers to identify the alternative plot correctly. There are also a few other interesting results from this plot. First, there are several lineups where a majority of participants selected the same wrong alternative plot. Additionally, we see a lot of variation in the number of different plots selected at the alternate plot by the Turkers. At most, there were 10 different plots selected, compared to 2 at the opposite end.
 
-Next, we investigate the confidence of the experiment's participants in selecting the most different plot from the others. Overall, in 40\% of the responses, the respondent was certain they were correct. User confidence in the remaining categories, neutral, uncertain, very certain, and very uncertain, was 26.88\%, 16.88\%, 9.48\%, and 6.76\%, respectively. These results are summarized by lineup in Figure~\ref{fig:cert-plot}. We also performed a 5-sample test for equality of proportions in order to test the null hypothesis that the proportion of correct responses is the same in all 5 certainty categories. This test resulted in a $p$-value of 0.5881, so there is no evidence that the certainty of a user's response affects whether or not they choose the correct plot. This provides further evidence that detecting a network simulated from a different model is an extremely difficult problem. 
+Next, we investigate the confidence of the experiment's participants in selecting the most different plot from the others. Overall, in 40\% of the responses, the respondent was certain they were correct. User confidence in the remaining categories, neutral, uncertain, very certain, and very uncertain, was 26.88\%, 16.88\%, 9.48\%, and 6.76\%, respectively. These results are summarized by lineup in Figure \@ref(fig:cert-plot). We also performed a 5-sample test for equality of proportions in order to test the null hypothesis that the proportion of correct responses is the same in all 5 certainty categories. This test resulted in a $p$-value of 0.5881, so there is no evidence that the certainty of a user's response affects whether or not they choose the correct plot. This provides further evidence that visually detecting differences between networks simulated from different models is an extremely difficult problem. 
 
 ```{r cert-plot, echo=FALSE, warning = FALSE, message = FALSE, fig.align='center', fig.height=4, fig.cap="All responses for all lineups, separated by whether the plot selected was the true alternative plot (TRUE) or not (FALSE) and colored by the respondent's uncertainty levels. We see here that most respondents were certain in their answer whether or not they were correct."}
 res2$conf_level <- ordered(res2$conf_level, levels = c("Very Uncertain", "Uncertain", "Neutral", "Certain", "Very Certain"))
@@ -636,10 +628,12 @@ We next investigate the length of time that users' took to respond to each lineu
 
 ```{r time-plot, echo=FALSE}
 #qplot(x = res2$time, binwidth = 2)
-ggplot(data = res2, aes(x = conf_level, y = time)) + geom_boxplot() + coord_flip()
-ggplot(data = res2, aes(x = correct, y = time)) + geom_boxplot() + coord_flip() + theme_bw()
-ggplot(data = res2, aes(x = time)) + geom_histogram(binwidth = 5, fill ='white', color = 'black') + facet_wrap(~correct, nrow = 2)
-ggplot(data = res2, aes(x = lineup_name, y = time)) + 
+ggplot(data = res2, aes(x = conf_level, y = log(time))) + geom_boxplot() + coord_flip() + theme_bw()
+ggplot(data = res2, aes(x = correct, y = log(time))) + geom_boxplot() + coord_flip() + theme_bw()
+ggplot(data = res2, aes(x = log(time))) + 
+  geom_histogram(binwidth = .5, fill ='white', color = 'black') +
+  facet_wrap(~correct, nrow = 2, scales = 'free_y') + theme_bw()
+ggplot(data = res2, aes(x = lineup_name, y = log(time))) + 
   geom_boxplot() + 
 #  facet_wrap(~conf_level) + 
   coord_flip() + 
