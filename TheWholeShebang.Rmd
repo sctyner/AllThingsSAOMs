@@ -13,6 +13,7 @@ output:
 header-includes:
 - \usepackage{booktabs} 
 - \usepackage{pdfpages} 
+- \usepackage{epstopdf}
 bibliography: docs/bigbib.bib
 link-citations: true
 
@@ -130,7 +131,7 @@ This next section is a paper I authored with Heike Hofmann (Iowa State Universit
 
 \newpage
 
-\includepdf[fitpaper=false, pages={1-26}, scale=10]{RJwrapperasof9-20.pdf}
+\includepdf[pages={1-26}]{RJwrapperasof9-20.pdf}
 
 \newpage
 
