@@ -12,12 +12,17 @@ library(RSiena)
 library(knitr)
 ```
 
-## Models
+## Introduction
 
-We fit three different stochastic actor-oriented models to a subset of the 50 actor dataset from the ``Teenage Friends and Lifestyle Study" that is provided on the RSiena webpage ```friendsdata. We chose to subset the data to decrease the cognitive load on our experiment's subjects. The subset contained actors 20 through 35 and the ties between them, as well as the drinking behavior of each actor at each of the three waves. This specific subset was chosen because it showed somewhat higher connectivity than other subsets, as we've emphasized in the visualizations of the three network adjacency matrices below. For model fitting, we condition on wave 1 and estimate the parameters of our models from the second and third waves.
+The introduction of this chapter will start with a shortened introduction to the rate function and objective function of a SAOM. I do not include it here for now because these functions are introduced in great detail in Section \@ref(saoms). 
 
+The R package `RSiena` provides methods for estimation of stochastic actor-oriented models for social network analysis [@Rsoft; @RSiena]. In this software, there are many possible parameter values that can be included into a model, but no ways of performing model selection. There are, however, some simple $t$-type and Wald-type tests of parameters that can be used to determine the significance of a parameter included in the objective function. This is crucial to the statistical analysis of the network in order to better understand the mechanism underlying the data. When studying a social network, it is also pertinent to the analysis to visualize the data. There is not, however, a way to know just which parameter values are affecting the network structure seen in the visualization. In this paper, we explore the visible effects of different model parameters, and use the lineup protocal of @Bujaetal to perform visual tests of model parameters. 
 
-```{r smallfriends, echo=FALSE, fig.width=8, fig.height=3, message = FALSE, warning = FALSE, fig.cap="Adjacency matrices describing friendship relations between 50 students in waves 1,2, and 3 of the friendship study of \\@friendsdata. The red squares identify the subset we focus on for our experiment."}
+## Data
+
+The data we use in our first experiment is a small subset of 16 actors in the dynamic friendship network collected by @friendsdata. This data is made available on the [RSiena webpage](http://www.stats.ox.ac.uk/~snijders/siena/Glasgow_data.htm). It is a study of teenage girls and the changes in their friendship network overtime, and it also includes covariate information on the girls, such as their drinking and smoking behavior or whether or not they participate in school sports. We chose to subset the data to this small network to decrease the cognitive load on our experiment's subjects. The subset contained three waves of data, 16 girls and the relationships between them, and the drinking behavior of each actor at each of the three waves. This specific subset was chosen because it showed somewhat higher connectivity than other subsets, as determined by the adjacency matrix visualization of each wave shown in Figure \@ref(fig:smallfriends). The first wave of our small network, which is conditioned on in estimation, is shown in Figure \@ref(fig:wave1). The covariate, drinking behavior, is coded in the original data set as an integer from 1-5: 1 means no consumption of alchohol, 2 is consumption once or twice a year, 3 is once a month, 4 is once a week, and 5 alcohol consupmtion more than once a week.
+
+```{r smallfriends, echo=FALSE, fig.width=8, fig.height=3, message = FALSE, warning = FALSE, fig.cap="Adjacency matrices describing friendship relations between 50 students in waves 1,2, and 3 of the friendship study of \\@friendsdata. The red squares identify the subset we focus on for our experiment.", out.width="80%"}
 #source("VisInfDocs/Code/00e_small_friends.R")
 friend.data.w1 <- as.matrix(read.table("../VisInfDocs/Data/s50_data/s50-network1.dat"))
 friend.data.w2 <- as.matrix(read.table("../VisInfDocs/Data/s50_data/s50-network2.dat"))
@@ -52,9 +57,6 @@ drink <- as.matrix(read.table("../VisInfDocs/Data/s50_data/s50-alcohol.dat"))
 drink2 <- drink[20:35,]
 ```
 
-The first wave of the network, which is conditioned on in estimation, is given in Figure \@ref(fig:wave1).
-
-
 ```{r wave1, echo=FALSE, message=FALSE, warning=FALSE, fig.height=5, fig.cap="Network of friendships of wave 1 of the subset of students that we will be exploring.", fig.align='center', out.width='50%'}
 library(sna)
 library(network)
@@ -83,8 +85,8 @@ actual1$behaviour <- factor(actual1$drink)
 levels(actual1$behaviour) <- c("None", "Once or twice a year", "Once a month", "Once a week")
 ggplot(data = actual1, aes(from_id = X1, to_id = X2)) + 
   geom_net(label = TRUE, hjust = 0.5, vjust=0.5, size=10,  
-           fiteach = T, labelcolour = "grey20", 
-           aes(colour = behaviour)) + 
+           fiteach = T, labelcolour = "grey20", directed = T,
+           arrowgap = .03, aes(colour = behaviour)) + 
   scale_colour_brewer("Drinking behavior", palette="YlOrRd") +
   theme_net() 
 
@@ -99,8 +101,49 @@ source("../VisInfDocs/Code/03c_complete_lineup_creation.R")
 lineup1 <- create_smfriend_lu(null_eff_struct = null_model_eff2, test_eff_struct = eff_models_smallFriends[[39]], M = 3)
 ```
 
-The two models we fit are a "null model" (model $M_1$) and two "alternative models" (model $M_2$ and $M_3$). The null model only includes the default parameters that are included in the RSiena estimation: the reciprocity and outdegree parameters. The alternative model $M_2$ includes one additional covariate parameter that was determined to be significant by the Wald test in the RSienaTest package, while the alternative model $M_3$ includes one additional structural parameter whose significance was determined in the same way. Details on these effects are given in Table \@ref(tab:models).
+## Models
 
+We fit three models to the data. The first model, which we write as $M1$, is the "null model" because it includes only the abolute minimum number of parameters that should be included in the objective function SAOM: the rates of change between timepoint, the outdegree effect, and the reciprocity effect [see @snijders01 p. 371]. We also fit two "alternative models", which we write as $M_2$ and $M_3$. The alternative model $M_2$ includes one more parameter than the null model, the "jumping transitive triplet"" (JTT), which was determined to be significant by the $t$-type test in the `RSienaTest` package with a $p$-value of 0.00282. The parameters in the objective function are tested for significance using $t$-tests where test statistic is the ratio of the parameter estimate to its standard error. This parameter incorporates the actor covariate, drinking behavior, into the model. The other alternative model, $M_3$, includes one additional structural parameter, "number of doubly achieved distances two effect", whose significance was determined in the same way, with a $p$-value less than 0.0001. Finally, each of the three models includes rate parameters, $\alpha_1$ and $\alpha_2$, which represent how many opportunities for change each actor gets, on average, when moving from wave 1 to 2 and from wave 2 to 3, respectively. 
+
+The objective function for each actor in each model is given below. 
+  \begin{align*}
+  f^{M_1}_{i}(\boldsymbol{\beta}, x) & = \beta_1 s_{i1}(x) +  \beta_2 s_{i2}(x) \\
+  f^{M_2}_{i}(\boldsymbol{\beta}, x) & = \beta_1 s_{i1}(x) +  \beta_2 s_{i2}(x) + \beta_3 s_{i3}(x) \\
+  f^{M_3}_{i}(\boldsymbol{\beta}, x) & = \beta_1 s_{i1}(x) +  \beta_2 s_{i2}(x) + \beta_4 s_{i4}(x) 
+  \end{align*}
+
+The outdegree parameter, $\beta_1$, represents how likely an actor is to change outgoing ties. If the estimate, $\hat{\beta}_1$, is positive, the actor is more likely to create outgoing ties, while a negative estimate leads the actor to deleting outgoing ties. This effect is highly correlated with the reciprocity parameter, $\beta_2$. A negative estimate of this parameter implies that the actor is discouraged from reciprocating its incoming ties, while a positive estimate implies that the actor is encouraged to reciprocate all ties. The additional parameter in $M_2$, $\beta_3$, is a the covariate parameter that takes into account the girls' drinking behavior. This jumping transitive triplet effect impacts the transitive closure of actors from different groups. Thus, a positive estimate encourages transitive closure when one of three actors is in a different covariate group than the other two, while a negative estimate discourages closure when one member is from a different group. An example of this type of closure is given in Figure \@ref(fig:jtt). With the directed edges we also distinguish between 'i likes j' and 'j likes i'. Finally, the doubly achieved distances effect is defined by the number of actors to whom actor $i$ is not directly tied, but to which it is connected through two different paths via at least two intermediary actors. This is a structural effect, like the density and reciprocity effects. A positive coefficient value encourages indirect ties, while a negative value discourages the formation of indirect ties in favor of direct ties. 
+
+```{r jtt, echo=FALSE, fig.width=2, fig.height=2, message = FALSE, warning = FALSE, fig.align='center', fig.cap="Structural network effects. On the left, a jumping transitive triplet (JTT). On the right, a doubly achieved distance between $i$ and $k$. At left, a realization of a jumping transitive triplet, where $i$ is the focal actor, $j$ is the target actor, and $h$ is the intermediary. The group of the actors is represented by the shape of the node. At right, doubly achieved distance between actors $i$ and $k$.", out.width = "50%", fig.show='hold'}
+jTTe <- data.frame(from = c('i', 'i', 'h'), to = c('h', 'j', 'j'))
+jTTn <- data.frame(id = letters[8:10], group = c(1,1,2))
+
+jTT <- merge(jTTe, jTTn, by.x = 'from', by.y = "id", all = T)
+
+set.seed(12345) 
+ggplot(data = jTT, aes(from_id = from, to_id = to)) + 
+  geom_net(aes(shape = as.factor(group)), directed = T, label = T, 
+           labelcolour='grey80',vjust = 0.5, hjust =0.5, arrowgap = .15, 
+           colour = 'black', size=10, 
+           ecolour = c("red", "grey40", "grey40", "grey40")) + 
+  expand_limits(x=c(-0.1,1.1), y=c(-0.1,1.1)) +
+  theme_net() +
+  theme(legend.position = "none")
+
+dade <- data.frame(from = c('i', 'i', 'h', 'j'), to = c('h', 'j', 'k', 'k'))
+dadn <- data.frame(id = letters[8:11], group = c(1,1,1,1))
+
+dad <- merge(dade, dadn, by.x = 'from', by.y = "id", all = T)
+
+set.seed(12345) 
+ggplot(data = dad, aes(from_id = from, to_id = to)) + 
+  geom_net(aes(shape = as.factor(group)), directed = T, label = T, labelcolour='grey80',vjust = 0.5, hjust =0.5, arrowgap = .15, colour = 'black', size=10) + 
+  expand_limits(x=c(-0.1,1.1), y=c(-0.1,1.1)) +
+  theme_net() +
+  theme(legend.position = "none")
+```
+
+### Model Fitting and Simulation
 ```{r readsimu, echo=FALSE}
  nulls <- read.csv("../VisInfDocs/Data/distribution_null_model.csv")
 # names(nulls)[-1] <- c("alpha1", "alpha2", "beta1", "beta2")
@@ -134,6 +177,8 @@ null_mod_sv <- as.numeric(nulls[,-c(1,6,7)] %>% summarise_each(funs(mean)))
 alt_mod_sv <- as.numeric(alt[,-c(1, 7,8)] %>% summarise_each(funs(mean)))
 alt_mod2_sv <- as.numeric(alt2nd[,-c(1,7,8)] %>% summarise_each(funs(mean)))
 ```
+
+Each model, $M1$, $M2$, and $M3$, was fit to the data 1000 times in order to obtain a distribution of parameter estimates. These distributions are shown in Figure \@ref(hist-estimates). Then, the overall mean of the 1000 estimates for each parameter was calculated and used as the plug-in values for simulating from each of the three models. These values are presented in Table \@ref(tab:models). 
 
 \begin{table}[h]
 \caption{(\#tab:models) Parameters and estimates of models $M_1$, $M_2$, and $M_3$. Estimates are the mean of 1000 iterations of the model estimates. The lineups that follow are simulated from models using these values.}
@@ -169,71 +214,30 @@ Jumping Transitive Triplets & $\beta_3$ & $s_{i3}(x) = \sum\limits_{\forall j\ne
 \end{tabular}}
 \end{table}
 
+Because the likelihood function for these complicated models is intractable, `RSiena` implements Markov Chain Monte Carlo simulation to obtain method of moments estimates of the parameter values. This fitting procedure was first introduced in @saompaper. 
 
+The model fitting in `RSiena` is done in three phases. Briefly, in the initial phase, sensitivity of the statistics to the parameter values is determined, then in the second phase, parameter values are fit iteratively. Finally, in the third phase, networks are simulated from the fitted models and the model is checked for convergence [@RSienaManual]. 
+
+The convergence of a non-rate parameter is determined through the simulated values from phase 3 of the algorithm. The simulations are compared to the observed values of the statistics in the data. The values from the simulations should be fairly close to the observed values, but because the fitting is done stochastically, the deviation from statistics will not be exactly zero. Checking for convergence is based on a $t$-ratio of the average of these deviations to the standard deviation of these deviations. `RSiena` also performs an overall maximum convergence check by finding the maximum $t$-ratio value for any linear combination of the observed statistics.  According to the RSiena Manual, "convergence is excellent when the overall maximum convergence ratio is less than 0.2", and for the non-rate parameters, the threshold for "reasonable" convergence is set at 0.3 with excellent convergence when the t-ratio is less than or equal to 0.1 in absolute value. [@RSienaManual]. 
 
 ```{r hist-estimates, dependson='read-simu', echo=FALSE, fig.width=8, fig.height=5, out.width='.8\\linewidth', fig.align='center', fig.cap="Histogram of the distribution of model parameters based on 1,000 simulation runs. Model parameter $\\beta_3$ for jumping transitive triplets in model $M_2$ is significantly different from zero, but its inclusion also leads to significant changes in the  other model parameters of model $M_1$. The parameter $\\beta_4$ for doubly acheived distances is also significantly different from zero, but has larger variance. The inclusion of $\\beta_4$ also changes the estimates of the other model parameters, but not as much as the inclusion of $\\beta_3$."}
 qplot(data=simu2, estimate, fill=Model, geom="density", alpha=I(0.65)) + facet_wrap(~parameter, scales="free") + theme_bw()
 ```
 
-After estimating the parameters in each of these models, we simulate from them to obtain realizations of each of the models. The objective function for each actor in each model is given below. 
-  \begin{align*}
-  f^{M_1}_{i}(x) & = \hat{\beta}_1^{M_1}s_{i1}(x) +  \hat{\beta}_2^{M_1}s_{i2}(x) \\
-  f^{M_2}_{i}(x) & = \hat{\beta}_1^{M_2}s_{i1}(x) +  \hat{\beta}_2^{M_2}s_{i2}(x) + \hat{\beta}_3^{M_2}s_{i3}(x) \\
-  f^{M_3}_{i}(x) & = \hat{\beta}_1^{M_3}s_{i1}(x) +  \hat{\beta}_2^{M_3}s_{i2}(x) + \hat{\beta}_4^{M_3}s_{i4}(x) 
-  \end{align*}
-The rate parameters, $\alpha_1$ and $\alpha_2$ represent how many opportunities for change each actor gets when moving from wave 1 to 2 and from wave 2 to 3, respectively. The outdegree parameter, $\beta_1$, represents how likely an actor is to change outgoing ties. If the estimate, $\hat{\beta}_1$, is positive, the actor is more likely to create outgoing ties, while a negative estimate leads the actor to deleting outgoing ties. This effect is highly correlated with the reciprocity parameter, $\beta_2$. A negative estimate of this parameter implies that the actor is discouraged from reciprocating its incoming ties, while a positive estimate implies that the actor is encouraged to reciprocate all ties. The additional parameter in $M_2$, $\beta_3$, is a covariate parameter. The covariate in this model is the drinking behaviour of the 16 students in our data. The possible values are 1, 2, 3, and 4, which means the student drinks never, once or twice a year, once a month, or once a week. This jumping transitive triplet effect impacts the transitive closure of actors from different groups. Thus, a positive estimate encourages transitive closure when one of three actors is in a different covariate group than the other two, while a negative estimate discourages this behavior. An example of this type of closure is given in Figure \@ref(fig:jtt). With the directed edges we also distinguish between 'i likes j' and 'j likes i'. Finally, the doubly achieved distances effect is defined by the number of actors to whom actor $i$ is not directly tied, and tied through two paths via at least two intermediaries. This is a structural effect, like the density and reciprocity effects. A positive coefficient value encourages indirect ties, while a negative value discourages the formation of indirect ties. 
 
-```{r jtt, echo=FALSE, fig.width=2, fig.height=2, message = FALSE, warning = FALSE, fig.align='center', fig.cap="Structural network effects. On the left, a jumping transitive triplet (JTT). On the right, a doubly achieved distance between $i$ and $k$. At left, a realization of a jumping transitive triplet, where $i$ is the focal actor, $j$ is the target actor, and $h$ is the intermediary. The group of the actors is represented by the shape of the node. At right, doubly achieved distance between actors $i$ and $k$.", out.width = "50%", fig.show='hold'}
-jTTe <- data.frame(from = c('i', 'i', 'h'), to = c('h', 'j', 'j'))
-jTTn <- data.frame(id = letters[8:10], group = c(1,1,2))
+## Using the Lineup Protocol
 
-jTT <- merge(jTTe, jTTn, by.x = 'from', by.y = "id", all = T)
+The additional parameters that we included, $\beta_{3}$ and $\beta_4$, were determined to be significant based on a rather simple statistical test, so we wanted to test whether this significance can be detected visually just as simply as the statistical test detects it. If visualizations of simulated networks from two nested models have a much different appearance when placed side-by-side, then the difference in appearance can be attributed to the additional parameter in one. If, however, there is no visually detectable difference, then the additional parameter does not appear to have changed the network structure all that much. Because model selection and diagnostics for network models are less developed areas of the theory, testing network parameters in this visual way could lead to additional methods of model selection for networks. 
 
-set.seed(12345) 
-ggplot(data = jTT, aes(from_id = from, to_id = to)) + 
-  geom_net(aes(shape = as.factor(group)), directed = T, label = T, 
-           labelcolour='grey80',vjust = 0.5, hjust =0.5, arrowgap = .15, 
-           colour = 'black', size=10, 
-           ecolour = c("red", "grey40", "grey40", "grey40")) + 
-  expand_limits(x=c(-0.1,1.1), y=c(-0.1,1.1)) +
-  theme_net() +
-  theme(legend.position = "none")
+### Lineup Simulation
 
-dade <- data.frame(from = c('i', 'i', 'h', 'j'), to = c('h', 'j', 'k', 'k'))
-dadn <- data.frame(id = letters[8:11], group = c(1,1,1,1))
+To create the lineups that we used in our experiment, we used the values given in Table \@ref(tab:models) as starting values in simulation of network observations from each of the three models. Each lineup was generated independently of the others. Four different lineup constructions were used: $M1$ v. $M2$, $M2$ v. $M1$, $M1$ v. $M3$, and $M3$ v. $M1$, where $M1$, $M2$, and $M3$ have the objective functions and parameter values given in Table \@ref(tab:models). The lineup types are named to indicate which model is the "null" model and which model is the "alternative" model. The first model listed is considered the null model, so $M-1$ of plots of data simulated from this model are included in the lineup, where $M$ is the total number of plots included in the lineup. Then, one additional plot from the second model listed, the alternative model, is placed among the $M-1$ null plots at random. For each lineup simulated, the same default RSiena algorithm was used that was used to generate the fitted models with the exception that the algorithm only simulated from the given set of parameters. Additionally, each lineup and plot within lineup was generated idependently.
 
-dad <- merge(dade, dadn, by.x = 'from', by.y = "id", all = T)
-
-set.seed(12345) 
-ggplot(data = dad, aes(from_id = from, to_id = to)) + 
-  geom_net(aes(shape = as.factor(group)), directed = T, label = T, labelcolour='grey80',vjust = 0.5, hjust =0.5, arrowgap = .15, colour = 'black', size=10) + 
-  expand_limits(x=c(-0.1,1.1), y=c(-0.1,1.1)) +
-  theme_net() +
-  theme(legend.position = "none")
-```
-
-
-The parameters in the objective function are tested for significance using $t$-tests. The test statistic is the ratio of the parameter estimate to its standard error. If this value is larger than 2 in absolute value, then the parameter is said to be significant at the $\alpha = 0.05$ level and should be included in the model. This is a fairly simple statistical test, so we wanted to test whether this significance can be detected visually just as simply as the statistical test detects it. If visualizations of simulated networks from two nested models have a much different appearance when placed side-by-side, then the difference in appearance can be attributed to the additional parameter in one. If, however, there is no visually detectable difference, then the additional parameter does not appear to have changed the network structure all that much. Because model selection and diagnostics for network models are less developed areas of the theory, testing network parameters in this visual way could lead to additional methods of model selection for networks. 
-
-
-## Lineup Simulation
-
-Needs more specifics: how many lineups were created for each model?
-
-At the moment we are just considering models M2 and M3 for an inclusion in the lineup study. We are trying to nail down what to include and what not to include in the experiment.
-
-To create the lineups that will be used in our experiment, we used the values given in Table \@ref(tab:models) as starting values in simulation. For each lineup simulated, the same default RSiena algorithm was used as was used to generate the fitted models with the exception that the algorithm only simulated from the given set of parameters. Each lineup and plot within lineup was generated idependent of all the others.
-
+We initially constructed lineups of various sizes, $M \in \{3,6,9,12,16\}$. We ultimately decided to use lineups of size $M=12$ because these lineups appeared to be the most square, and contained enough plots to make the probability of choosing the correct plot at random fairly low, at $\frac{1}{12} = 0.083$ while not overwhelming the viewer with too many plots to examine at once.  
 
 ## Parameter Estimation from Lineups
 
-After the lineups were created, we re-fit each of our three models to each graph in each lineup. 
-
-Questions that should be answered in this section:
-
-1. Why do we want to get the parameters for each model? 
- We fit all three models to every plot in the lineups. Fitting all models to all lineup plots allows us to gauge tha ability of the parameter estimates to provide a measure of lineup identification difficulty. XXX ? not quite sure ? XXX For instance, when comparing models 1 and 2 in a lineup, the estimates from fitting model 2 to plots which were simulated from model 2 should be significantly different from the model 2 estimates from plots simulated from model 
-0. Convergence issues
+After the lineups were created, we re-fit each of our three models to each panel in each lineup of all sizes. Fitting all models to all lineup plots allows us to gauge the ability of the parameter estimates to provide a measure of lineup identification difficulty. For instance, when comparing models 1 and 2 in a lineup, the estimates from fitting model 2 to plots which were simulated from model 2 should be significantly different from the model 2 estimates from plots simulated from model 1. The smaller the difference between these estimates, the harder it should be to identify the different model in the lineup. 
 
 ```{r convergence, fig.width=8, fig.height=3, echo = FALSE, warning = FALSE, fig.cap="Pattern of convergence. A total of 67.7\\% of all lineup data converged in 5,000 iterations. The simplest model, $M_1$ has the highest rate of convergence. For models $M_2$ and $M_3$ data generated from the model converged at a higher rate than data generated from the other model."}
 load("../VisInfDocs/Data/lus_ests_truth.rda")
@@ -251,8 +255,6 @@ ggplot(data=lus_ests_truth) +
   scale_fill_brewer("Convergence", palette="Set1") +
   xlab("Estimated Model")
 ```
-
-
 
 ```{r convergence-ests, fig.cap="Difference between parameter estimate and true value. Panels with a light grey background show model fits with data sampled from the same model. Densities are drawn for both converged and non-converged data. The red-filled densities should have a mode near zero, idicating that the model converged toward the correct value. For data from model $M_1$, estimates for parameters $\\beta_3$ and $\\beta_4$ converge to a wrong value.", fig.width=8, fig.height=8, echo = FALSE, warning = FALSE}
 load("../VisInfDocs/Data/lus_ests_truth.rda")
@@ -283,23 +285,6 @@ ggplot(data=lus_ests_truth %>%
     xlim(c(-15,15))
 ```
 
-
-
-1. The smaller the difference between these estimates, the harder it should be to identify the different model in the lineup. XXX IDEA: should we consider some sort of distance metric comparing all estimates from the models at once in addition to the differences in the $\beta_3$/$\beta_4$ values? XXX}
-
-2. How is the fitting done, exactly?
-XXX get into nitty gritty from RSiena model XXX
-
-Because the likelihood function for these complicated models is intractable, RSiena implements a Monte Carlo simulation to obtain method of moments estimates of the parameter values. This fitting procedure was first introduced in @saompaper. 
-
-The model fitting in RSiena is done in three phases. Briefly, in the initial phase, sensitivity of the statistics to the parameter values is determined, then in the second phase, parameter values are fit iteratively. Finally, in the third phase, networks are simulated from the fitted models and the model is checked for convergence. 
-
-4. What parameters are in the output?
-In RSiena, the convergence of a non-rate parameter is determined through the simulated values from Phase 3 of the SienaFit algorithm. XXX more detail will be above later XXX  The simulations are compared to the observed values of the statistics observed in the data. The values from the simulations should be fairly close to the observed values, but because the fitting is done stochastically, deviations from statistics will not be exactly zero. Checking for convergence is based on a t-ratio of the average of these deviations to the standard deviation of these deviations. RSiena also performs an overall maximum convergence check by finding the maximum t-ratio value for any linear combination of the observed statistics.  According to the RSiena Manual, ``convergence is excellent when the overall maximum convergence ratio is less than 0.2", and for the non-rate parameters, the threshold for ``reasonable" convergence is set at 0.3 with excellent convergence when the t-ratio is less than or equal to 0.1 in absolute value. [@RSiena].
-
-5. What are the results?
-
-
 ```{r comparison, fig.width=8, fig.height=6, out.width='\\linewidth', echo = FALSE, warning = FALSE, fig.cap = "Comparison of model estimates under all three models under investigation."}
 l1 <- levels(lus_ests_truth$param_name)
 l1 <- stringr::str_trim(gsub("2","", l1))
@@ -323,7 +308,6 @@ ggplot(data = subset(lus_ests_truth)) + #, convergence=="Converged")) +
   guides(fill = guide_legend(nrow = 3, byrow = TRUE))
 ```
 
-
 ```{r est, echo = FALSE}
 #For model $M_2$, parameter $\beta_3$ is estimated to be significantly different from zero in almost all cases (XXX how many exactly? XXX).
 
@@ -341,11 +325,11 @@ beta3sig2 <- beta3sig %>%
 beta3sig05 <- sum(beta3sig2$ttestpval <= 0.05) / nrow(beta3sig2)
 beta3sig10 <- sum(beta3sig2$ttestpval <= 0.10) / nrow(beta3sig2)
 ```
-Figure \@ref(fig:comparison) shows an overview of model estimates for each simulated data set. What we expect to see is that estimates do not change values (much) if they are estimated under a model different from the one they are generated from. This is true for all data sets estimated under model $M_1$ independently of which model they were generated from (top row of Figure \@ref(fig:comparison). For data fit under model $M_2$ we see that parameter $\beta_3$ (jumping transitive triplets) are estimated to be about zero, if the data is generated from models $M_1$ and $M_3$.
-For model $M_2$, parameter $\beta_3$ is estimated to be significantly different from zero in `r round(100 * beta3sig10, 1)`\% of cases. This coincides with our expectation.
 
-However, the bottom row of Figure \@ref(fig:comparison) shows that independently of which model data is generated from, $\beta_4$, the number of pairs at doubly achieved distance, is estimated to be significantly different from zero in a large number of cases (about half of the data generated from model $M_2$ and more than that in model $M_1$). While $\beta_4$ is a highly significant parameter in model $M_3$, this questions the way that parameters are fitted and tells us that we are not likely to be able to visually distinguish between data generated from model $M_3$ and data generated from models $M_1$ and $M_2$. We might, however, be able to distinguish between data sets for which $\beta_4$ is estimated to be significantly different from zero and non-significant ones. XXX can we see differences in the pilot study?
+Figure \@ref(fig:comparison) shows an overview of model estimates for each simulated data set. What we expect to see is that estimates do not change much if they are estimated under a model different from the one they are generated from. This is true for all data sets estimated under model $M_1$ independently of which model they were simulated from (see top row of Figure \@ref(fig:comparison). For data fit under model $M_2$ we see that parameter $\beta_3$ is estimated to be about zero, if the data is generated from models $M_1$ or $M_3$.
+For model $M_2$, the parameter $\beta_3$ is estimated to be significantly different from zero in `r round(100 * beta3sig10, 1)`\% of cases. This coincides with our expectation.
 
+However, the bottom row of Figure \@ref(fig:comparison) shows that independently of which model data is generated from, $\beta_4$ is estimated to be significantly different from zero in a large number of cases (about half of the data generated from model $M_2$ and more than that in model $M_1$). While $\beta_4$ is a highly significant parameter in model $M_3$, this questions the way that parameters are fitted and tells us that we are not likely to be able to visually distinguish between data generated from model $M_3$ and data generated from models $M_1$ and $M_2$. We might, however, be able to distinguish between data sets for which $\beta_4$ is estimated to be significantly different from zero and those where $\beta_4$ is not significant. We hypothesize that the strong influence of the inclusion of $\beta_4$ in $M3$ makes the probability of being able to visually distiguish $M1$ from $M3$ extremely low. The $\beta_4$ estimate is always significantly greater than zero in fitted models that converged. Thus, $\beta_4$ should have been included from the beginning.
 
 ```{r lusparms, echo=FALSE, fig.width=8, fig.height = 8, out.width='.6\\linewidth', fig.align = 'center', warning = FALSE, fig.cap="Scatterplots of smallfriends and smallfriends-rev: comparing the ratio of null plots with smaller estimates of $\\beta_3$ in the nulls than in the data panel (top row) and larger estimates of $\\beta_3$ in the nulls than in the data panel. In lineups with a ratio of 1 the data should be 'easy' to identify in both scenarios."}
 load("../VisInfDocs/Data/lus_ests_truth.rda")
@@ -397,7 +381,6 @@ p2 <- qplot(data_dist, lower_qu, data = subset(lus_summary_2b, part %in% c("smal
 gridExtra::grid.arrange(p1,p2)
 ```
 
-
 ```{r jttss}
 jtts <- read.csv("../VisInfDocs/Data/lineups-jtt.csv")
 jtts$lineupid <- with(jtts, paste(model, m, rep, sep="-"))
@@ -405,8 +388,6 @@ jtts$data_panel <- jtts$plot_order
 lus_summary_2 <- merge(lus_summary_2, jtts[, c("lineupid", "jtt", "data_panel")], by=c("lineupid","data_panel"), all.x=TRUE)
 qplot(data=subset(lus_summary_2, param_name=="transitive triplets jumping alcohol2" & part=="smallfriends"), data_est, jtt, geom="jitter") + geom_label(data=subset(lus_summary_2, param_name=="transitive triplets jumping alcohol2" & jtt > 20 & part=="smallfriends"), aes(label=lineupid), alpha=.6)
 ```
-
-
 
 ```{r lusparms-eff2, echo=FALSE, fig.width=8, fig.height = 8, out.width='.6\\linewidth', fig.align = 'center', warning=FALSE}
 lus_summary_3 <- lus_spread %>% group_by(part, lineupid, param_name) %>%
@@ -444,25 +425,9 @@ gridExtra::grid.arrange(p1,p2)
 #p1
 ```
 
-6. How do the results influence our decision for the lineups?
+### Results from A Pilot Study
 
-The strong influence of the inclusion of $\beta_4$ in model 3 has made any comparison between model 1 and model 3 impossible. The $\beta_4$ estimate is always significantly greater than zero in fitted models that converged. Thus, $\beta_4$ should have been included from the beginning.
-% at end of param est we know that model m3 is useless. m3 messes with structure of m1. should have been in cluded in all of the models. nice & important but doesn't help for lineup study
-
-%  results from the the pilot study. how do estimates combine with pilot study ? have 10 non-m3 ones that are good. also want to see that m1 v m3 is way worse than m1 v m2. now have a reason for m1 v m3 is so bad. m1 v m3 ids should be NO GOOD. 
-
-
-
-## Results from the pilot study
-
-Big goal: Can we derive measures from the model estimates or the visual representation (ie. the network structure) that help us determine which lineups are more difficult than others, i.e. based on these estimates, how relaibly can we predict which panel will be picked from a lineup? 
-XXX For that, we could also calculate the number of JTTs in each network - use `jtt` for that.
-
-
-Littler goal: evaluate pilot study and see whether the results line up with the conjectures made in the previous section.
-
-
-The pilot study consisted of an evaluation of a set of 20 lineups by 11 volunteers. For each of the model situations ($M_1$ vs $M_2$, $M_2$ vs $M_1$, $M_1$ vs $M_3$ and $M_3$ vs $M_1$) one lineup of size $m = 3, 6, 9, 12$ was used. Overall, the number of data identifications in the lineups was very low (34 out of 220 evaluations). Participants identified the data plot in two to four of the lineups they evaluated. The mode was three data identifications out of twenty per participant. 
+We performed a pilot study that consisted of an evaluation of a set of 20 lineups by 11 volunteers. For each of the model situations ($M_1$ vs $M_2$, $M_2$ vs $M_1$, $M_1$ vs $M_3$ and $M_3$ vs $M_1$) one lineup of size $m = 3, 6, 9, 12$ was used. Overall, the number of data identifications in the lineups was very low (34 out of 220 evaluations). Participants identified the data plot in two to four of the lineups they evaluated. The mode was three data identifications out of twenty per participant. 
 
 \paragraph{Suitability of $M_3$ in lineups:}
 
@@ -498,20 +463,15 @@ qplot(label, weight=tally, fill=data_pick, data=dframe_res) +
   scale_fill_brewer("Data panel chosen", palette="Set1", na.value="grey80") + xlab("Lineup")
 ```
 
-Figure \@ref(fig:data-picks) shows barcharts of responses from the pilot study detailing the number of data identifications in each lineup. 
-It is more difficult to identify the data plot in lineups of graphs based on data from models $M_1$ and $M_3$ than  in lineups of graphs based on data from models $M_1$ and $M_2$.
-
-
+Figure \@ref(fig:data-picks) shows barcharts of responses from the pilot study detailing the number of data identifications in each lineup. It is more difficult to identify the data plot in lineups of graphs based on data from models $M_1$ and $M_3$ than  in lineups of graphs based on data from models $M_1$ and $M_2$.
 
 ## Amazon Turk Experiment
 
 ### Methods 
 
-In order to test our hypothesis, we set up an Amazon Mechanical Turk experiment [@turk] using the lineup protocal of @Bujaetal. We presented four types of lineups: M1 v. M2, M2 v. M1, M1 v. M3, and M3 v. M1, where M1, M2, and M3 have the objective functions given in ~\ref{tab:models}. We created a total of 25 lineups to show to Amazon Turk users taking our experiment: 10 for M1 v. M2 and 5 each for the other three types of lineups. In each lineup, there were 12 plots shown: 11 of the plots were simulated from the first model (the "null" model) and 1 was simulated from the second model (the "alternative" model). We chose to show lineups of size 12 because we felt that showing more than 12 would be too large of a cognitive load, while showing fewer than 12 would leave too much of the experiment to random chance. The order of the plots within the lineups was randomly assigned. We selected five lineups presented from each group based on the following criteria: first, for M1 v M2 and M1 v M3, we selected the lineups where the additional parameter in the objective function, $\beta_3$ and $\beta_4$, respectively, had the largest estimated value among the 12 networks presented. There were not many of these in the size 12 lineups, so our other selection criteria was that the estimated parameter value was larger in the alternative panel than in at least half of the other lineups and it was close to the estimate from the panel that did have the largest value. For the M2 v were chosen where the smallest parameter estimate belonged to the alternative model. If there more lineups were needed, we next selected those which had estimates smaller than at least half of the other panels and were close to the minimum estimate in the lineup. For the remaining five plots of type M1 v M2, we chose the lineups where the alternative plot had the largest number of jumping transitive triplets appear in the network. We chose this  statistic because its value has great effect on both the estimation of the $\beta_3$ parameter and on the visual appearance of the plot.
+In order to test our hypotheses, we set up an Amazon Mechanical Turk experiment [@turk] using the lineup protocal of @Bujaetal. We presented four types of lineups:  We created a total of 25 lineups to show to Amazon Turk users taking our experiment: 10 for M1 v. M2 and 5 each for the other three types of lineups. In each lineup, there were 12 plots shown: 11 of the plots were simulated from the first model (the "null" model) and 1 was simulated from the second model (the "alternative" model). We chose to show lineups of size 12 because we felt that showing more than 12 would be too large of a cognitive load, while showing fewer than 12 would leave too much of the experiment to random chance. The order of the plots within the lineups was randomly assigned. We selected five lineups presented from each group based on the following criteria: first, for M1 v M2 and M1 v M3, we selected the lineups where the additional parameter in the objective function, $\beta_3$ and $\beta_4$, respectively, had the largest estimated value among the 12 networks presented. There were not many of these in the size 12 lineups, so our other selection criteria was that the estimated parameter value of interest was larger in the alternative panel than in at least half of the other lineups, and that it was close to the estimate from the panel that did have the largest value. For the $M2$ v $M1$ and $M3$ v $M1$ lineups, we first selected lineups of size 12 where the smallest parameter estimate belonged to the alternative model. If more lineups were needed, we next selected those which had estimates *smaller* than at least half of the other panels and were close to the *minimum* estimate in the lineup. For the remaining five plots of type $M1$ v $M2$, we chose the lineups where the alternative plot had the largest number of jumping transitive triplets, i.e. with the highest value of $\sum_i s_{i3}(x)$, appear in the network. We chose this statistic because its value has great effect on both the estimation of the $\beta_3$ parameter and on the visual appearance of the plot.
 
 In order to become a subject in our experiment, the Amazon turk user had to first read through some introductory material and prove they could identify the correct plot in two test lineups, one for M1 v. M2 and one for M2 v. M1. These two lineups were constructed to be very simple in order to train the turkers. Once the turker made it into the experiment, they looked at 10 lineups selected at random from a pool of 25. There were five lineups for each of the four types with an additional five lineups of the type M1 v. M2 which were chosen for their high counts of jumping transitive triplets in the alternative model network in an attempt to gauge how important this statistic is to the visualization of the network. If there are many jumping transitive triplets in the alternative model plot and more turkers correctly choose that plot, that would be evidence that the jumping transitive triplets are very noticeable to the user.
-
-### Procedure 
 
 Each Amazon Turk user was greeted with the following message: ``In this survey a series of similar looking charts will be presented. We would like you to respond to the following questions.
 \begin{enumerate}
