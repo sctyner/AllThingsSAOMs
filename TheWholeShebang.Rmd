@@ -32,84 +32,6 @@ library(tidyr)
 library(RSiena)
 library(knitr)
 ```
-# Outline of the whole shebang
-This section will be removed once I'm done writing this thing! 
-
-## Lit Review (CH. 0)
-
-### ~~High Level Introduction~~
-
-~~Social networks have been studied for decades, beginning with the seminal 1967 study, "The Small World Problem" by Stanley Milgram  (Goldenberg et al. 2009). In recent years, the study of social networks has grown in popularity due to an increase in the availability of and easy of access to social network data. ~~
-
-* ~~discuss the data format and how it is different from traditional data formats seen in statistics~~
-* ~~bring up the different disciplines that have studied social networks~~
-* ~~mention the models that exist for social network analysis~~
-* ~~mention that I am focusing on one type of model class, SAOMs.~~
-
-### More Meaty Introduction to Network Analysis
-
-In this section I will discuss in greater detail the models that are out there for network analysis. These include:
-
-* ~~Classics:~~
-    + ~~ERGMs~~
-    + ~~Erdos-Renyi~~ and its variations
-    + ~~Random graphs with fixed degree distribution~~
-    + ~~Blockmodels and their relatives~~
-    + ~~Latent space models~~
-* ~~Social Networks:~~
-    + ~~"$p_1$" models~~
-    + ~~"$p_2$" models~~
-* Dynamic:
-    + ~~Preferential attachment~~
-    + ~~Small-world~~
-    + ~~Duplication-attachment~~
-    + ~~Discrete time MC models~~
-    + ~~Continuous time MC models (SAOMs a kind of CTMC)~~
-  
-### ~~Full introduction and discussion of SAOMs~~
-
-~~I will completely flesh out the form and theory of SAOMs. This will come primarily from the detailed document I created last year and anything else from Snijders' papers.~~
-
-### ~~Why focus on SAOMs~~
-
-~~I will discuss the lack of model checking tools specific to SAOMs due to model intractibility. This will be brief and will lead into the next section, an introduction to visual inference. ~~
-
-
-### Lead-in to Visual Inference 
-
-*I don't think I actually ended up doing much of this but I also don't think it was that necessary.*
-
-~~Take the theory of SAOMs and lead into the discussion of why visual inference could be useful for model checking and other things for SAOMs.~~ 
-
-### ~~Introduction to Visual Inference~~
-
-~~Fully introduce the concept of visual inference as laid out in Buja et al. (2009). Also include discussion of Majumder et al. ~~
-
-### ~~Intro to visualizing networks~~
-
-~~Discuss the many ways to visualize networks (also called network mapping). Ubiquitous view is 2D represetation of points and lines. Discuss the many layout algorithms. Discuss the many packages in R that can do this. Discuss the difficulty of using these package for people not intimately familiar with them. Lead into next section with discussion of ggplot2 and its importance and popularity in data visualization.~~
-
-### Lead-in to the full thesis. 
-
-*Definitely didn't do this all the way. But also, not sure how necessary it is?* 
-
-~~Briefly outline the 3 chapters and tie them all together.~~~
-
-## ~~CH 1. Removing the Blindfold from SAOMs~~
-
-## ~~CH 2. Using visual inference for SAOMs~~
-
-## ~~CH. 3: geomnet: a ggplot2 wrapper for network visualization~~
-
-## CH. 4 Summary, Impact, Future Work
-*Didn't do this. Save for later?*
-
-Brief walk-through of all topics already covered. Emphasize the holes filled by the work. 
-
-## ~~CH 5. Other Projects~~  
-
-~~Discuss the Bob Ross and Graphics Awards papers~~
-
 
 \newpage
 
@@ -126,9 +48,9 @@ Brief walk-through of all topics already covered. Emphasize the holes filled by 
 ```{r child = "docs/visualinferencenets.Rmd", eval = TRUE}
 ```
 
-# Drawing Networks with the R package `ggplot2` {#ch3}
+# Drawing Networks in the `ggplot2` Framework {#ch3}
 
-This next section is a paper I authored with Heike Hofmann (Iowa State University) and François Briatte (European School of Political and Social Sciences) that has been accepted for publication in *The R Journal* subject to revision.
+This next section is a paper I authored with Heike Hofmann (Iowa State University) and François Briatte (European School of Political and Social Sciences) that has been accepted for publication in *The R Journal* subject to revision. I developed the package `geomnet` ("our package") with Dr. Hofmann in 2015. Separately from the implementation of the graph `geom` in our package, Briatte implemented graph visualization in two different approaches: the `ggnet2` function in the `GGally` package and the `ggnetwork` package. This paper gives an overview of the three different approaches, highlights why `ggplot2` is generally well suited for graph visualization, and then discusses the pros and cons of the three methods: `geom_net()` in `geomnet`, `ggnet2()` in `GGally`, and `ggnetwork()` in `ggnetwork`. 
 
 \newpage
 
