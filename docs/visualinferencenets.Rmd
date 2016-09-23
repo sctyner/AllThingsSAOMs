@@ -333,7 +333,7 @@ For model $M_2$, the parameter $\beta_3$ is estimated to be significantly differ
 
 However, the bottom row of Figure \@ref(fig:comparison) shows that independently of which model data is generated from, $\beta_4$ is estimated to be significantly different from zero in a large number of cases (about half of the data generated from model $M_2$ and more than that in model $M_1$). While $\beta_4$ is a highly significant parameter in model $M_3$, this questions the way that parameters are fitted and tells us that we are not likely to be able to visually distinguish between data generated from model $M_3$ and data generated from models $M_1$ and $M_2$. We might, however, be able to distinguish between data sets for which $\beta_4$ is estimated to be significantly different from zero and those where $\beta_4$ is not significant. We hypothesize that the strong influence of the inclusion of $\beta_4$ in $M3$ makes the probability of being able to visually distiguish $M1$ from $M3$ extremely low. The $\beta_4$ estimate is always significantly greater than zero in fitted models that converged. Thus, $\beta_4$ should have been included from the beginning.
 
-```{r lusparms, echo=FALSE, fig.width=8, fig.height = 8, out.width='.6\\linewidth', fig.align = 'center', warning = FALSE, fig.cap="Scatterplots of smallfriends and smallfriends-rev: comparing the ratio of null plots with smaller estimates of $\\beta_3$ in the nulls than in the data panel (top row) and larger estimates of $\\beta_3$ in the nulls than in the data panel. In lineups with a ratio of 1 the data should be 'easy' to identify in both scenarios.", eval = FALSE}
+```{r lusparms, echo=FALSE, fig.width=8, fig.height = 8, out.width='.6\\linewidth', fig.align = 'center', warning = FALSE, fig.cap="Scatterplots of smallfriends and smallfriends-rev: comparing the ratio of null plots with smaller estimates of $\\beta_3$ in the nulls than in the data panel (top row) and larger estimates of $\\beta_3$ in the nulls than in the data panel. In lineups with a ratio of 1 the data should be 'easy' to identify in both scenarios."}
 load("../VisInfDocs/Data/lus_ests_truth.rda")
 
 lus_ests_truth$true_panel <- lus_ests_truth$true_model == lus_ests_truth$model
@@ -380,7 +380,7 @@ p2 <- qplot(data_dist, lower_qu, data = subset(lus_summary_2b, part %in% c("smal
   ylab("Ratio of null panels with larger M2 estimate") +
   ggtitle("jumping transitive triplets")
 
-gridExtra::grid.arrange(p1,p2)
+#gridExtra::grid.arrange(p1,p2)
 ```
 
 ```{r jttss}
@@ -474,7 +474,7 @@ In order to test our hypotheses, we set up an Amazon Mechanical Turk experiment 
 
 In order to become a subject in our experiment, the Amazon turk user had to first read through some introductory material and prove they could identify the correct plot in two test lineups. Each user was greeted with a brief welcome message and experiment description, seen in Figure \@ref(fig:directions). Then, a training page about how to identify the correct plot in a lineup, seen in Figure \@ref(fig:lineupex) was present. After the training page, two trial plots were presented. In order to complete the experiment, the user had to correctly identify the alternative plot. In the trial they identified a plot, provided reasoning for this choice (most complex, least complex, or other), and provided their confidence level in their choice (Very Uncertain, Uncertain, Neutral, Certain, Very Certain). Two of these trial plots with the correct responses selected are shown in Figure \@ref(fig:lineuptrial) one lineup of type $M1$ v. $M2$ and one of type $M2$ v. $M1$. The training lineups shown to the Turkers were randomly selected from ten lineups that were constructed to be very simple for training purposes. Once the turk user chose the correct plot in the two trial plots, the experiment proceeded with the same interface as the trial plots, with users selecting which plot they thought was most different, why they thought that, and how certain they were of their choice of different plot for 10 lineups chosen at random from the aforementioned pool of 25. The users were also allowed to select multiple plots for their response. 
 
-```{r directions, out.width="50%", fig.cap="The welcome message shown to the Amazon Turk users."}
+```{r directions, out.width="50%", fig.height=3, fig.align='center',  fig.cap="The welcome message shown to the Amazon Turk users."}
 knitr::include_graphics(c("VisInfDocs/Results/Directions"))
 ```
 
@@ -607,13 +607,12 @@ Next, we investigate the confidence of the experiment's participants in selectin
 ```{r cert-plot, echo=FALSE, warning = FALSE, message = FALSE, fig.align='center', fig.height=4, fig.cap="All responses for all lineups, separated by whether the plot selected was the true alternative plot (TRUE) or not (FALSE) and colored by the respondent's uncertainty levels. We see here that most respondents were certain in their answer whether or not they were correct."}
 res2$conf_level <- ordered(res2$conf_level, levels = c("Very Uncertain", "Uncertain", "Neutral", "Certain", "Very Certain"))
 
-ggplot(data = res2, aes(x = lineup_name)) + 
+ggplot(data = res3, aes(x = group_name)) + 
   geom_bar(aes(fill = conf_level), color = 'grey60', position = 'fill') + 
   scale_fill_brewer(palette = "RdBu") + 
   coord_flip() + 
   facet_wrap(~correct) + 
-  theme_bw() + 
-  theme(legend.position = 'bottom')
+  theme_bw() + labs(x = "Lineup Name") 
 
 summary.conf <- data.frame(table(res2$conf_level, res2$correct))
 summary.conf %>% tidyr::spread(Var2, Freq) -> summary.conf
