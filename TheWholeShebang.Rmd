@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 knit: "bookdown::render_book"
 output:
   bookdown::pdf_book:
-    keep_tex: no 
+    keep_tex: no
     toc: true
     number_sections: true
     includes:
@@ -51,10 +51,6 @@ library(knitr)
 # Drawing Networks in the `ggplot2` Framework {#ch3}
 
 This next section is a paper I authored with Heike Hofmann (Iowa State University) and François Briatte (European School of Political and Social Sciences) that has been accepted for publication in *The R Journal* subject to revision. I developed the package `geomnet` ("our package") with Dr. Hofmann in 2015. Separately from the implementation of the graph `geom` in our package, Briatte implemented graph visualization in two different approaches: the `ggnet2` function in the `GGally` package and the `ggnetwork` package. This paper gives an overview of the three different approaches, highlights why `ggplot2` is generally well suited for graph visualization, and then discusses the pros and cons of the three methods: `geom_net()` in `geomnet`, `ggnet2()` in `GGally`, and `ggnetwork()` in `ggnetwork`. 
-
-\newpage
-
-\includepdf[pages={1-26}]{RJwrapperasof9-20.pdf}
 
 \newpage
 

@@ -1,0 +1,51 @@
+---
+title: "Graphical Discovery in Stochastic Actor-Oriented Models for Social Network Analysis"
+author: "Sam Tyner"
+date: "October 5, 2016"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, cache = TRUE)
+library(dplyr)
+library(ggplot2)
+library(geomnet)
+library(network)
+library(sna)
+library(igraph)
+library(tidyr)
+library(RSiena)
+library(knitr)
+```
+
+## About Me! 
+* Bachelor of Arts, Augustana College, Rock Island, IL, 2012
+    + Majors: Mathematics, Economics, French
+* Master of Science, Iowa State University, Ames, IA, 2015
+    + Major: Statistics
+    + Committee: Heike Hofmann, Di Cook, Gray Calhoun (ECON)
+* Passed PhD written examination, Summer 2014
+* Aim to defend April 2017, graduate May 2017
+
+## Thesis Outline
+
+- Literature Review
+- Chapter 1 - *Stochastic Actor-Oriented Models for Longitudinal Network Data: Removing the Blindfold*
+- Chapter 2 - *Visual Inference for Stochastic Actor Oriented Models*
+- Chapter 3 - *Drawing Networks in the `ggplot2` Framework*
+- Other Projects 
+
+## Outline of Talk
+
+- Motivating Material
+- Visual Inference for Stochastic Actor Oriented Models
+- The `R` Package `geomnet`
+- Thesis Timeline
+
+# Motivating Material
+
+# Visual Inferences for SAOMs
+
+# The `R` package `geomnet`
+
+# Closing Material
