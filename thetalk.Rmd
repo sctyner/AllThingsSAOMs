@@ -245,6 +245,17 @@ covariate-ego    | $s_{i5}(x) = z_i\sum_j x_{ij}$
 same covariate   | $s_{i6}(x) = \sum_j x_{ij} \mathbb{I}(z_i = z_j)$
 jumping transitive triplets | $s_{i7}(x) = \sum_{j \neq h} x_{ij}x_{ih}x_{hj} \mathbb{I}(z_i = z_h \neq z_j)$
 
+## Random Component 
+
+Objective function also has a random component, $U_i(x)$ 
+
+- Gumbel / log-Weibull distribution with mean $\mu = 0$ and scale parameter $\sigma = 1$ [@snijders01, p. 368].
+- probability distribution function:
+$$f(u|\mu, \sigma) = \frac{1}{\sigma}\exp\left\{-\left(\frac{x-\mu}{\sigma} + e^{-\frac{x-\mu}{\sigma}}\right)\right\} $$
+
+This is used so that the *probablity* $i$ changes tie $x_{ij}$ can be written in terms of $f_i(\boldsymbol{\beta}, x)$: 
+$$p_{ij}(\boldsymbol{\beta}, x) = \dfrac{\exp\left\{f_i(\boldsymbol{\beta}, x(i\leadsto j))\right\}}{\sum_{h \neq i} \exp\left\{f_i(\boldsymbol{\beta}, x(i \leadsto h))\right\}}$$
+
 # Visual Inference for SAOMs
 
 # The `R` package `geomnet`

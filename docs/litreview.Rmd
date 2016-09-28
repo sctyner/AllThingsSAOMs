@@ -116,7 +116,7 @@ jumping transitive triplets  & $s_{i7}(x) = \sum_{j \neq h} x_{ij}x_{ih}x_{hj} \
 
 When node $i$ is given the chance to change a node, we assume that they wish to maximize the value of their objective function $f_i(\boldsymbol{\beta}, x)$ plus a random element, $U_i(x)$, where the $U_i(x)$ are from "the type 1 extreme value distribution (or Gumbel distribution) with mean 0 and scale parameter 1" [@snijders01, p. 368]. This distribution, which is also known as the log-Weibull distribution, has probability distribution function, using $\mu$ for the mean parameter and $\sigma$ for the scale parameter, of
 
-$$f(u|\mu, \sigma) = \frac{1}{\sigma}\exp\left\{-\left(\frac{x-\mu}{\sigma} + e^{-\frac{x-\mu}{\sigma}}\right)\right\}.$$
+$$f(u|\mu, \sigma) = \frac{1}{\sigma}\exp\left\{-\left(\frac{u-\mu}{\sigma} + e^{-\frac{u-\mu}{\sigma}}\right)\right\}.$$
 
 Using this distribution is convenient because it allows the probablity the actor $i$ chooses to change its tie to actor $j$ in terms of the objective function alone. Let $p_{ij}(\boldsymbol{\beta}, x)$ be this probability. Next, write the network $x$ in its potential future state, where the tie $x_{ij}$ has changed to $1-x_{ij}$, as $x(i \leadsto j)$. Then, the probility that the tie $x_{ij}$ changes is 
 
