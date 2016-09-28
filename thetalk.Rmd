@@ -44,7 +44,61 @@ library(knitr)
 
 # Motivating Material
 
-# Visual Inferences for SAOMs
+## Social Networks
+
+- "The Small World Problem" (Milgram 1967)
+- Increased ease of data collection
+
+## Statistical Models for Social Networks
+
+- Erdös-Rényi Random Graph
+- Exponential Random Graph
+- Stochastic Actor-Oriented Models (SAOMs)
+
+## Basic Notation
+
+<div class = "columns-2">
+Network: 
+```{r, echo = FALSE, fig.align='center', out.width="95%", fig.height= 10}
+set.seed(123456789)
+nodes <- data.frame(id = LETTERS[1:5], x = c(1,1,2,2,3), y = c(1,2,1,2,1.5), label = 1:5)
+edges <- data.frame(from = LETTERS[sample(5, 5)], to = LETTERS[sample(5, 5)])
+net <- merge(edges, nodes, by.x = "from", by.y = "id", all = T)
+edgelabels <- data.frame(label = LETTERS[1:5], 
+                         x = c(.85,1.5,1.55,2.65,2.35), 
+                         y = c(1.5, .9,1.45,1.8,1.65))
+ggplot() + 
+  geom_net(data = net, labelcolour = "forestgreen",
+           layout = NULL, directed = T, size = 10, 
+           color = 'black', shape = 1, vjust = .2, arrowgap = .08,
+           ecolour = 'grey40', curvature = .1, 
+           aes(x = x, y = y, from_id = from, to_id = to, label = label)) + 
+  #geom_text(data = edgelabels, size = 5,
+  #          aes(x = x, y = y, label = label)) + 
+  theme_net() + theme(plot.title = element_text(size = 40)) + 
+  labs(title = "x")
+```
+
+- Nodeset: $\mathcal{N} = \{1,2,3,4,5\}$
+- Edgeset: $\mathcal{E} = \{x_{ij}\}$ for $i \neq j \in \mathcal{N}$
+- Binary, directed edges: $x_{12} = 1 \neq x_{21} = 0$ 
+- Observed network: $x$
+- Unobserved network (random variable): $X$
+</div>
+
+## Erdös-Rényi
+For undirected graphs 
+
+- Start with $n$ nodes
+- $x_{ij}$ chosen at random from $\binom{n}{2}$ possible
+- $Pr(x_{ij} = 1) = p$ for any $i \neq j \in \{1, \dots, n\}$
+- $e = \sum_{i < j} x_{ij}$, the number of edges has likelihood:
+
+$$ f(e| p, n) = p^{e}(1-p)^{\binom{n}{2} - e} $$
+
+
+
+# Visual Inference for SAOMs
 
 # The `R` package `geomnet`
 
