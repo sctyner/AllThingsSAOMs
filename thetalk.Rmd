@@ -3,6 +3,7 @@ title: "Graphical Discovery in Stochastic Actor-Oriented Models for Social Netwo
 author: "Sam Tyner"
 date: "October 5, 2016"
 output: ioslides_presentation
+bibliography: docs/bigbib.bib
 ---
 
 ```{r setup, include=FALSE}
@@ -51,8 +52,8 @@ library(knitr)
 
 ## Statistical Models for Social Networks
 
-- Erdös-Rényi Random Graph
-- Exponential Random Graph
+- Erdös-Rényi Random Graphs
+- Exponential Random Graph Model (ERGMs)
 - Stochastic Actor-Oriented Models (SAOMs)
 
 ## Basic Notation
@@ -84,6 +85,7 @@ ggplot() +
 - Binary, directed edges: $x_{12} = 1 \neq x_{21} = 0$ 
 - Observed network: $x$
 - Unobserved network (random variable): $X$
+- Space of possible networks given $n$ nodes: $\mathcal{X}$
 </div>
 
 ## Erdös-Rényi
@@ -96,10 +98,131 @@ For undirected graphs
 
 $$ f(e| p, n) = p^{e}(1-p)^{\binom{n}{2} - e} $$
 
+## Pros and Cons
 
+Pros: 
+- simple
+- tractable
+- properties and asymptotic behavior well-understood
+
+Cons:
+- too simplistic
+- nodes all have about same degree
+- doesn't capture properties of observed networks
+
+## Exponential Random Graph
+For undirected graphs
+
+Structural properties are sufficient statistics in the likelihood, e.g.
+
+- Number of $k$-stars, $S_k(x) = \sum_i \binom{x_{i+}}{k}$
+- Number of triangles: $T(x) = \sum_{i \neq j \neq h} x_{ij}x_{ih}x_{jh}$
+
+```{r exs, echo=FALSE, out.width="80%", fig.height=3.5, fig.align='center'}
+nodes <- data.frame(id = c(1:3, letters[1:4]), 
+                    group = rep(c("Triangle", "3-Star"), c(3,4)), 
+                    x = c(1,1.5,2,1,.5,1,1.5), 
+                    y = c(1,2,1,1.5,2,1,2))
+edges <- data.frame(from = c(1,2,3, rep("a", 3)),
+                    to = c(c(2,3,1), letters[2:4]))
+net <- merge(edges, nodes, by.x = "from", by.y = "id", all = T)
+set.seed(12345)
+ggplot() + 
+  geom_net(data = net, label = T, size = 9, 
+           labelcolour = 'white', vjust = .4,
+           ecolour = 'grey40', color = 'black', fiteach = T,
+           aes(from_id = from, to_id = to)) + 
+  theme_net() + 
+  facet_wrap(~group)
+```
+
+## ERGM Likelihood
+
+For a network, $x$: 
+ 
+$$f(x|\boldsymbol{\beta}) = \frac{1}{\psi(\boldsymbol{\beta})}\exp\left(\sum_k \beta_k s_k(x) \right),$$ 
+
+- $\beta_k$: parameters corresponding to $K$ sufficient statistics (e.g. number of triangles and $k$-stars in $x$)
+- $\psi(\beta)$: the normalizing constant.  
+
+## Pros and Cons
+
+Pros: 
+- Better captures real-world network properties 
+
+Cons: 
+- Statistics aren't independent 
+- No exact estimation of parameters
+
+## Stochastic Actor-Oriented Models
+
+- First introduced in @saompaper
+- *Longitudinal* network data
+- Capture the process of network change over time
+- Allow node level covariates to affect structure
+
+## Definitions & Notation
+
+- *Longitudinal network*: a network of a set of $n$ nodes that is changing in time
+    + Observed at $M$ discrete time points, $t_1, \dots, t_M$
+    + Denote the observations $x(t_1), \dots, x(t_M)$
+- *Continuous time Markov Chain* (CTMC): SAOMs assume $x(t_1), \dots, x(t_M)$ are embedded within a CTMC, $X(T)$.  
+    + Composed of single tie changes
+    + Changes can arise at a different rate for each actor
+    + Given the chance to change, actor maximizes its utility
+    
+## Actor-Level Rate Function
+For each actor $i \in \{1,\dots, n\}$:
+
+$$\lambda_i(\alpha, \rho, x, m)$$
+
+- $\alpha$: overall rate parameter
+- $\rho$: parameter(s) corresponding to actor covariate(s)
+- $x \in \mathcal{X}$: current state of the network
+- $m$: time point of the current network observation, $t_m$
+
+At time $T$, $t_{m} \leq T < t_{m+1}$, the waiting time to the next change opportunity by actor $i$ has distribution:  $$\textit{Exp}\big(\lambda_i(\alpha, \rho, x, m)\big)$$.
+
+## Network-Level Rate Function
+
+Assume actors are conditionally independent given their ties, $x_{i1}, \dots, x_{in}$ 
+
+Write the rate function for the whole network: 
+$$\lambda(\alpha, \rho, x, m) = \sum_i \lambda_i(\alpha, \rho, x, m).$$ 
+At any time $T$, $t_{m} \leq T < t_{m+1}$, waiting time to the next change opportunity by *any* actor in the network has distribution 
+$$\textit{Exp}\big(\lambda(\alpha, \rho, x, m)\big)$$
+
+## My Rate Function 
+
+- Constant over nodes
+- Different rate for each time point
+- Rate function from $x(t_{m-1})$ to $x(t_m)$:
+$$\lambda_i(\alpha, \rho, x, m) = \alpha_m$$
+- Corresponding sufficient statistic: 
+$$C_m = \sum_{ij} \big|x_{ij}(t_{m}) - x_{ij}(t_{m-1})\big| $$
+
+## Objective Function {.smaller}
+
+Assume node $i$ can change:
+
+- $n$ possible steps $i$ can take: 
+    + A current tie $x_{ij} = 1$ will be destroyed
+    + A current tie $x_{ij} = 0$ will be created 
+    + No change will occur
+- Change made to maximize its objective function: 
+
+$$f_i(\boldsymbol{\beta}, x) = \sum_k \beta_k s_{ik}(x, \mathbf{Z}),$$
+
+- $x \in \mathcal{X}$: current network state
+- $\mathbf{Z}$: covariates matrix
+- $\boldsymbol{\beta}$: parameters of the model
+- $s_{ik}(x, \mathbf{Z})$, for $k = 1,\dots, K$: network and covariate statistics corresponding to the $\beta_k$
 
 # Visual Inference for SAOMs
 
 # The `R` package `geomnet`
 
 # Closing Material
+
+## References {.smaller}
+
