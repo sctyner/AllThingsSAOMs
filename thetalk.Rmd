@@ -251,14 +251,317 @@ Objective function also has a random component, $U_i(x)$
 
 - Gumbel / log-Weibull distribution with mean $\mu = 0$ and scale parameter $\sigma = 1$ [@snijders01, p. 368].
 - probability distribution function:
-$$f(u|\mu, \sigma) = \frac{1}{\sigma}\exp\left\{-\left(\frac{x-\mu}{\sigma} + e^{-\frac{x-\mu}{\sigma}}\right)\right\} $$
+$$f(u|\mu, \sigma) = \frac{1}{\sigma}\exp\left\{-\left(\frac{u-\mu}{\sigma} + e^{-\frac{u-\mu}{\sigma}}\right)\right\} $$
 
 This is used so that the *probablity* $i$ changes tie $x_{ij}$ can be written in terms of $f_i(\boldsymbol{\beta}, x)$: 
 $$p_{ij}(\boldsymbol{\beta}, x) = \dfrac{\exp\left\{f_i(\boldsymbol{\beta}, x(i\leadsto j))\right\}}{\sum_{h \neq i} \exp\left\{f_i(\boldsymbol{\beta}, x(i \leadsto h))\right\}}$$
 
+## CTMC Model Description {.smaller}
+
+CTMCs described by their intensity matrix, $\mathbf{Q}$, which dictates rates of change between chain states
+
+Large number of network states: $2^{n(n-1)}$, but only $n(n-1)$ accessible by changing 1 tie at a time.
+
+$\mathbf{Q}$ very sparse. Let $b \neq c \in \{1, 2, \dots, 2^{n(n-1)} \}$ be indices of two different possible states of the network, $x^b, x^c \in \mathcal{X}$.  Then the $bc^{th}$ entry of $\mathbf{Q}$ is:
+\[ q(x^b, x^c) = \begin{cases} 
+      q_{ij}(\alpha, \rho, \boldsymbol{\beta}, x^b) & \text{if } x^c \in \{x^b(i \leadsto j) | \text{ any } i \neq j \in \mathcal{N}\} \\
+      0 & \text{if } x^c \text{ differs from } x^b \text{ by more than 1 tie} \\
+      -\sum_{i\neq j} q_{ij}(\alpha, \rho, \boldsymbol{\beta}, x^b)  & \text{if } x^b = x^c 
+   \end{cases}
+\]
+
+where 
+    $$q_{ij}(\alpha, \rho, \boldsymbol{\beta}, x^b) = \lambda_i(\alpha, \rho, x^b, m)p_{ij}(\boldsymbol{\beta}, x^b)$$ 
+
+## Model Fitting
+
+Done in the R package `RSiena` by @RSiena.
+
+MCMC methods used for method of moments estimators of the parameters.
+
 # Visual Inference for SAOMs
 
+## Friendship Network
+
+Data from @friendsdata.  
+
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+library(sna)
+library(network)
+friend.data.w1 <- as.matrix(read.table("VisInfDocs/Data/s50_data/s50-network1.dat"))
+friend.data.w2 <- as.matrix(read.table("VisInfDocs/Data/s50_data/s50-network2.dat"))
+fd2.w1 <- friend.data.w1[20:35,20:35]
+fd2.w2 <- friend.data.w2[20:35,20:35]
+drink <- as.matrix(read.table("VisInfDocs/Data/s50_data/s50-alcohol.dat"))
+drink2 <- drink[20:35,]
+actual1 <- merge(data.frame(as.edgelist(as.network(fd2.w1))), 
+                 data.frame(id = 1:16, drink = drink2[,1]), 
+                 by.x = "X1", by.y = "id", all = T)
+for (j in 1:nrow(actual1)){
+      if (!(actual1$X1[j] %in% actual1$X2) & is.na(actual1$X2[j])){
+        actual1$X2[j] <- actual1$X1[j]
+      } else {actual1$X2[j] <- actual1$X2[j]}
+}
+actual2 <- merge(data.frame(as.edgelist(as.network(fd2.w2))), 
+                 data.frame(id = 1:16, drink = drink2[,2]), 
+                 by.x = "X1", by.y = "id", all = T)
+for (j in 1:nrow(actual2)){
+      if (!(actual2$X1[j] %in% actual2$X2) & is.na(actual2$X2[j])){
+        actual2$X2[j] <- actual2$X1[j]
+      } else {actual2$X2[j] <- actual2$X2[j]}
+    }
+actual1$wave <- 1
+actual2$wave <- 2
+
+waves <- rbind(actual1, actual2)
+library(geomnet)
+actual1$behaviour <- factor(actual1$drink)
+levels(actual1$behaviour) <- c("None", "Once or twice a year", "Once a month", "Once a week")
+set.seed(34567)
+ggplot(data = actual1, aes(from_id = X1, to_id = X2)) + 
+  geom_net(label = TRUE, hjust = 0.5, vjust=0.5, size=9,  
+          labelcolour = "grey20", directed = T, arrowgap = .04,
+           aes(colour = behaviour)) + 
+  scale_colour_brewer("Drinking behavior", palette="YlOrRd") +
+  theme_net() 
+
+#ggplot(data = waves, aes(from_id = X1, to_id = X2)) + 
+#  geom_net(label = TRUE, hjust = -.5, labelcolour = 'black', fiteach = T,
+#           aes(color = as.factor(drink))) + 
+#  theme_net() + theme(panel.background = element_rect(fill = "white", color = 'black')) + facet_wrap(~wave)
+```
+
+## Stochastic Actor Oriented Models
+
+Observed networks: discrete observations of continuous time Markov Chain. 
+
+1. Between observations:  actors act (i.e. change ties with others) at same rate
+2. Actor aims to maximize  objective functon, $f_i(\mathbf{\beta},x) = \sum_k \beta_k s_{ki}(x)$.
+
+## Model Parameters
+
+1. Rate - how often girls change friendships 
+2. Outdegree - measure of activeness
+3. Reciprocity - how often friendships are reciprocated
+4. Jumping Transitive Triplets - friends of the same person become friends
+
+```{r, echo = FALSE, fig.height=2}
+jTTe <- data.frame(from = c('i', 'i', 'h'), to = c('h', 'j', 'j'))
+jTTn <- data.frame(id = letters[8:10], group = c(1,1,2))
+
+jTT <- merge(jTTe, jTTn, by.x = 'from', by.y = "id", all = T)
+
+set.seed(12345) 
+ggplot(data = jTT, aes(from_id = from, to_id = to)) + 
+  geom_net(aes(shape = as.factor(group)), directed = T, label = T, 
+           labelcolour='grey80',vjust = 0.5, hjust =0.5, arrowgap = .15, 
+           colour = 'black', size=10, 
+           ecolour = c("red", "grey40", "grey40", "grey40")) + 
+  expand_limits(x=c(-0.1,1.1), y=c(-0.1,1.1)) +
+  theme_net() +
+  theme(legend.position = "none")
+```
+
+## Two Models {.smaller}
+
+```{r echo=FALSE, eval=FALSE}
+A<- c(1, rep(0,4))
+
+library(RSienaTest)
+Multipar.RSiena(runs_models_smallFriends[[1]], 1)
+Multipar.RSiena(runs_models_smallFriends[[1]], 2)
+```
+
+Effect name | Parameter | Corresponding Statistic | M1 | M2 | p-value M1 | p-value M2 |
+:------------:|:-----------:|:-------------------------:|:----:|:----:|:--------:|:----:
+Rate 1 (wave 1 $\rightarrow$ 2) | $\alpha_1$ | $\sum\limits_{i,j = 1 i \neq j}^n (x_{ij}(t_2) - x_{ij}(t_1))^2$  | **X** | **X** | -- | --
+Rate 2 (wave 2 $\rightarrow$ 3) | $\alpha_2$ | $\sum\limits_{i,j = 1 i\neq j}^n (x_{ij}(t_3) - x_{ij}(t_2))^2$  | **X** | **X** | -- | --
+Outdegree | $\beta_1$ | $s_{i1}(x) = \sum\limits_{j=1}^n x_{ij}$ | **X** | **X** | $5.67 \times 10^{-8}$ | $4.66 \times 10^{-10}$
+Reciprocity | $\beta_2$ | $s_{i2}(x) = \sum\limits_{j=1}^n x_{ij}x_{ji}$ | **X** | **X** | $1.10 \times 10^{-5}$ | $4.42 \times 10^{-7}$
+Jumping Transitive Triplets | $\beta_3$ | $s_{i3}(x) = \sum\limits_{\forall j\neq h} x_{ij}x_{ih}x_{hj} \mathbb{I}(v_i = v_h \neq v_j)$ | | **X** | -- | $0.00036$ 
+
+
+
+## Can you see the difference? 
+
+```{r echo=FALSE}
+dat <- readr::read_csv("VisInfDocs/Data/smallfriends-rev-m-12-rep-c.csv")
+ggplot(data = dat %>% filter(plot_order2 %in% c(11,12)) %>% mutate(Model = plot_order2 - 10) ) + 
+  geom_net(aes(from_id = X1, to_id = X2), size = 2, fiteach = T, directed = T, 
+           colour = 'black', arrowsize = .25, arrowgap = .02, ecolour = 'grey60') + 
+  facet_wrap(~Model, labeller = "label_both") + 
+  theme_net() + theme(panel.background = element_rect(color = 'black'))
+```
+
+## Can you see the difference?
+
+```{r echo=FALSE}
+dat <- readr::read_csv("VisInfDocs/Data/smallfriends-m-12-rep-1.csv")
+ggplot(data = dat %>% filter(plot_order %in% c(2,7)) %>% mutate(Model = ifelse(plot_order == 2, 2, 1))) + 
+  geom_net(aes(from_id = X1, to_id = X2), size = 2, fiteach = T, directed = T, 
+           colour = 'black', arrowsize = .25, arrowgap = .02, ecolour = 'grey60') + 
+  facet_wrap(~Model, labeller = "label_both") + 
+  theme_net() + theme(panel.background = element_rect(color = 'black'))
+```
+
+## Question
+
+Can we *see* a significant parameter when visualizing networks simulated from two different models?
+
+- Idea: a very statistically significant difference in models should look different to us
+- Method: visual inference - use lineups with graphs from models 1 & 2 to test this idea
+
+## Lineup 
+
+- Show $m$ plots to people
+- Ask to identify most different plot
+- Null ($m-1$ plots) vs. Alternative ($1$ plot) models
+- Identification of the alternative plot is evidence against null
+- Probability to pick alternative plot randomly is $\frac{1}{m}$
+
+## Experiment
+
+- M1 v. M2 (most complex structure)
+- M2 v. M1 (least complex structure)
+- five lineups each
+- each participant randomly sees ten lineups
+
+## Most complex? 
+
+```{r, echo=FALSE, fig.align='center'}
+dat <- readr::read_csv("VisInfDocs/Data/smallfriends-m-12-rep-10.csv")
+ggplot(data = dat) +
+  geom_net(aes(from_id = X1, to_id = X2), size = 1, fiteach = T, directed = T, 
+           colour = 'black', arrowsize = .15, arrowgap = .02, ecolour = 'grey60') + 
+  facet_wrap(~plot_order) + 
+  theme_net() + theme(panel.background = element_rect(color = 'black'))
+```
+
+## Least Complex? 
+
+```{r echo=FALSE, fig.align='center'}
+dat <- readr::read_csv("VisInfDocs/Data/smallfriends-rev-m-12-rep-b.csv")
+ggplot(data = dat) +
+  geom_net(aes(from_id = X1, to_id = X2), size = 1, fiteach = T, directed = T, 
+           colour = 'black', arrowsize = .15, arrowgap = .02, ecolour = 'grey60') + 
+  facet_wrap(~plot_order2) + 
+  theme_net() + theme(panel.background = element_rect(color = 'black'))
+```
+
+## Small Amazon Turk experiment
+
+<img src="screenshot.png" width="800px" height="400px" />
+
+
+## Results 1
+``` {r, echo=FALSE, fig.align = 'center', out.width = '100%',fig.height=5}
+ids <- readr::read_csv("https://raw.githubusercontent.com/erichare/lineups/f19635a00507210013ba9e631761ad0c89a6564d/experiments/turk21/details/picture-details.csv")
+tab <- read.csv("VisInfDocs/Results/turk21_users.csv")
+tab2 <- unique(tab)
+#length(unique(tab2$nick_name))
+#head(sort(table(tab2$nick_name),decreasing = T))
+#tab2 %>% filter(nick_name == "A3U3L1XQVR362A")
+#tab2 %>% filter(nick_name == "ADTIO3A6TM9CG")
+#tab2 %>% filter(nick_name %in% names(table(res$nick_name))[table(res$nick_name) != 10])
+res <- read.csv("VisInfDocs/Results/turk21_feedback.csv", stringsAsFactors = F)
+# remove people who only completed 1 plot
+res <- res %>% filter(!(nick_name %in% names(table(res$nick_name))[table(res$nick_name) != 10]))
+# need to repeat rows with weights for people who selected multiple plots.
+res_norpt <- res[-grep(",", res$response_no),]  
+res_rpt <- res[grep(",", res$response_no),]  
+
+library(stringr)
+# count # of responses (ttr = times to repeat)
+ttr <- str_count(string = res_rpt$response_no, pattern = ",") + 1
+rpt_rows <- rep(1:nrow(res_rpt), ttr)
+rpt_rows2 <- res_rpt[rpt_rows,]
+rpt_rows2$count_response <- unlist(sapply(ttr, seq_len))
+rpt_rows2$weight <- 1/rep(ttr, ttr)
+split_rows <- strsplit(rpt_rows2$response_no, ",")
+rpt_rows2$tot_response <- rep(ttr, ttr)
+rpt_rows2$response_no2 <- NA
+for(i in 1:nrow(rpt_rows2)){
+  rpt_rows2$response_no2[i] <- split_rows[[i]][rpt_rows2$count_response[i]]
+}
+
+res_norpt$count_response <- 1 
+res_norpt$weight <- 1
+res_norpt$response_no2 <- res_norpt$response_no
+res_norpt$tot_response <- 1 
+
+# res with weight column   
+new_res <- rbind(res_norpt, rpt_rows2)
+
+#intersect(names(ids), names(res))
+res2 <- left_join(new_res, ids, by = 'pic_id')
+res2$correct <- res2$response_no == res2$obs_plot_location
+res2$time <- res2$end_time - res2$start_time
+res2$lineup_name <- as.factor(paste(res2$test_param, res2$param_value))
+# with the correct labels (in order of data plot w/value most different from rest to least different)
+more_details <- read.csv("VisInfDocs/experimentdetails_Aug31.csv", stringsAsFactors = F)
+res3 <- left_join(res2, more_details, by = c("data_name" = "lineup_filename", "obs_plot_location" = "obs_plot_location"))
+# higest jtts are: reps 18, 20, 6, 19, 3 with 
+              # jtts of 40, 24, 18,17, 9
+res3$group_name <- paste0(res3$group, " #", res3$group.rep)
+
+# get the weights
+res3 %>% group_by(group_name, response_no2, correct) %>% summarise(tot_wt = sum(weight)) -> summ_res_wts
+groupss <- unique(summ_res_wts$group_name)
+ggplot(data = filter(summ_res_wts, group_name %in% groupss[1:10]), 
+       aes(x = reorder(as.factor(response_no2), -tot_wt), 
+                                y = tot_wt,
+                                fill = correct)) + 
+  geom_bar(color = 'black', stat = 'identity') + 
+  scale_fill_manual(values = c("white", "grey30"), 
+                    name = "Correct?") + 
+  facet_wrap(~group_name, scales = "free", ncol = 5) +
+  theme_bw() + 
+  theme(legend.position = 'top') + 
+  labs(x = "User Response" , y = "Number of Responses")
+```
+
+## Results 2
+```{r, out.width="100%", fig.height=5, fig.align='center'}
+ggplot(data = filter(summ_res_wts, group_name %in% groupss[11:25]), 
+       aes(x = reorder(as.factor(response_no2), -tot_wt), 
+                                y = tot_wt,
+                                fill = correct)) + 
+  geom_bar(color = 'black', stat = 'identity') + 
+  scale_fill_manual(values = c("white", "grey30"), 
+                    name = "Correct?") + 
+  facet_wrap(~group_name, scales = "free", ncol = 5) +
+  theme_bw() + 
+  theme(legend.position = 'top') + 
+  labs(x = "User Response" , y = "Number of Responses")
+```
+
+
+```{r, echo=FALSE}
+lus_jtts <- readr::read_csv("VisInfDocs/Data/lineups-jtt.csv")
+load("VisInfDocs/Data/lus_ests_truth.rda")
+
+res4 <-left_join(res3, lus_jtts, by = c("data_name" = "filename", "obs_plot_location" = "plot_order"))
+res4.2 <- res4 %>% group_by(data_name, jtt) %>% summarise(perc_corr = sum(correct)/n())
+p1 <- ggplot(data = res4.2) +geom_point(aes(x = jtt, y = perc_corr)) + labs(x = "Number of jumping transitive triplets", y = "Percent of Participants Choosing Correctly", title= "# of JTTs")
+res3a <- res3
+res3a$data_name <- sub(".csv", "", res3a$data_name)
+res3a$data_name <- sub("-m-", "-", res3a$data_name)
+res3a$data_name <- sub("-rep-", "-", res3a$data_name)
+exp_names <- unique(res3a$data_name)
+lus_truth2 <- lus_ests_truth %>% 
+  filter(param_name == "transitive triplets jumping alcohol2" &
+           lineupid %in% exp_names & model == "M2")
+res5 <- left_join(res3a, lus_truth2, by = c("data_name" = "lineupid",
+                                            "obs_plot_location" = "panel_num"))
+res5.2 <- res5 %>% group_by(data_name, param_est) %>% 
+  summarise(perc_corr = sum(correct)/n())
+p2 <- ggplot(data = res5.2) + geom_point(aes(x = param_est, y = perc_corr)) + labs(x = "Parameter estimate", y = "Percent of Participants Choosing Correctly", title = "Parameter Estimate")
+gridExtra::grid.arrange(p2, p1, nrow = 1)
+```
+
 # The `R` package `geomnet`
+
+
 
 # Closing Material
 

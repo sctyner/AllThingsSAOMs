@@ -586,7 +586,7 @@ knitr::kable(
 
 Because of the random assignment of the 25 plots to users, almost every lineup was seen by a different number of people. Repetition 3 of $M1$ v. $M3$ was seen by 47 different users while repetition 2 of the same type was seen by only 6 different users. The mean number of times seens was 30.8 per lineup and the median was 31. In 15 of the 25 lineups, no user identified the correct plot, and in the remaining 10 lineups, the users correctly identified the alternative plot in the lineup a minimum of 4.35\% of the time and a maximum of 64\% of the time. A plot showing the number of different plots chosen, how many times they were chosen, and whether or not it was the correct choice is given in Figure \@ref(fig:facets-correct). Since the turk users were allowed to select multiple plots, the values shown in the histogram are actually the total weights received for each plot in the lineup. If the user selected only one plot, then that plot received a weight of 1, but if the user selected $n \geq 2$ plots, then each plot selected received a weight of $\frac{1}{n}$. 
 
-```{r facets-correct, echo=FALSE, fig.align="center", fig.cap="Plots chosen for each of the 25 lineups in the experiment. The x-axis ticks do not have a label because the label is less important than the number of different plots users chose and whether or not they chose the correct plot, shown in the coloring of the bars.", fig.height=9}
+```{r facets-correct, echo=FALSE, fig.align="center", fig.cap="Plots chosen for each of the 25 lineups in the experiment.", fig.height=9}
 ggplot(data = summ_res_wts, 
        aes(x = reorder(as.factor(response_no2), -tot_wt), 
                                 y = tot_wt,
