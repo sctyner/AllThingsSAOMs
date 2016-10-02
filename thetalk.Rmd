@@ -31,7 +31,7 @@ library(knitr)
 ## Thesis Outline
 
 - Chapter 1 - *Stochastic Actor-Oriented Models for Longitudinal Network Data: Removing the Blindfold*
-- Chapter 2 - *Visual Inference for Stochastic Actor Oriented Models*
+- Chapter 2 - *Model Diagnostics for Stochastic Actor-Oriented Models Using Visual Inference*
 - Chapter 3 - *Drawing Networks in the `ggplot2` Framework*
 
 ## Outline of Talk
@@ -253,19 +253,45 @@ jumping transitive triplets | $s_{i7}(x) = \sum_{j \neq h} x_{ij}x_{ih}x_{hj} \m
 
 ## Likelihood Function
 
-Likelihood function first presented in @snijders2010, based on the augmenting data principle of @dataug. 
+Likelihood function first presented in @snijders2010, based on the augmenting data principle of @dataaug. 
 
 SAOMs are "too complicated for the calculation of likelihoods or estimators in closed form" [@snijders2010, p. 568]
 
-Write likelihood in augmented data form instead
+Write likelihood in augmented data form instead, using a constant rate function
 
 ## Augmenting Data
 
-For timepoint $m$, consider the transition from $x(t_{m-1})$ to $x(t_m)$. 
+For timepoint $m$, consider the transition from $x(t_{m-1})$ to $x(t_m)$, where each tie changes at rate $\alpha_m$.
 
 - $C_m$: the number of tie differences, $C_m = \sum_{ij}|x_{ij}(t_m) - x_{ij}(t_{m-1})|$
-- CTMC: $x(t_{m-1}) = X(T_0), X(T_1), \dots, X(T_{C_m}) = x(t_{m})$
-- 
+- CTMC: $x(t_{m-1}) = X(T_0), X(T_1), \dots, X(T_{C_m}) = x(t_{m})$. One-tie changes in CTMC denoted by $X(T_c)$, $c = 1, \dots, C_m$
+- $\mathcal{A}(x)$: set of networks one tie different than $x$. $\mathcal{A}(x) = \left\{x' \in \mathcal{X} : \sum_{ij} |x_{ij} - x'_{ij}| = 1\right\}$
+- $(i_c, j_c)$: the only pair of $(i,j) \in \mathcal{N} \times \mathcal{N}$ for which $X_{ij}(T_{c-1}) \neq X_{ij}(T_c)$ 
+
+## Augmenting Data, cont. 
+
+- $\mathbf{V}^{(m)} = \{(i_1, j_1), \dots, (i_{C_m}, j_{C_m})\}$: the augmenting data sample path leading from $x(t_{m-1})$ to $x(t_m)$
+    + For $T_1, \dots, T_{C_m}$, the network changes one tie, $X_{i_cj_c}(T_c)$, at a time. 
+    + i.e. $X(T_1)$ differs from $X(T_0)$ by the tie $X_{i_1j_1}(T_1) = 1- X_{i_1j_1}(T_0)$ 
+- Writing likelihood in terms of the augmenting data requires the probability of the sample path from $x(t_{m-1})$ to $x(t_m)$
+
+## Probability of Sample Path
+
+Need 2 quantities: 
+
+1. The probability that the observation $x(t_m)$ is made before the next change in the CTMC, $X(T_{C_m +1})$
+    $$Pr\big(T_{C_m} \leq t_m < T_{C_m +1} | \alpha_m, \boldsymbol{\beta}, \{(i_c, j_c)\}_{c = 1}^{C_m}\big)$$
+2. The joint probability of the sample path occurring under the model's rate of change and objective function
+    $$\prod_{c = 1}^{C_m} \alpha_m p_{i_cj_c}(\boldsymbol{\beta}, X(T_{c-1}))$$ 
+
+## Probability of Sample Path, cont.
+
+1. Constant rate function $\Rightarrow$ $C_{m} \sim \textit{Poisson}(n\alpha_m(t_m - t_{m-1}))$, leading to 
+$$\frac{1}{C_m!}\exp\left\{-n\alpha_m(t_m - t_{m-1})\right\}(n\alpha_m(t_m - t_{m-1}))^{C_m}$$ 
+
+2. Using definitions from previous slides:
+    $$\alpha_m^{C_m} \prod_{c=1}^{C_m} \frac{\exp\left\{f_{i_c j_c}(\boldsymbol{\beta}, X(T_{c-1}))\right\}}{\sum_{j \neq j_c}\exp\left\{f_{i_cj}(\boldsymbol{\beta}, X(T_{c-1}))\right\}}$$
+where $f_{ij}(\boldsymbol{\beta}, x)$ denotes the value of the objective function when the tie $x_{ij}$ changes 
 
 ## Model Fitting
 
@@ -282,14 +308,16 @@ $$\lambda_i(\alpha, \rho, x, m) = \alpha_m$$
 - Corresponding sufficient statistic: 
 $$C_m = \sum_{ij} \big|x_{ij}(t_{m}) - x_{ij}(t_{m-1})\big| $$
 
+# Chapter 2: *Model Diagnostics for SAOMs Using Visual Inference*
 
-# Visual Inference for SAOMs
+## Friendship Network {.smaller}
 
-## Friendship Network
+Small, $n = 16$ subset of data from @friendsdata. 
 
-Data from @friendsdata.  
+- Three network waves describing friendships between teenage girls in a Scottish school
+- Also contains behavior information on the girls: smoking, drinking, etc.
 
-```{r, echo = FALSE, message=FALSE, warning=FALSE}
+```{r, echo = FALSE, message=FALSE, warning=FALSE, fig.heigh=4}
 library(sna)
 library(network)
 friend.data.w1 <- as.matrix(read.table("VisInfDocs/Data/s50_data/s50-network1.dat"))
@@ -335,19 +363,19 @@ ggplot(data = actual1, aes(from_id = X1, to_id = X2)) +
 #  theme_net() + theme(panel.background = element_rect(fill = "white", color = 'black')) + facet_wrap(~wave)
 ```
 
-## Stochastic Actor Oriented Models
+## Fitting SAOMs to the Data
 
-Observed networks: discrete observations of continuous time Markov Chain. 
+Observed friendship networks: discrete observations of continuous time Markov Chain. 
 
-1. Between observations:  actors act (i.e. change ties with others) at same rate
-2. Actor aims to maximize  objective functon, $f_i(\mathbf{\beta},x) = \sum_k \beta_k s_{ki}(x)$.
+1. Between observations:  actors act (i.e. change ties with others) at same rate, $\alpha_m$
+2. Each girl aims to maximize her objective function, $f_i(\mathbf{\beta},x) = \sum_k \beta_k s_{ik}(x)$.
 
 ## Model Parameters
 
-1. Rate - how often girls change friendships 
-2. Outdegree - measure of activeness
-3. Reciprocity - how often friendships are reciprocated
-4. Jumping Transitive Triplets - friends of the same person become friends
+1. Rate ($\alpha_1, \alpha_2$) - how often girls change friendships in between observations 
+2. Outdegree ($\beta_1$)- measure of activeness
+3. Reciprocity ($\beta_2$) - how often girls' friendships are reciprocated
+4. Jumping Transitive Triplets ($\beta_3$) - friends of the same person become friends despite behavior differences
 
 ```{r, echo = FALSE, fig.height=2}
 jTTe <- data.frame(from = c('i', 'i', 'h'), to = c('h', 'j', 'j'))
@@ -388,7 +416,9 @@ Jumping Transitive Triplets | $\beta_3$ | $s_{i3}(x) = \sum\limits_{\forall j\ne
 
 ## Can you see the difference? 
 
-```{r echo=FALSE}
+When looking at networks simulated from two different models, is there a visible difference due to the model differences?
+
+```{r echo=FALSE, fig.align='center'}
 dat <- readr::read_csv("VisInfDocs/Data/smallfriends-rev-m-12-rep-c.csv")
 ggplot(data = dat %>% filter(plot_order2 %in% c(11,12)) %>% mutate(Model = plot_order2 - 10) ) + 
   geom_net(aes(from_id = X1, to_id = X2), size = 2, fiteach = T, directed = T, 
@@ -399,7 +429,9 @@ ggplot(data = dat %>% filter(plot_order2 %in% c(11,12)) %>% mutate(Model = plot_
 
 ## Can you see the difference?
 
-```{r echo=FALSE}
+Simulations from the same two models
+
+```{r echo=FALSE, fig.align="center"}
 dat <- readr::read_csv("VisInfDocs/Data/smallfriends-m-12-rep-1.csv")
 ggplot(data = dat %>% filter(plot_order %in% c(2,7)) %>% mutate(Model = ifelse(plot_order == 2, 2, 1))) + 
   geom_net(aes(from_id = X1, to_id = X2), size = 2, fiteach = T, directed = T, 
@@ -408,12 +440,12 @@ ggplot(data = dat %>% filter(plot_order %in% c(2,7)) %>% mutate(Model = ifelse(p
   theme_net() + theme(panel.background = element_rect(color = 'black'))
 ```
 
-## Question
+## Research Question
 
 Can we *see* a significant parameter when visualizing networks simulated from two different models?
 
-- Idea: a very statistically significant difference in models should look different to us
-- Method: visual inference - use lineups with graphs from models 1 & 2 to test this idea
+- Hypothesis: If tests of individual parameters $\beta_k$ tell find a significant difference in two models, then networks simulated from those models should look different to us.
+- Method: Visual Inference - Using the lineup protocol of @Bujaetal, show networks simulated from 2 models, differing by one parameter $\beta_k$ to test this hypothesis
 
 ## Lineup 
 
@@ -421,7 +453,7 @@ Can we *see* a significant parameter when visualizing networks simulated from tw
 - Ask to identify most different plot
 - Null ($m-1$ plots) vs. Alternative ($1$ plot) models
 - Identification of the alternative plot is evidence against null
-- Probability to pick alternative plot randomly is $\frac{1}{m}$
+- Probability that one observer picks the alternative plot randomly is $\frac{1}{m}$
 
 ## Experiment
 
