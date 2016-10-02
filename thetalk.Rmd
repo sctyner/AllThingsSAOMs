@@ -30,20 +30,18 @@ library(knitr)
 
 ## Thesis Outline
 
-- Literature Review
 - Chapter 1 - *Stochastic Actor-Oriented Models for Longitudinal Network Data: Removing the Blindfold*
 - Chapter 2 - *Visual Inference for Stochastic Actor Oriented Models*
 - Chapter 3 - *Drawing Networks in the `ggplot2` Framework*
-- Other Projects 
 
 ## Outline of Talk
 
-- Motivating Material
-- Visual Inference for Stochastic Actor Oriented Models
-- The `R` Package `geomnet`
+- Motivation and Background
+- Chapter 2: Visual Inference for Stochastic Actor Oriented Models
+- Chapter 3: The `R` Package `geomnet`
 - Thesis Timeline
 
-# Motivating Material
+# Motivation and Background
 
 ## Social Networks
 
@@ -54,15 +52,14 @@ library(knitr)
 
 ## Statistical Models for Social Networks
 
-- Erdös-Rényi Random Graphs
+- Erdös-Rényi Simple Random Graph Model
 - Exponential Random Graph Model (ERGMs)
 - Stochastic Actor-Oriented Models (SAOMs)
 
-## Basic Notation
+## Simple Example
 
-<div class = "columns-2">
-Network: 
-```{r, echo = FALSE, fig.align='center', out.width="95%", fig.height= 10}
+Observed network (or graph), $x$ 
+```{r, echo = FALSE, fig.align='center', fig.height=5}
 set.seed(123456789)
 nodes <- data.frame(id = LETTERS[1:5], x = c(1,1,2,2,3), y = c(1,2,1,2,1.5), label = 1:5)
 edges <- data.frame(from = LETTERS[sample(5, 5)], to = LETTERS[sample(5, 5)])
@@ -72,57 +69,63 @@ edgelabels <- data.frame(label = LETTERS[1:5],
                          y = c(1.5, .9,1.45,1.8,1.65))
 ggplot() + 
   geom_net(data = net, labelcolour = "forestgreen",
-           layout = NULL, directed = T, size = 10, 
-           color = 'black', shape = 1, vjust = .2, arrowgap = .08,
-           ecolour = 'grey40', curvature = .1, 
+           layout = NULL, directed = T, size = 12, 
+           color = 'black', shape = 1, vjust = .5, arrowgap = .08,
+           ecolour = 'grey40', curvature = .1, fontsize = 10,
            aes(x = x, y = y, from_id = from, to_id = to, label = label)) + 
   #geom_text(data = edgelabels, size = 5,
   #          aes(x = x, y = y, label = label)) + 
-  theme_net() + theme(plot.title = element_text(size = 40)) + 
-  labs(title = "x")
+  theme_net()
 ```
 
-- Nodeset: $\mathcal{N} = \{1,2,3,4,5\}$
-- Edgeset: $\mathcal{E} = \{x_{ij}\}$ for $i \neq j \in \mathcal{N}$
-- Binary, directed edges: $x_{12} = 1 \neq x_{21} = 0$ 
+## Basic Notation {.smaller}
+
 - Observed network: $x$
 - Unobserved network (random variable): $X$
-- Space of possible networks given $n$ nodes: $\mathcal{X}$
-</div>
+- Space of possible networks given $n$ nodes: $\mathcal{X}$ 
+- Number of possible directed networks given $n$ nodes: 
+$$|\mathcal{X}|=2^{n(n-1)}$$
+- Nodes: $\mathcal{N} = \{1,\dots, n\}$, where $n=$ number of nodes in network, $\mathcal{N}$ is nodeset
+- Edges: Tie between nodes $i$ and $j$ is $x_{ij}$, for $i \neq j \in \mathcal{N}$. Edgeset is $\mathcal{E} = \{x_{ij}\}_{i \neq j \in \mathcal{N}}$
+    + Tie between $i$ and $j$ exists $\rightarrow$ $x_{ij} = 1$. Is $0$ otherwise
+    + Example has binary, directed edges: $x_{12} = 1 \neq x_{21} = 0$ 
 
-## Erdös-Rényi
-For undirected graphs 
+## Erdös-Rényi Simple Random Graph Model
+For *undirected* graphs. First random graph model [@er59]. 
 
 - Start with $n$ nodes
-- $x_{ij}$ chosen at random from $\binom{n}{2}$ possible
+- Ties $x_{ij}$ chosen at random from the $\binom{n}{2}$ ties possible
 - $Pr(x_{ij} = 1) = p$ for any $i \neq j \in \{1, \dots, n\}$
-- $e = \sum_{i < j} x_{ij}$, the number of edges has likelihood:
+- Very simple, can easily write down a likelihood and estimate parameters
+- Let $e = \sum_{i < j} x_{ij}$ be the number of edges. Then, $e$ has likelihood:
 
 $$ f(e| p, n) = p^{e}(1-p)^{\binom{n}{2} - e} $$
 
-## Pros and Cons
+## Pros and Cons of Erdös-Rényi Model
 
 Pros:
 
 - simple
 - tractable
+- easily find MLE of $p$: $\hat{p} = \dfrac{e}{\binom{n}{2}}$ 
 - properties and asymptotic behavior well-understood
 
 Cons:
 
 - too simplistic
-- nodes all have about same degree
-- doesn't capture properties of observed networks
+    + nodes all have about same degree
+    + doesn't capture properties of observed networks
 
-## Exponential Random Graph
-For undirected graphs
+## Exponential Random Graph Models {.smaller}
+For directed or undirected graphs. Also called $p^*$ models [@p1model]. Created to model networks more realistically
 
-Structural properties are sufficient statistics in the likelihood, e.g.
+- Structural properties of graph become sufficient statistics
+    + Outdegree: count edges from node $i$, $x_{i+} = \sum_j x_{ij}$
+    + Reciprocity: count reciprocated ties from node $i$, $\sum_j x_{ij}x_{ji}$  
+    + Count $e$-stars, $s_{k_e}(x) = \sum_i \binom{x_{i+}}{e}$
+    + Count triangles: $s_{k_t}(x) = \sum_{i \neq j \neq h} x_{ij}x_{ih}x_{jh}$
 
-- Number of $k$-stars, $S_k(x) = \sum_i \binom{x_{i+}}{k}$
-- Number of triangles: $T(x) = \sum_{i \neq j \neq h} x_{ij}x_{ih}x_{jh}$
-
-```{r exs, echo=FALSE, out.width="80%", fig.height=3.5, fig.align='center'}
+```{r exs, echo=FALSE, out.width="80%", fig.height=3, fig.align='center'}
 nodes <- data.frame(id = c(1:3, letters[1:4]), 
                     group = rep(c("Triangle", "3-Star"), c(3,4)), 
                     x = c(1,1.5,2,1,.5,1,1.5), 
@@ -132,7 +135,7 @@ edges <- data.frame(from = c(1,2,3, rep("a", 3)),
 net <- merge(edges, nodes, by.x = "from", by.y = "id", all = T)
 set.seed(12345)
 ggplot() + 
-  geom_net(data = net, label = T, size = 9, 
+  geom_net(data = net, label = T, size = 8, 
            labelcolour = 'white', vjust = .4,
            ecolour = 'grey40', color = 'black', fiteach = T,
            aes(from_id = from, to_id = to)) + 
@@ -147,18 +150,22 @@ For a network, $x$:
 $$f(x|\boldsymbol{\beta}) = \frac{1}{\psi(\boldsymbol{\beta})}\exp\left(\sum_k \beta_k s_k(x) \right),$$ 
 
 - $\beta_k$: parameters corresponding to $K$ sufficient statistics (e.g. number of triangles and $k$-stars in $x$)
-- $\psi(\beta)$: the normalizing constant.  
+- $\psi(\beta)$: the normalizing constant. 
+    + depends on the parameters
+    + makes parameter estimation very difficult
+    + Estimation via MCMC or pseudo-likelihood done instead
 
-## Pros and Cons
+## Pros and Cons of ERGMs
 
 Pros: 
 
 - Better captures real-world network properties 
+- MCMC estimation is well-established
 
 Cons: 
 
-- Statistics aren't independent 
-- No exact estimation of parameters
+- Statistics aren't independent, can lead to degeneracy [@Robins2007]
+- Full form of likelihood often unknown due to complicated nature of normalizing constant 
 
 ## Stochastic Actor-Oriented Models
 
@@ -198,14 +205,6 @@ $$\lambda(\alpha, \rho, x, m) = \sum_i \lambda_i(\alpha, \rho, x, m).$$
 At any time $T$, $t_{m} \leq T < t_{m+1}$, waiting time to the next change opportunity by *any* actor in the network has distribution 
 $$\textit{Exp}\big(\lambda(\alpha, \rho, x, m)\big)$$
 
-## My Rate Function 
-
-- Constant over nodes
-- Different rate for each time point
-- Rate function from $x(t_{m-1})$ to $x(t_m)$:
-$$\lambda_i(\alpha, \rho, x, m) = \alpha_m$$
-- Corresponding sufficient statistic: 
-$$C_m = \sum_{ij} \big|x_{ij}(t_{m}) - x_{ij}(t_{m-1})\big| $$
 
 ## Objective Function {.smaller}
 
@@ -236,7 +235,7 @@ Many possible parameters $\beta$ to add, belong to two groups:
 - Structural effects: only depend on network structure
 - Covariate effects: depend on interaction of network structure and actor covariate values
 
-## Examples of Statistics {.smaller}
+## Examples of Structural Statistics
 
 Structural Effect | Sufficient Statistic
 ------------------|----------------------
@@ -244,6 +243,7 @@ outdegree         | $s_{i1}(x) = \sum_j x_{ij}$
 reciprocity       | $s_{i2}(x) = \sum_j x_{ij}x_{ji}$
 transitive triplets | $s_{i3}(x) = \sum_{j,h} x_{ij}x_{jh}x_{ih}$
 
+## Examples of Covariate Statistics
 Covariate Effect | Sufficient Statistic
 -----------------|----------------------
 covariate-alter  | $s_{i4}(x) = \sum_j x_{ij}z_j$
@@ -251,39 +251,37 @@ covariate-ego    | $s_{i5}(x) = z_i\sum_j x_{ij}$
 same covariate   | $s_{i6}(x) = \sum_j x_{ij} \mathbb{I}(z_i = z_j)$
 jumping transitive triplets | $s_{i7}(x) = \sum_{j \neq h} x_{ij}x_{ih}x_{hj} \mathbb{I}(z_i = z_h \neq z_j)$
 
-## Random Component 
+## Likelihood Function
 
-Objective function also has a random component, $U_i(x)$ 
+Likelihood function first presented in @snijders2010, based on the augmenting data principle of @dataug. 
 
-- Gumbel / log-Weibull distribution with mean $\mu = 0$ and scale parameter $\sigma = 1$ [@snijders01, p. 368].
-- probability distribution function:
-$$f(u|\mu, \sigma) = \frac{1}{\sigma}\exp\left\{-\left(\frac{u-\mu}{\sigma} + e^{-\frac{u-\mu}{\sigma}}\right)\right\} $$
+SAOMs are "too complicated for the calculation of likelihoods or estimators in closed form" [@snijders2010, p. 568]
 
-This is used so that the *probablity* $i$ changes tie $x_{ij}$ can be written in terms of $f_i(\boldsymbol{\beta}, x)$: 
-$$p_{ij}(\boldsymbol{\beta}, x) = \dfrac{\exp\left\{f_i(\boldsymbol{\beta}, x(i\leadsto j))\right\}}{\sum_{h \neq i} \exp\left\{f_i(\boldsymbol{\beta}, x(i \leadsto h))\right\}}$$
+Write likelihood in augmented data form instead
 
-## CTMC Model Description {.smaller}
+## Augmenting Data
 
-CTMCs described by their intensity matrix, $\mathbf{Q}$, which dictates rates of change between chain states
+For timepoint $m$, consider the transition from $x(t_{m-1})$ to $x(t_m)$. 
 
-Large number of network states: $2^{n(n-1)}$, but only $n(n-1)$ accessible by changing 1 tie at a time.
-
-$\mathbf{Q}$ very sparse. Let $b \neq c \in \{1, 2, \dots, 2^{n(n-1)} \}$ be indices of two different possible states of the network, $x^b, x^c \in \mathcal{X}$.  Then the $bc^{th}$ entry of $\mathbf{Q}$ is:
-\[ q(x^b, x^c) = \begin{cases} 
-      q_{ij}(\alpha, \rho, \boldsymbol{\beta}, x^b) & \text{if } x^c \in \{x^b(i \leadsto j) | \text{ any } i \neq j \in \mathcal{N}\} \\
-      0 & \text{if } x^c \text{ differs from } x^b \text{ by more than 1 tie} \\
-      -\sum_{i\neq j} q_{ij}(\alpha, \rho, \boldsymbol{\beta}, x^b)  & \text{if } x^b = x^c 
-   \end{cases}
-\]
-
-where 
-    $$q_{ij}(\alpha, \rho, \boldsymbol{\beta}, x^b) = \lambda_i(\alpha, \rho, x^b, m)p_{ij}(\boldsymbol{\beta}, x^b)$$ 
+- $C_m$: the number of tie differences, $C_m = \sum_{ij}|x_{ij}(t_m) - x_{ij}(t_{m-1})|$
+- CTMC: $x(t_{m-1}) = X(T_0), X(T_1), \dots, X(T_{C_m}) = x(t_{m})$
+- 
 
 ## Model Fitting
 
 Done in the R package `RSiena` by @RSiena.
 
-MCMC methods used for method of moments estimators of the parameters.
+MCMC methods used for method of moments estimators of the objective function parameters.
+
+## `RSiena` Rate Function 
+
+- Constant over nodes
+- Different rate for each time point
+- Rate function from $x(t_{m-1})$ to $x(t_m)$:
+$$\lambda_i(\alpha, \rho, x, m) = \alpha_m$$
+- Corresponding sufficient statistic: 
+$$C_m = \sum_{ij} \big|x_{ij}(t_{m}) - x_{ij}(t_{m-1})\big| $$
+
 
 # Visual Inference for SAOMs
 
