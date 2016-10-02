@@ -447,13 +447,30 @@ Can we *see* a significant parameter when visualizing networks simulated from tw
 - Hypothesis: If tests of individual parameters $\beta_k$ tell find a significant difference in two models, then networks simulated from those models should look different to us.
 - Method: Visual Inference - Using the lineup protocol of @Bujaetal, show networks simulated from 2 models, differing by one parameter $\beta_k$ to test this hypothesis
 
-## Lineup 
+## Visual Inference
 
-- Show $m$ plots to people
+Given data and a plot of it, what can you say about the data? 
+
+$T^{(i)}(\mathbf{y})(i \in I)$: the set of discoverable features of a plot are test statistics, where $\mathbf{y}$ is the data, and $I$ is the set of all possible visual features to discover in a plot. 
+
+$H_0$: a null hypothesis scenario from which the data could have arisen 
+
+- For each sample from the null hypothesis, make the same plot type as the data plot (create the "null plots")
+- Original plot is the "data plot". 
+
+Idea: If an "analyst" sees a feature in the data, and also in the null plots, then the data cannot be said to come from a different scenario than $H_0$. 
+
+## Lineup Protocol
+
+- Show $M$ plots to $K$ people
 - Ask to identify most different plot
-- Null ($m-1$ plots) vs. Alternative ($1$ plot) models
-- Identification of the alternative plot is evidence against null
-- Probability that one observer picks the alternative plot randomly is $\frac{1}{m}$
+- Null ($M-1$ plots) vs. Alternative ($1$ plot) models
+- Identification of the alternative plot is evidence *against* null
+- $\frac{1}{M}$: Probability of one observer picking alternative plot at random 
+- $p$-value: $Pr(X \geq x) = 1 - Binom_{K, \frac{1}{M}}(x-1)$
+    + $X$: number of analysts who correctly identify the data
+    + $x$: the observed value $X$ for an experiment
+    + $Binom_{K, \frac{1}{M}}(x)$: pmf of the binomial distribution with $K$ trials and probability of success $\frac{1}{M}$ evaluated at $x$.
 
 ## Experiment
 
@@ -543,7 +560,7 @@ res3$group_name <- paste0(res3$group, " #", res3$group.rep)
 # get the weights
 res3 %>% group_by(group_name, response_no2, correct) %>% summarise(tot_wt = sum(weight)) -> summ_res_wts
 groupss <- unique(summ_res_wts$group_name)
-ggplot(data = filter(summ_res_wts, group_name %in% groupss[1:10]), 
+ggplot(data = filter(summ_res_wts, group_name %in% groupss[1:5]), 
        aes(x = reorder(as.factor(response_no2), -tot_wt), 
                                 y = tot_wt,
                                 fill = correct)) + 
@@ -558,7 +575,7 @@ ggplot(data = filter(summ_res_wts, group_name %in% groupss[1:10]),
 
 ## Results 2
 ```{r, out.width="100%", fig.height=5, fig.align='center'}
-ggplot(data = filter(summ_res_wts, group_name %in% groupss[11:25]), 
+ggplot(data = filter(summ_res_wts, group_name %in% groupss[c(6:10, 16:20)]), 
        aes(x = reorder(as.factor(response_no2), -tot_wt), 
                                 y = tot_wt,
                                 fill = correct)) + 
@@ -594,6 +611,13 @@ res5.2 <- res5 %>% group_by(data_name, param_est) %>%
 p2 <- ggplot(data = res5.2) + geom_point(aes(x = param_est, y = perc_corr)) + labs(x = "Parameter estimate", y = "Percent of Participants Choosing Correctly", title = "Parameter Estimate")
 gridExtra::grid.arrange(p2, p1, nrow = 1)
 ```
+
+## What did we learn?
+
+Jumping transitive triplet statistics is visible. 
+
+- People pick out plots with high number of JTTs. 
+
 
 ## Next Steps
 
