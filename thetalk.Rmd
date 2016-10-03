@@ -290,13 +290,10 @@ MCMC methods used for method of moments estimators of the objective function par
 
 Also allows for simulation from model given values of the parameters $\alpha_m$, $\boldsymbol{\beta}$
 
-# Chapter 3: *The `R` package `geomnet`*
+## Network Visualization
 
-## Basics
+ X 3 waves of friends data X
 
-- on CRAN
-- Built on `ggplot2`
-- Key functions: `geom_net()`, `stat_net()`
 
 ## Why a new package?
 
@@ -304,6 +301,15 @@ Also allows for simulation from model given values of the parameters $\alpha_m$,
 - Require more specific knowledge
 - `geomnet` only needs data frames
 - Target audience: "tidyverse" package users
+
+
+# Chapter 3: *The `R` package `geomnet`*
+
+## Basics
+
+- on CRAN
+- Built on `ggplot2`
+- Key functions: `geom_net()`, `stat_net()`
 
 ## Data for `geom_net()`
 
