@@ -234,6 +234,15 @@ $$f_i(\boldsymbol{\beta}, x) = \sum_k \beta_k s_{ik}(x, \mathbf{Z}),$$
 - $\boldsymbol{\beta}$: parameters of the model
 - $s_{ik}(x, \mathbf{Z})$, for $k = 1,\dots, K$: network and covariate statistics corresponding to the $\beta_k$
 
+## Probabilities of Changes
+
+1. Probability that node $i$ gets the next opportunity to change:
+$$\frac{\lambda_i(\alpha, \rho, x, m)}{\lambda(\alpha, \rho, x, m)}$$
+
+2. Probability that, when given opportunity to change, node $i$ changes its tie to node $j$: 
+$$p_{ij}(\boldsymbol{\beta}, x, \mathbf{Z}) = \frac{\exp\left\{f_i(\boldsymbol{\beta}, x(i \leadsto j))\right\}}{\sum_{h \neq j} \exp\left\{f_i(\boldsymbol{\beta}, x(i \leadsto h))\right\}}$$
+where $x(i \leadsto j)$ is the same network as $x$ with the exception of the tie $x_{ij}$. 
+
 ## Sufficient Statistics 
 
 Recall: $\boldsymbol{\beta}$ correspond to the $s_{ik}(x)$. 
@@ -295,7 +304,7 @@ Need 2 quantities:
 1. The probability that the observation $x(t_m)$ is made before the next change in the CTMC, $X(T_{C_m +1})$
     $$Pr\big(T_{C_m} \leq t_m < T_{C_m +1} | \alpha_m, \boldsymbol{\beta}, \{(i_c, j_c)\}_{c = 1}^{C_m}\big)$$
 2. The joint probability of the sample path occurring under the model's rate of change and objective function
-    $$\prod_{c = 1}^{C_m} \alpha_m p_{i_cj_c}(\boldsymbol{\beta}, X(T_{c-1}))$$ 
+    $$\prod_{c = 1}^{C_m} \alpha_m p_{i_cj_c}(\boldsymbol{\beta}, X(T_{c-1}), \mathbf{Z})$$ 
 
 ## Probability of Sample Path, cont.
 
@@ -303,8 +312,7 @@ Need 2 quantities:
 $$\frac{1}{C_m!}\exp\left\{-n\alpha_m(t_m - t_{m-1})\right\}(n\alpha_m(t_m - t_{m-1}))^{C_m}$$ 
 
 2. Using definitions from previous slides:
-    $$\alpha_m^{C_m} \prod_{c=1}^{C_m} \frac{\exp\left\{f_{i_c j_c}(\boldsymbol{\beta}, X(T_{c-1}))\right\}}{\sum_{j \neq j_c}\exp\left\{f_{i_cj}(\boldsymbol{\beta}, X(T_{c-1}))\right\}}$$
-where $f_{ij}(\boldsymbol{\beta}, x)$ denotes the value of the objective function when the tie $x_{ij}$ changes 
+    $$\alpha_m^{C_m} \prod_{c=1}^{C_m} \frac{\exp\left\{f_{i_c}(\boldsymbol{\beta}, X(T_{c}), \mathbf{Z})\right\}}{\sum_{X'(T_c) \in \mathcal{A}(X(T_{c-1})) j_c}\exp\left\{f_{i_c}(\boldsymbol{\beta}, X'(T_{c}))\right\}}$$
 
 ## Model Fitting
 
