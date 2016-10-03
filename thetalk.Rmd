@@ -473,8 +473,6 @@ Can we *see* a significant parameter when visualizing networks simulated from tw
 
 Given data and a plot of it, what can you say about the data? 
 
-$T^{(i)}(\mathbf{y})(i \in I)$: the set of discoverable features of a plot are test statistics, where $\mathbf{y}$ is the data, and $I$ is the set of all possible visual features to discover in a plot. 
-
 $H_0$: a null hypothesis scenario from which the data could have arisen 
 
 - For each sample from the null hypothesis, make the same plot type as the data plot (create the "null plots")
@@ -490,7 +488,7 @@ Idea: If an "analyst" sees a feature in the data, and also in the null plots, th
 - Identification of the alternative plot is evidence *against* null
 - $\frac{1}{M}$: Probability of one observer picking alternative plot at random 
 - $p$-value: $Pr(X \geq x) = 1 - Binom_{K, \frac{1}{M}}(x-1)$
-    + $X$: number of analysts who correctly identify the data
+    + $X$: number of observers who correctly identify the data
     + $x$: the observed value $X$ for an experiment
     + $Binom_{K, \frac{1}{M}}(x)$: pmf of the binomial distribution with $K$ trials and probability of success $\frac{1}{M}$ evaluated at $x$.
 
