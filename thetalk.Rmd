@@ -37,7 +37,7 @@ library(knitr)
 ## Outline of Talk
 
 - Motivation and Background
-- Chapter 2: Visual Inference for Stochastic Actor Oriented Models
+- Chapter 2: Model Diagnostics for Stochastic Actor-Oriented Models Using Visual Inference
 - Chapter 3: The `R` Package `geomnet`
 - Thesis Timeline
 
@@ -298,6 +298,8 @@ where $f_{ij}(\boldsymbol{\beta}, x)$ denotes the value of the objective functio
 Done in the R package `RSiena` by @RSiena.
 
 MCMC methods used for method of moments estimators of the objective function parameters.
+
+Also allows for simulation from model given values of the parameters $\alpha_m$, $\boldsymbol{\beta}$
 
 ## `RSiena` Rate Function 
 
