@@ -290,17 +290,67 @@ MCMC methods used for method of moments estimators of the objective function par
 
 Also allows for simulation from model given values of the parameters $\alpha_m$, $\boldsymbol{\beta}$
 
+## Data Example 
+
+```{r vizex, width = "100%"}
+friend.data.w1 <- as.matrix(read.table("VisInfDocs/Data/s50_data/s50-network1.dat"))
+friend.data.w2 <- as.matrix(read.table("VisInfDocs/Data/s50_data/s50-network2.dat"))
+friend.data.w3 <- as.matrix(read.table("VisInfDocs/Data/s50_data/s50-network3.dat"))
+drink <- as.matrix(read.table("VisInfDocs/Data/s50_data/s50-alcohol.dat"))
+fdf1 <- data.frame(friend.data.w1)
+fdf1$id <- 1:50
+fdf2 <- data.frame(friend.data.w2)
+fdf2$id <- 1:50
+fdf3 <- data.frame(friend.data.w3)
+fdf3$id <- 1:50
+
+fdf1.2 <- fdf1 %>% tidyr::gather(id) 
+names(fdf1.2) <- c("from", "to", "value")
+fdf2.2 <- fdf2 %>% tidyr::gather(id) 
+names(fdf2.2) <- c("from", "to", "value")
+fdf3.2 <- fdf3 %>% tidyr::gather(id) 
+names(fdf3.2) <- c("from", "to", "value")
+fdf1.2$to <- fdf1.2$to %>% readr::parse_number()
+fdf1.2$wave <- 1
+fdf2.2$to <- fdf2.2$to %>% readr::parse_number()
+fdf2.2$wave <- 2
+fdf3.2$to <- fdf3.2$to %>% readr::parse_number()
+fdf3.2$wave <- 3
+fdf <- rbind(fdf1.2, fdf2.2, fdf3.2)
+ddf <- data.frame(drink)
+ddf$id <- 1:50
+ddf <- ddf %>% gather(key = id)
+names(ddf) <- c("id", "wave","drink")
+ddf$wave <- as.factor(ddf$wave)
+levels(ddf$wave) <- 1:3
+ddf$wave <- as.numeric(as.character(ddf$wave))
+fdf <- filter(fdf, value == 1)
+net <- full_join(fdf, ddf, c("from"="id" ,"wave"="wave"))
+ggplot(data = net) + 
+  geom_net(aes(from_id = from, to_id = to, color = as.factor(drink)), directed = T, fiteach = T, size = 2, arrowsize = .3) + 
+  scale_colour_brewer(palette = "Spectral",name = "Covariate") + 
+  facet_wrap(~wave) + 
+  theme_net() + theme(legend.position = 'bottom')
+```
+
 ## Network Visualization
 
- X 3 waves of friends data X
+- Data non-traditional, visualizations are non-traditional
+- Putting points, curves, etc. in 2D holds no meaning for network data
+- Layout algorithms: place nodes based on their connections
+    + Force directed layouts: Kamada-Kawai, Fruchterman Reingold, etc.
+    + Matrix based layouts: MDS, Eigen, etc.
+- Arrows indicate directions
+- Point shapes, colors, sizes can indicate node variables
+- Segment size, color, linetype can indicate edge variables
+- Can do all of the above in `geomnet`
 
+## Why use `ggplot2`?
 
-## Why a new package?
-
-- Other packages: `network`, `sna`, etc
+- Other packages: `network`, `sna`, `igraph`, etc
 - Require more specific knowledge
 - `geomnet` only needs data frames
-- Target audience: "tidyverse" package users
+- Target audience: current `ggplot2` package users
 
 
 # Chapter 3: *The `R` package `geomnet`*
