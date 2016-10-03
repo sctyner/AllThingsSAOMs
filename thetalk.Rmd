@@ -507,7 +507,8 @@ ggplot(data = dat) +
 
 
 ## Results 1
-``` {r, echo=FALSE, fig.align = 'center', out.width = '100%',fig.height=5}
+
+``` {r, echo=FALSE, fig.align = 'center', out.width = '100%',fig.height=3}
 ids <- readr::read_csv("https://raw.githubusercontent.com/erichare/lineups/f19635a00507210013ba9e631761ad0c89a6564d/experiments/turk21/details/picture-details.csv")
 tab <- read.csv("VisInfDocs/Results/turk21_users.csv")
 tab2 <- unique(tab)
@@ -573,6 +574,11 @@ ggplot(data = filter(summ_res_wts, group_name %in% groupss[1:5]),
   labs(x = "User Response" , y = "Number of Responses")
 ```
 
+ \# JTTs   | \#1 | \#2 | \#3 | \#4 | \#5
+-----------|----|----|----|----|---
+Alternative plot | 40 | 24 | 18 | 17 | 9
+Highest Null     | 3  | 5  | 9  | 6  | 6
+
 ## Results 2
 ```{r, out.width="100%", fig.height=5, fig.align='center'}
 ggplot(data = filter(summ_res_wts, group_name %in% groupss[c(6:10, 16:20)]), 
@@ -588,6 +594,8 @@ ggplot(data = filter(summ_res_wts, group_name %in% groupss[c(6:10, 16:20)]),
   labs(x = "User Response" , y = "Number of Responses")
 ```
 
+
+## Results 3
 
 ```{r, echo=FALSE}
 lus_jtts <- readr::read_csv("VisInfDocs/Data/lineups-jtt.csv")
@@ -616,7 +624,8 @@ gridExtra::grid.arrange(p2, p1, nrow = 1)
 
 Jumping transitive triplet statistics is visible. 
 
-- People pick out plots with high number of JTTs. 
+- People tend to pick out plots with high number of JTTs. 
+- High estimated parameter, $\hat{\beta}_3$, doesn't lead to more IDs of alternative model
 
 
 ## Next Steps
@@ -687,7 +696,10 @@ ggplot(data = combined) + geom_net(aes(from_id = from_id, to_id=to_id,
 - Accepted for publication in *The R Journal* subject to revisions
 - 2 independently developed packages: `geomnet` and `ggnetwork` (Briatte)
 
-# Next Steps: Removing the Blindfold
+<img src="paperpic.png" width="800px" height="600px" />
+
+
+# Chapter 1: SAOMs: Removing the Blindfold
 
 ## Intro
 
@@ -696,12 +708,16 @@ ggplot(data = combined) + geom_net(aes(from_id = from_id, to_id=to_id,
 - What makes two network models different? 
 - What makes networks simulated from those models different? 
 
-## Idea
+## Motivation
+askjflaskhdfkahsd
 
-- 1000 simulations from a fitted network model. 
+## Small First Step 
+
+- 1000 simulations from M1 as estimated in Chapter 2. 
 - Edge appearances: mean: 59.21; median: 21
+- An "average" network: edges appear $\geq 59$ times
 
-```{r, fig.align='center'}
+```{r, fig.align='center', fig.height = 4}
 whats <- read.csv("BlindfoldDocs/1000_sims_m1.csv", stringsAsFactors = F)
 names(whats)[2:3] <- c("from", "to")
 whats %>% group_by(from, to) %>% summarise(count = n()) %>%
@@ -730,7 +746,16 @@ ggplot(data = weight_whats2 %>% filter(weight > 59)) +
 
 ## Timeline 
 
-??????????????????????????
+- Chapter 2
+    + Complete Amazon Turk Studies
+    + Journal paper
+    + Chapter 2 draft by December 2016
+- Chapter 1 
+    + Journal paper
+    + Chapter 1 draft by March 2017 
+- Defend April 2017
+- Graduate May 
+    
 
 ## Other Projects 
 
