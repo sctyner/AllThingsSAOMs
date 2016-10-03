@@ -492,16 +492,19 @@ Idea: If an "analyst" sees a feature in the data, and also in the null plots, th
     + $x$: the observed value $X$ for an experiment
     + $Binom_{K, \frac{1}{M}}(x)$: pmf of the binomial distribution with $K$ trials and probability of success $\frac{1}{M}$ evaluated at $x$.
 
-## Experiment
+## Small Amazon Turk experiment
 
 - M1 v. M2 (most complex structure)
 - M2 v. M1 (least complex structure)
-- five lineups each
 - each participant randomly sees ten lineups
 
-## Most complex? 
+![](VisInfDocs/Results/Directions.png)
 
-```{r, echo=FALSE, fig.align='center'}
+## Training Example 1 
+
+![](VisInfDocs/Results/Ex1.png)
+
+```{r, echo=FALSE, fig.align='center', eval = FALSE}
 dat <- readr::read_csv("VisInfDocs/Data/smallfriends-m-12-rep-10.csv")
 ggplot(data = dat) +
   geom_net(aes(from_id = X1, to_id = X2), size = 1, fiteach = T, directed = T, 
@@ -510,9 +513,11 @@ ggplot(data = dat) +
   theme_net() + theme(panel.background = element_rect(color = 'black'))
 ```
 
-## Least Complex? 
+## Training Example 2
 
-```{r echo=FALSE, fig.align='center'}
+![](VisInfDocs/Results/Ex2.png)
+
+```{r echo=FALSE, fig.align='center', eval = FALSE}
 dat <- readr::read_csv("VisInfDocs/Data/smallfriends-rev-m-12-rep-b.csv")
 ggplot(data = dat) +
   geom_net(aes(from_id = X1, to_id = X2), size = 1, fiteach = T, directed = T, 
@@ -521,10 +526,22 @@ ggplot(data = dat) +
   theme_net() + theme(panel.background = element_rect(color = 'black'))
 ```
 
-## Small Amazon Turk experiment
+## Trial Plots 
 
-<img src="VisInfDocs/Results/Ex1.png" width="700px" height="450px" />
+- Had to correctly answer two trials to qualify for the experiment
+- Trials shown randomly selected from a pool of 10 lineups constructed to be simple to find the most and least complex network
 
+## Trial Plot 1 
+
+Least complex 
+
+![](VisInfDocs/Results/Trial1.png)
+
+## Trial Plot 2
+
+Most complex 
+
+![](VisInfDocs/Results/Trial2.png)
 
 ## Results 1
 
