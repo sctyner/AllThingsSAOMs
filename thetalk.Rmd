@@ -312,7 +312,13 @@ Need 2 quantities:
 $$\frac{1}{C_m!}\exp\left\{-n\alpha_m(t_m - t_{m-1})\right\}(n\alpha_m(t_m - t_{m-1}))^{C_m}$$ 
 
 2. Using definitions from previous slides:
-    $$\alpha_m^{C_m} \prod_{c=1}^{C_m} \frac{\exp\left\{f_{i_c}(\boldsymbol{\beta}, X(T_{c}), \mathbf{Z})\right\}}{\sum_{X'(T_c) \in \mathcal{A}(X(T_{c-1})) j_c}\exp\left\{f_{i_c}(\boldsymbol{\beta}, X'(T_{c}))\right\}}$$
+    $$\alpha_m^{C_m} \prod_{c=1}^{C_m} \frac{\exp\left\{f_{i_c}(\boldsymbol{\beta}, X(T_{c}), \mathbf{Z})\right\}}{\sum\limits_{X'(T_c) \in \mathcal{A}(X(T_{c-1}))}\exp\left\{f_{i_c}(\boldsymbol{\beta}, X'(T_{c}), \mathbf{Z})\right\}}$$
+    
+## Full Augmented Data Likelihood
+
+$Pr(x(t_m)| \alpha_m, \boldsymbol{\beta}, x(t_{m-1}), \mathbf{Z}) = Pr(\mathbf{V}^{(m)} | \alpha_m, \boldsymbol{\beta}, x(t_{m-1}), \mathbf{Z}) =$
+
+$$\frac{1}{C_m!}\exp\left\{-n\alpha_m(t_m - t_{m-1})\right\}(n\alpha_m(t_m - t_{m-1}))^{C_m} \times \\ \alpha_m^{C_m} \prod_{c=1}^{C_m} \frac{\exp\left\{f_{i_c}(\boldsymbol{\beta}, X(T_{c}), \mathbf{Z})\right\}}{\sum\limits_{X'(T_c) \in \mathcal{A}(X(T_{c-1}))}\exp\left\{f_{i_c}(\boldsymbol{\beta}, X'(T_{c}), \mathbf{Z})\right\}}$$
 
 ## Model Fitting
 
@@ -333,7 +339,7 @@ $$C_m = \sum_{ij} \big|x_{ij}(t_{m}) - x_{ij}(t_{m-1})\big| $$
 
 # Chapter 2: *Model Diagnostics for SAOMs Using Visual Inference*
 
-## Friendship Network {.smaller}
+## Motivating Example: Friendship Network {.smaller}
 
 Small, $n = 16$ subset of data from @friendsdata. 
 
@@ -389,7 +395,7 @@ ggplot(data = actual1, aes(from_id = X1, to_id = X2)) +
 ## Model Parameters
 
 1. Rate ($\alpha_1, \alpha_2$) - how often girls change friendships in between observations 
-2. Outdegree ($\beta_1$)- measure of activeness
+2. Outdegree ($\beta_1$)- measure of activeness / popularity
 3. Reciprocity ($\beta_2$) - how often girls' friendships are reciprocated
 4. Jumping Transitive Triplets ($\beta_3$) - friends of the same person become friends despite behavior differences
 
@@ -422,8 +428,8 @@ Multipar.RSiena(runs_models_smallFriends[[1]], 2)
 
 Effect name | Parameter | Corresponding Statistic | M1 | M2 | p-value M1 | p-value M2 |
 :------------:|:-----------:|:-------------------------:|:----:|:----:|:--------:|:----:
-Rate 1 (wave 1 $\rightarrow$ 2) | $\alpha_1$ | $\sum\limits_{i,j = 1 i \neq j}^n (x_{ij}(t_2) - x_{ij}(t_1))^2$  | **X** | **X** | -- | --
-Rate 2 (wave 2 $\rightarrow$ 3) | $\alpha_2$ | $\sum\limits_{i,j = 1 i\neq j}^n (x_{ij}(t_3) - x_{ij}(t_2))^2$  | **X** | **X** | -- | --
+Rate 1 (wave 1 $\rightarrow$ 2) | $\alpha_1$ | $\sum\limits_{i,j = 1 i \neq j}^n |x_{ij}(t_2) - x_{ij}(t_1)|$  | **X** | **X** | -- | --
+Rate 2 (wave 2 $\rightarrow$ 3) | $\alpha_2$ | $\sum\limits_{i,j = 1 i\neq j}^n |x_{ij}(t_3) - x_{ij}(t_2)|$  | **X** | **X** | -- | --
 Outdegree | $\beta_1$ | $s_{i1}(x) = \sum\limits_{j=1}^n x_{ij}$ | **X** | **X** | $5.67 \times 10^{-8}$ | $4.66 \times 10^{-10}$
 Reciprocity | $\beta_2$ | $s_{i2}(x) = \sum\limits_{j=1}^n x_{ij}x_{ji}$ | **X** | **X** | $1.10 \times 10^{-5}$ | $4.42 \times 10^{-7}$
 Jumping Transitive Triplets | $\beta_3$ | $s_{i3}(x) = \sum\limits_{\forall j\neq h} x_{ij}x_{ih}x_{hj} \mathbb{I}(v_i = v_h \neq v_j)$ | | **X** | -- | $0.00036$ 
