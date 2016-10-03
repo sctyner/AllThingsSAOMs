@@ -627,13 +627,28 @@ Jumping transitive triplet statistics is visible.
 - People tend to pick out plots with high number of JTTs. 
 - High estimated parameter, $\hat{\beta}_3$, doesn't lead to more IDs of alternative model
 
+## Motivation
+
+Objectives: 
+
+- Use visual tools to diagnose the effect of additional parameters in SAOM models
+- Learn about the *practical* relevance of effects
+- Perform model selection using visual inference methods
+
+Why?
+
+- Many effects to choose from (88 at last count in `RSiena` software)
+- Significance tests exist, but have practical limitations. 
+    + Do they have a visible effect on structure of the network?
+    + Example: jumping transitive triplets. In high numbers, have large effect on appearance, high parameter value not as effective as the statistic
 
 ## Next Steps
 
-- What other structures stand out?
-- What parameters make noticeable differences in structure?
+- Identify a subset of parameters that are good candidates for visual representation
+- Use visual inference to assess effect strength 
+    + How large does a parameter have to be for people to "see" the effect?
 
-# The `R` package `geomnet`
+# Chapter 3: *The `R` package `geomnet`*
 
 ## Basics
 
@@ -699,7 +714,7 @@ ggplot(data = combined) + geom_net(aes(from_id = from_id, to_id=to_id,
 <img src="paperpic.png" width="800px" height="600px" />
 
 
-# Chapter 1: SAOMs: Removing the Blindfold
+# Chapter 1: *SAOMs: Removing the Blindfold*
 
 ## Intro
 
@@ -709,7 +724,12 @@ ggplot(data = combined) + geom_net(aes(from_id = from_id, to_id=to_id,
 - What makes networks simulated from those models different? 
 
 ## Motivation
-askjflaskhdfkahsd
+
+- Visualization of fitting process of SAOMs
+- Visualize the distribution of network objects
+- Comparison of network objects
+    + Distance measures for networks [see @Ginestet14]
+    + Structural PCA / Clustering
 
 ## Small First Step 
 
