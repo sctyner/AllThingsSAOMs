@@ -49,6 +49,7 @@ library(knitr)
 - Increased ease of data collection
 
 ![](http://www.readingeagle.com/storyimage/RE/20140328/LIFE/303289993/AR/0/AR-303289993.jpg&q=80&MaxW=550&MaxH=400&RCRadius=5)
+[Image source](http://www.readingeagle.com/storyimage/RE/20140328/LIFE/303289993/AR/0/AR-303289993.jpg&q=80&MaxW=550&MaxH=400&RCRadius=5)
 
 ## Statistical Models for Social Networks
 
@@ -89,6 +90,8 @@ $$|\mathcal{X}|=2^{n(n-1)}$$
 - Edges: Tie between nodes $i$ and $j$ is $x_{ij}$, for $i \neq j \in \mathcal{N}$. Edgeset is $\mathcal{E} = \{x_{ij}\}_{i \neq j \in \mathcal{N}}$
     + Tie between $i$ and $j$ exists $\rightarrow$ $x_{ij} = 1$. Is $0$ otherwise
     + Example has binary, directed edges: $x_{12} = 1 \neq x_{21} = 0$ 
+    + Undirected: $x_{ij} = x_{ji}$
+    + Self-ties/Loops: $x_{ii} = 0$ for all $i \in \mathcal{N}$
 
 ## Erdös-Rényi Simple Random Graph Model
 For *undirected* graphs. First random graph model [@er59]. 
@@ -184,7 +187,15 @@ Cons:
     + Changes can arise at a different rate for each actor
     + Given the chance to change, actor maximizes its utility
     
-## Actor-Level Rate Function
+## Model Outline
+
+From observation $x(t_{m-1})$ to $x(t_m)$:
+
+1. Actors act (i.e. change ties with others) at some rate, $\lambda_i(\alpha, \rho, x, m)$
+2. One actor at a time may change a tie, so that only one tie changes at a time in the CTMC
+2. When changing at tie, each actor aims to maximize its objective function, $f_i(\boldsymbol{\beta},x, \mathbf{Z}) = \sum_k \beta_k s_{ik}(x, \mathbf{Z})$.
+    
+## General Actor-Level Rate Function
 For each actor $i \in \{1,\dots, n\}$:
 
 $$\lambda_i(\alpha, \rho, x, m)$$
@@ -228,10 +239,12 @@ $$f_i(\boldsymbol{\beta}, x) = \sum_k \beta_k s_{ik}(x, \mathbf{Z}),$$
 Recall: $\boldsymbol{\beta}$ correspond to the $s_{ik}(x)$. 
 
 There should be two $\beta_k$ at minimum [@snijders01 p. 371]:
+
 - $\beta_1$: network popularity (outdegree)
 - $\beta_2$: reciprocity
 
 Many possible parameters $\beta$ to add, belong to two groups: 
+
 - Structural effects: only depend on network structure
 - Covariate effects: depend on interaction of network structure and actor covariate values
 
@@ -364,13 +377,6 @@ ggplot(data = actual1, aes(from_id = X1, to_id = X2)) +
 #           aes(color = as.factor(drink))) + 
 #  theme_net() + theme(panel.background = element_rect(fill = "white", color = 'black')) + facet_wrap(~wave)
 ```
-
-## Fitting SAOMs to the Data
-
-Observed friendship networks: discrete observations of continuous time Markov Chain. 
-
-1. Between observations:  actors act (i.e. change ties with others) at same rate, $\alpha_m$
-2. Each girl aims to maximize her objective function, $f_i(\mathbf{\beta},x) = \sum_k \beta_k s_{ik}(x)$.
 
 ## Model Parameters
 
