@@ -19,12 +19,11 @@ library(RSiena)
 library(knitr)
 ```
 
-## About Me! 
+## About Me
 * Bachelor of Arts, Augustana College, Rock Island, IL, 2012
     + Majors: Mathematics, Economics, French
 * Master of Science, Iowa State University, Ames, IA, 2015
-    + Major: Statistics
-    + Committee: Heike Hofmann, Di Cook, Gray Calhoun (ECON)
+    + "A geometry for network visualization in `ggplot2`"
 * Passed PhD written examination, Summer 2014
 * Aim to defend April 2017, graduate May 2017
 
@@ -38,7 +37,7 @@ library(knitr)
 
 - Motivation and Background
 - Chapter 3: The `R` Package `geomnet`
-- Chapter 1: Stochastic Actor-Oriented Models for Longitudinal Network Data: Removing the Blindfold*
+- Chapter 1: Stochastic Actor-Oriented Models for Longitudinal Network Data: Removing the Blindfold
 - Chapter 2: Model Diagnostics for Stochastic Actor-Oriented Models Using Visual Inference
 - Thesis Timeline
 
@@ -80,27 +79,25 @@ ggplot() +
   theme_net()
 ```
 
-## Basic Notation {.smaller}
+## Basic Definitions & Notation {.smaller}
 
 - Observed network: $x$
-- Unobserved network (random variable): $X$
-- Space of possible networks given $n$ nodes: $\mathcal{X}$ 
-- Number of possible directed networks given $n$ nodes: 
-$$|\mathcal{X}|=2^{n(n-1)}$$
-- Nodes: $\mathcal{N} = \{1,\dots, n\}$, where $n=$ number of nodes in network, $\mathcal{N}$ is nodeset
-- Edges: Tie between nodes $i$ and $j$ is $x_{ij}$, for $i \neq j \in \mathcal{N}$. Edgeset is $\mathcal{E} = \{x_{ij}\}_{i \neq j \in \mathcal{N}}$
-    + Tie between $i$ and $j$ exists $\rightarrow$ $x_{ij} = 1$. Is $0$ otherwise
-    + Example has binary, directed edges: $x_{12} = 1 \neq x_{21} = 0$ 
+- Unobserved network: $X$
+- Nodes: $\mathcal{N} = \{1,\dots, n\}$
+- Edges: $x_{ij}=$ tie between nodes $i$ and $j$ $x_{ij}$, for $i \neq j \in \mathcal{N}$. Edgeset is $\mathcal{E} = \{x_{ij}\}_{i \neq j \in \mathcal{N}}$
+    + $x_{ij} = 1$ $\Rightarrow$ Tie between $i$ and $j$ exists
+    + Example: directed edges i.e. $x_{12} = 1 \neq x_{21} = 0$ 
     + Undirected: $x_{ij} = x_{ji}$
     + Self-ties/Loops: $x_{ii} = 0$ for all $i \in \mathcal{N}$
+- Node degree: edges incident to the node
 
 ## Erdös-Rényi Simple Random Graph Model
 For *undirected* graphs. First random graph model [@er59]. 
 
 - Start with $n$ nodes
-- Ties $x_{ij}$ chosen at random from the $\binom{n}{2}$ ties possible
+- Ties $x_{ij}$ chosen at random from $\binom{n}{2}$ possible ties
 - $Pr(x_{ij} = 1) = p$ for any $i \neq j \in \{1, \dots, n\}$
-- Very simple, can easily write down a likelihood and estimate parameters
+- Very simple: easily write down likelihood and estimate $p$ 
 - Let $e = \sum_{i < j} x_{ij}$ be the number of edges. Then, $e$ has likelihood:
 
 $$ f(e| p, n) = p^{e}(1-p)^{\binom{n}{2} - e} $$
@@ -121,7 +118,9 @@ Cons:
     + doesn't capture properties of observed networks
 
 ## Exponential Random Graph Models {.smaller}
-For directed or undirected graphs. Also called $p^*$ models [@p1model]. Created to model networks more realistically
+Created to model networks more realistically
+
+For directed or undirected graphs. Also called $p^*$ models [@p1model]. 
 
 - Structural properties of graph become sufficient statistics
     + Outdegree: count edges from node $i$, $x_{i+} = \sum_j x_{ij}$
@@ -153,7 +152,7 @@ For a network, $x$:
  
 $$f(x|\boldsymbol{\beta}) = \frac{1}{\psi(\boldsymbol{\beta})}\exp\left(\sum_k \beta_k s_k(x) \right),$$ 
 
-- $\beta_k$: parameters corresponding to $K$ sufficient statistics (e.g. number of triangles and $k$-stars in $x$)
+- $\beta_k$: parameters corresponding to $K$ sufficient statistics (e.g. number of triangles and $e$-stars in $x$)
 - $\psi(\beta)$: the normalizing constant. 
     + depends on the parameters
     + makes parameter estimation very difficult
@@ -178,30 +177,37 @@ Cons:
 - Capture the process of network change over time
 - Allow node level covariates to affect structure
 
-## Definitions & Notation
+## Definitions and Notation
 
-- *Longitudinal network*: a network of a set of $n$ nodes that is changing in time
+- $\mathcal{X}$: For a set of $n$ nodes, the set of $2^{n(n-1)}$ possible directed networks in those nodes. 
+- *Longitudinal network*: a constant set of $n$ nodes whose ties change in time
     + Observed at $M$ discrete time points, $t_1, \dots, t_M$
-    + Denote the observations $x(t_1), \dots, x(t_M)$
-- *Continuous time Markov Chain* (CTMC): SAOMs assume $x(t_1), \dots, x(t_M)$ are embedded within a CTMC, $X(T)$.  
+    + Denote the observations $x(t_1), \dots, x(t_M) \in \mathcal{X}$
+- *Continuous time Markov Chain* (CTMC): SAOMs assume $x(t_1), \dots, x(t_M)$ are embedded within a CTMC, $X(T) \in \mathcal{X}$.  
     + Composed of single tie changes
     + Changes can arise at a different rate for each actor
     + Given the chance to change, actor maximizes its utility
+
+## Model Assumptions
+
+1. Assume conditional independence of network observations 
+2. Assume conditional independence of nodes given their ties
     
-## Model Outline
+## Model Setup
 
 From observation $x(t_{m-1})$ to $x(t_m)$:
 
 1. Actors act (i.e. change ties with others) at some rate, $\lambda_i(\alpha, \rho, x, m)$
 2. One actor at a time may change a tie, so that only one tie changes at a time in the CTMC
-2. When changing at tie, each actor aims to maximize its objective function, $f_i(\boldsymbol{\beta},x, \mathbf{Z}) = \sum_k \beta_k s_{ik}(x, \mathbf{Z})$.
+2. When changing at tie, each actor aims to maximize its objective function $$f_i(\boldsymbol{\beta},x, \mathbf{Z}) = \sum_k \beta_k s_{ik}(x, \mathbf{Z})$$
+where $x$ is the network state, $\boldsymbol{\beta}$ are parameters, and $\mathbf{Z}$ are node-level covariates
     
-## General Actor-Level Rate Function
+## Actor-Level Rate Function
 For each actor $i \in \{1,\dots, n\}$:
 
 $$\lambda_i(\alpha, \rho, x, m)$$
 
-- $\alpha$: overall rate parameter
+- $\alpha$: rate parameter
 - $\rho$: parameter(s) corresponding to actor covariate(s)
 - $x \in \mathcal{X}$: current state of the network
 - $m$: time point of the current network observation, $t_m$
@@ -223,12 +229,12 @@ $$\textit{Exp}\big(\lambda(\alpha, \rho, x, m)\big)$$
 Assume node $i$ can change:
 
 - $n$ possible steps $i$ can take: 
-    + A current tie $x_{ij} = 1$ will be destroyed
-    + A current tie $x_{ij} = 0$ will be created 
+    + A current tie will be destroyed
+    + A new tie will be created 
     + No change will occur
 - Change made to maximize its objective function: 
 
-$$f_i(\boldsymbol{\beta}, x) = \sum_k \beta_k s_{ik}(x, \mathbf{Z}),$$
+$$f_i(\boldsymbol{\beta}, x, \mathbf{Z}) = \sum_k \beta_k s_{ik}(x, \mathbf{Z}),$$
 
 - $x \in \mathcal{X}$: current network state
 - $\mathbf{Z}$: covariates matrix
@@ -241,19 +247,19 @@ $$f_i(\boldsymbol{\beta}, x) = \sum_k \beta_k s_{ik}(x, \mathbf{Z}),$$
 $$\frac{\lambda_i(\alpha, \rho, x, m)}{\lambda(\alpha, \rho, x, m)}$$
 
 2. Probability that, when given opportunity to change, node $i$ changes its tie to node $j$: 
-$$p_{ij}(\boldsymbol{\beta}, x, \mathbf{Z}) = \frac{\exp\left\{f_i(\boldsymbol{\beta}, x(i \leadsto j))\right\}}{\sum_{h \neq j} \exp\left\{f_i(\boldsymbol{\beta}, x(i \leadsto h))\right\}}$$
+$$p_{ij}(\boldsymbol{\beta}, x, \mathbf{Z}) = \frac{\exp\left\{f_i(\boldsymbol{\beta}, x(i \leadsto j))\right\}}{\sum_{h \neq i} \exp\left\{f_i(\boldsymbol{\beta}, x(i \leadsto h))\right\}}$$
 where $x(i \leadsto j)$ is the same network as $x$ with the exception of the tie $x_{ij}$. 
 
 ## Sufficient Statistics 
 
-Recall: $\boldsymbol{\beta}$ correspond to the $s_{ik}(x)$. 
+Recall: $\beta_k$ correspond to the $s_{ik}(x, \mathbf{Z})$. 
 
-There should be two $\beta_k$ at minimum [@snijders01 p. 371]:
+There should be two $s_{ik}$ at minimum [@snijders01 p. 371]:
 
-- $\beta_1$: network popularity (outdegree)
-- $\beta_2$: reciprocity
+- $s_{i1}(x)$: popularity (outdegree)
+- $s_{i2}(x)$: reciprocity
 
-Many possible structures, $s_{ik}(x, \mathbf{Z})$, to add, belong to two groups: 
+Many possible structures, $s_{ik}(x, \mathbf{Z})$, belonging to two groups: 
 
 - Structural effects: only depend on network structure
 - Covariate effects: depend on interaction of network structure and actor covariate values
@@ -272,25 +278,17 @@ Covariate Effect | Sufficient Statistic
 covariate-alter  | $s_{i4}(x) = \sum_j x_{ij}z_j$
 covariate-ego    | $s_{i5}(x) = z_i\sum_j x_{ij}$
 same covariate   | $s_{i6}(x) = \sum_j x_{ij} \mathbb{I}(z_i = z_j)$
-jumping transitive triplets | $s_{i7}(x) = \sum_{j \neq h} x_{ij}x_{ih}x_{hj} \mathbb{I}(z_i = z_h \neq z_j)$
 
 ## SAOM Likelihood Function
 
-Likelihood function first presented in @snijders2010, based on the augmenting data principle of @dataaug. 
-
 SAOMs are "too complicated for the calculation of likelihoods or estimators in closed form" [@snijders2010, p. 568]
 
-Write likelihood in augmented data form instead, using a constant rate function (more detail in [Appendix A](#66))
+Likelihood first presented in @snijders2010
 
-## Model Fitting
+- Uses augmenting data principle of @dataaug. 
+- Likelihood in augmented data form using a constant rate function presented in detail in [Appendix A](#66))
 
-Done in the R package `RSiena` by @RSiena.
-
-MCMC methods used for method of moments estimators of the objective function parameters.
-
-Also allows for simulation from model given values of the parameters $\alpha_m$, $\boldsymbol{\beta}$
-
-## Data Example 
+## Longitudinal Network Data Example 
 
 ```{r vizex, width = "100%"}
 friend.data.w1 <- as.matrix(read.table("VisInfDocs/Data/s50_data/s50-network1.dat"))
@@ -311,47 +309,49 @@ names(fdf2.2) <- c("from", "to", "value")
 fdf3.2 <- fdf3 %>% tidyr::gather(id) 
 names(fdf3.2) <- c("from", "to", "value")
 fdf1.2$to <- fdf1.2$to %>% readr::parse_number()
-fdf1.2$wave <- 1
+fdf1.2$timepoint <- 1
 fdf2.2$to <- fdf2.2$to %>% readr::parse_number()
-fdf2.2$wave <- 2
+fdf2.2$timepoint <- 2
 fdf3.2$to <- fdf3.2$to %>% readr::parse_number()
-fdf3.2$wave <- 3
+fdf3.2$timepoint <- 3
 fdf <- rbind(fdf1.2, fdf2.2, fdf3.2)
 ddf <- data.frame(drink)
 ddf$id <- 1:50
 ddf <- ddf %>% gather(key = id)
-names(ddf) <- c("id", "wave","drink")
-ddf$wave <- as.factor(ddf$wave)
-levels(ddf$wave) <- 1:3
-ddf$wave <- as.numeric(as.character(ddf$wave))
+names(ddf) <- c("id", "timepoint","drink")
+ddf$timepoint <- as.factor(ddf$timepoint)
+levels(ddf$timepoint) <- 1:3
+ddf$timepoint <- as.numeric(as.character(ddf$timepoint))
 fdf <- filter(fdf, value == 1)
-net <- full_join(fdf, ddf, c("from"="id" ,"wave"="wave"))
+net <- full_join(fdf, ddf, c("from"="id" ,"timepoint"="timepoint"))
 ggplot(data = net) + 
-  geom_net(aes(from_id = from, to_id = to, color = as.factor(drink)), directed = T, fiteach = T, size = 2, arrowsize = .3) + 
-  scale_colour_brewer(palette = "Spectral",name = "Covariate") + 
-  facet_wrap(~wave) + 
+  geom_net(aes(from_id = from, to_id = to, color = as.factor(drink)), directed = T, fiteach = T, size = 2, arrowsize = .35, linewidth = .2) + 
+  scale_colour_brewer(palette = "Dark2",name = "Covariate") + 
+  facet_wrap(~timepoint, labeller = "label_both") + 
   theme_net() + theme(legend.position = 'bottom')
 ```
 
 ## Network Visualization
 
 - Data non-traditional, visualizations are non-traditional
-- Putting points, curves, etc. in 2D holds no meaning for network data
+    + Putting points, curves, etc. in 2D holds no meaning for network data
 - Layout algorithms: place nodes based on their connections
     + Force directed layouts: Kamada-Kawai, Fruchterman Reingold, etc.
     + Matrix based layouts: MDS, Eigen, etc.
-- Arrows indicate directions
-- Point shapes, colors, sizes can indicate node variables
-- Segment size, color, linetype can indicate edge variables
+- Can make up lost information:
+    + Arrows: indicate direction
+    + Point: shapes, colors, sizes to indicate node variables
+    + Segments: size, color, linetype to indicate edge variables
 - Can do all of the above in `geomnet`
 
 ## Why use `ggplot2`?
 
 - Other packages: `network`, `sna`, `igraph`, etc
-- Require more specific knowledge
-- `geomnet` only needs data frames
+    + Require more specific knowledge
+    + Packages designed for analysis, not visualization
 - Target audience: current `ggplot2` package users
-
+    + `geomnet` only needs data frames
+    + basic structure, easily describes networks
 
 # Chapter 3: *The `R` package `geomnet`*
 
@@ -360,12 +360,14 @@ ggplot(data = net) +
 - on CRAN
 - Built on `ggplot2`
 - Key functions: `geom_net()`, `stat_net()`
+- Other functions: `geom_circle()`, `jtt()`
+- Added functionality: `geom_curve()`, `geom_label()`, `ggrepel`
 
 ## Data for `geom_net()`
 
 - 2 sets of information: node data and edge data 
-- Node data: node ids and information on the nodes
-- Edge data: `from` node id and `to` node id for each each edge and information on the edges
+    + Node data: node ids and information on the nodes
+    + Edge data: `from` node id and `to` node id for each each edge and information on the edges
 - Node and edge data must be merged
 
 ## Data Example
@@ -383,16 +385,20 @@ edges
 ## Merge Data
 
 ```{r example2, echo=TRUE}
-combined <- merge(edges, nodes, by.x = 'from_id', by.y = 'id', all = T)
+combined <- merge(edges, nodes, 
+                  by.x = 'from_id', by.y = 'id', all = T)
 combined
 ```
 
 ## Example Plot & Code
 
-```{r plotex, echo=T, message=FALSE, warning = FALSE, fig.align='center', fig.height=4}
-ggplot(data = combined) + geom_net(aes(from_id = from_id, to_id=to_id, 
- color = color, group = color), selfies = T, directed = T, label = T, 
- labelcolour = 'black', curvature = .1) + theme_net()
+```{r plotex, echo=T, message=FALSE, warning = FALSE, fig.align='center', fig.height=3.5}
+ggplot(data = combined) + 
+  geom_net(aes(from_id = from_id, to_id=to_id, 
+               color = color, group = color), 
+           selfies = T, directed = T, label = T, 
+           labelcolour = 'black', curvature = .1) + 
+  theme_net()
 ```
 
 
@@ -415,11 +421,12 @@ ggplot(data = combined) + geom_net(aes(from_id = from_id, to_id=to_id,
 
 ## High-Level Questions
 
-- What does the underlying continuous time Markov chain look like? - What makes two network models different?
+- What does the underlying continuous time Markov chain look like?
+- What makes two network models different?
     + What makes networks simulated from those models different? 
     + What is an "average" network from a model given a set of $s_{k}$s? 
 
-## Motivation
+## Research Plan
 
 - Visualization of fitting process of SAOMs
 - Visualize the distribution of network objects
@@ -427,13 +434,15 @@ ggplot(data = combined) + geom_net(aes(from_id = from_id, to_id=to_id,
     + Distance measures for networks [see @Ginestet14]
     + Structural PCA / Clustering
 
-## Small First Step 
+## Small First Step {.smaller}
 
-- 1000 simulations from M1 as estimated in Chapter 2. 
-- Edge appearances: mean: 59.21; median: 21
+- 1000 simulations from a SAOM 
+- Count edge appearances: 
+    + mean: 59.21
+    + median: 21
 - An "average" network: edges appear $\geq 59$ times
 
-```{r, fig.align='center', fig.height = 4}
+```{r, fig.align='center', fig.height = 3.5}
 whats <- read.csv("BlindfoldDocs/1000_sims_m1.csv", stringsAsFactors = F)
 names(whats)[2:3] <- c("from", "to")
 whats %>% group_by(from, to) %>% summarise(count = n()) %>%
@@ -459,11 +468,25 @@ ggplot(data = weight_whats2 %>% filter(weight > 59)) +
 
 # Chapter 2: *Model Diagnostics for SAOMs Using Visual Inference*
 
+## Motivation & Objectives
+
+- Use visual tools to diagnose the effect of parameters in SAOM models
+- Learn about the practical relevance of effects
+- Perform model selection using visual inference methods
+
+Why?
+
+- Many effects to choose from (88 in `RSiena` software)
+- Significance tests exist, but have practical limitations. 
+    + Do they have a visible effect on structure of the network?
+    + Motivating Example: jumping transitive triplets parameter in friends data
+
+
 ## Motivating Example: Friendship Network {.smaller}
 
 Small, $n = 16$ subset of data from @friendsdata. 
 
-- Three network waves describing friendships between teenage girls in a Scottish school
+- Network observed at three timepoints describing friendships between teenage girls in a Scottish school
 - Also contains behavior information on the girls: smoking, drinking, etc.
 
 ```{r, echo = FALSE, message=FALSE, warning=FALSE, fig.heigh=4}
@@ -506,17 +529,16 @@ ggplot(data = actual1, aes(from_id = X1, to_id = X2)) +
   scale_colour_brewer("Drinking behavior", palette="YlOrRd") +
   theme_net() 
 
-#ggplot(data = waves, aes(from_id = X1, to_id = X2)) + 
-#  geom_net(label = TRUE, hjust = -.5, labelcolour = 'black', fiteach = T,
-#           aes(color = as.factor(drink))) + 
-#  theme_net() + theme(panel.background = element_rect(fill = "white", color = 'black')) + facet_wrap(~wave)
+# ggplot(data = waves, aes(from_id = X1, to_id = X2)) + 
+#   geom_net(label = TRUE, hjust = -.5, labelcolour = 'black', fiteach = T,
+#            aes(color = as.factor(drink))) + 
+#   theme_net() + theme(panel.background = element_rect(fill = "white", color = 'black')) + facet_wrap(~wave)
 ```
 
 ## Rate Parameters  
 
 - Constant over actors: how often girls change friendships between observations
-- Different rate for each time point, $\alpha_1, \alpha_2$
-- Rate function from $x(t_{m-1})$ to $x(t_m)$:
+- Rate function from $x(t_{m-1})$ to $x(t_m)$ for $m = 2, 3$:
 $$\lambda_i(\alpha, \rho, x, m) = \alpha_m$$
 - Corresponding sufficient statistic: 
 $$C_m = \sum_{ij} \big|x_{ij}(t_{m}) - x_{ij}(t_{m-1})\big| $$
@@ -526,7 +548,7 @@ $$C_m = \sum_{ij} \big|x_{ij}(t_{m}) - x_{ij}(t_{m-1})\big| $$
 
 1. Outdegree ($\beta_1$)- measure of activeness / popularity
 2. Reciprocity ($\beta_2$) - how often girls' friendships are reciprocated
-3. Jumping Transitive Triplets ($\beta_3$) - friends of the same person become friends despite behavior differences
+3. Jumping Transitive Triplets (JTT) ($\beta_3$) - friends of the same person become friends despite behavior differences
 
 ```{r, echo = FALSE, fig.height=2}
 jTTe <- data.frame(from = c('i', 'i', 'h'), to = c('h', 'j', 'j'))
@@ -545,6 +567,20 @@ ggplot(data = jTT, aes(from_id = from, to_id = to)) +
   theme(legend.position = "none")
 ```
 
+## Model Fitting
+
+Done in the R package `RSiena` by @RSiena.
+
+MCMC methods used for method of moments estimators of the objective function parameters.
+
+Also allows for simulation from model given values of the parameters $\alpha_m$, $\boldsymbol{\beta}$
+
+## Parameter Choice
+
+- Outdegree and reciprocity always included
+- JTT chosen for high level of significance according to Wald-type tests in `RSiena`
+
+
 ## Two Models {.smaller}
 
 ```{r echo=FALSE, eval=FALSE}
@@ -557,17 +593,15 @@ Multipar.RSiena(runs_models_smallFriends[[1]], 2)
 
 Effect name | Parameter | Corresponding Statistic | M1 | M2 | p-value M1 | p-value M2 |
 :------------:|:-----------:|:-------------------------:|:----:|:----:|:--------:|:----:
-Rate 1 (wave 1 $\rightarrow$ 2) | $\alpha_1$ | $\sum\limits_{i,j = 1 i \neq j}^n |x_{ij}(t_2) - x_{ij}(t_1)|$  | **X** | **X** | -- | --
-Rate 2 (wave 2 $\rightarrow$ 3) | $\alpha_2$ | $\sum\limits_{i,j = 1 i\neq j}^n |x_{ij}(t_3) - x_{ij}(t_2)|$  | **X** | **X** | -- | --
+Rate 1 (timepoint 1 $\rightarrow$ 2) | $\alpha_1$ | $\sum\limits_{i,j = 1 i \neq j}^n |x_{ij}(t_2) - x_{ij}(t_1)|$  | **X** | **X** | -- | --
+Rate 2 (timepoint 2 $\rightarrow$ 3) | $\alpha_2$ | $\sum\limits_{i,j = 1 i\neq j}^n |x_{ij}(t_3) - x_{ij}(t_2)|$  | **X** | **X** | -- | --
 Outdegree | $\beta_1$ | $s_{i1}(x) = \sum\limits_{j=1}^n x_{ij}$ | **X** | **X** | $5.67 \times 10^{-8}$ | $4.66 \times 10^{-10}$
 Reciprocity | $\beta_2$ | $s_{i2}(x) = \sum\limits_{j=1}^n x_{ij}x_{ji}$ | **X** | **X** | $1.10 \times 10^{-5}$ | $4.42 \times 10^{-7}$
 Jumping Transitive Triplets | $\beta_3$ | $s_{i3}(x) = \sum\limits_{\forall j\neq h} x_{ij}x_{ih}x_{hj} \mathbb{I}(v_i = v_h \neq v_j)$ | | **X** | -- | $0.00036$ 
 
-
-
 ## Can you see the difference? 
 
-When looking at networks simulated from two different models, is there a visible difference due to the model differences?
+When looking at networks simulated from two different models, is there a visible difference?
 
 ```{r echo=FALSE, fig.align='center'}
 dat <- readr::read_csv("VisInfDocs/Data/smallfriends-rev-m-12-rep-c.csv")
@@ -595,8 +629,10 @@ ggplot(data = dat %>% filter(plot_order %in% c(2,7)) %>% mutate(Model = ifelse(p
 
 Can we *see* a significant parameter when visualizing networks simulated from two different models?
 
-- Hypothesis: If tests of individual parameters $\beta_k$ tell find a significant difference in two models, then networks simulated from those models should look different to us.
-- Method: Visual Inference - Using the lineup protocol of @Bujaetal, show networks simulated from 2 models, differing by one parameter $\beta_k$ to test this hypothesis
+- Hypothesis: If testing finds a significant difference in two models, then networks simulated from those models should look different to us.
+- Method: Visual Inference 
+    + Using the lineup protocol of @Bujaetal
+    + Show networks simulated from 2 models, differing by inclusion of one additional $s_{ik}$ to test this hypothesis
 
 ## Visual Inference
 
@@ -605,7 +641,8 @@ Given data and a plot of it, what can you say about the data?
 $H_0$: a null hypothesis scenario from which the data could have arisen 
 
 - For each sample from the null hypothesis, make the same plot type as the data plot (create the "null plots")
-- Original plot is the "data plot". 
+- Original plot is the "data plot"
+- Place data plot randomly amongst the null plots in a lineup
 
 Idea: If an "analyst" sees a feature in the data, and also in the null plots, then the data cannot be said to come from a different scenario than $H_0$. 
 
@@ -616,20 +653,42 @@ Idea: If an "analyst" sees a feature in the data, and also in the null plots, th
 - Null ($M-1$ plots) vs. Alternative ($1$ plot) models
 - Identification of the alternative plot is evidence *against* null
 - $\frac{1}{M}$: Probability of one observer picking alternative plot at random 
-- $p$-value: $Pr(X \geq x) = 1 - Binom_{K, \frac{1}{M}}(x-1)$
-    + $X$: number of observers who correctly identify the data
-    + $x$: the observed value $X$ for an experiment
-    + $Binom_{K, \frac{1}{M}}(x)$: pmf of the binomial distribution with $K$ trials and probability of success $\frac{1}{M}$ evaluated at $x$.
 
-## Small Amazon Turk experiment
+## Goodness of Fit for M1
 
-- M1 v. M2 (most complex structure)
-- M2 v. M1 (least complex structure)
+True second wave of data among 5 samples simulated from M1 for timepoint 2.
+
+```{r coolex}
+set.seed(1234567)
+plots <- sample(1000, 5)
+lineupdat <- whats %>% filter(count %in% plots)
+nulldat <- lineupdat[,-1]
+datdat <- actual2
+datdat <- datdat[,1:2]
+datdat$count <- 1001
+names(datdat) <- c("from", "to", "count")
+exlu <- rbind(nulldat, datdat)
+set.seed(98765)
+exlu$plot_order <- rep(sample(6), as.vector(table(exlu$count)))
+ggplot(data = exlu) + 
+  geom_net(aes(from_id = from, to_id = to), fiteach = T, size = 2, linewidth = .5) + 
+  facet_wrap(~plot_order) + 
+  theme_net()
+```
+
+## Small Amazon Turk experiment {.smaller}
+
+- M1 v. M2 (10 lineups total)
+    + 11 plots of network simulated from M1
+    + 1 plot of network simulated from M2
+- M2 v. M1 (5 lineups total)
+    + 11 plots of network simulated from M2
+    + 1 plot of network simulated from M1
 - each participant randomly sees ten lineups
 
-![](VisInfDocs/Results/Directions.png)
+<center><img src="VisInfDocs/Results/Directions.png" height="300px" align="middle" /></center>
 
-## Training Example 1 
+## Guided Example 1 
 
 ![](VisInfDocs/Results/Ex1.png)
 
@@ -642,7 +701,7 @@ ggplot(data = dat) +
   theme_net() + theme(panel.background = element_rect(color = 'black'))
 ```
 
-## Training Example 2
+## Guided Example 2
 
 ![](VisInfDocs/Results/Ex2.png)
 
@@ -657,7 +716,7 @@ ggplot(data = dat) +
 
 ## Trial Plots 
 
-- Had to correctly answer two trials to qualify for the experiment
+- Had to identify the plot from the different model in two trials to qualify for the experiment
 - Trials shown randomly selected from a pool of 10 lineups constructed to be simple to find the most and least complex network
 
 ## Trial Plot 1 
@@ -674,7 +733,9 @@ Most complex
 
 ## Results 1
 
-``` {r, echo=FALSE, fig.align = 'center', out.width = '100%',fig.height=3}
+```{r, echo=FALSE}
+lus_jtts <- readr::read_csv("VisInfDocs/Data/lineups-jtt.csv")
+load("VisInfDocs/Data/lus_ests_truth.rda")
 ids <- readr::read_csv("https://raw.githubusercontent.com/erichare/lineups/f19635a00507210013ba9e631761ad0c89a6564d/experiments/turk21/details/picture-details.csv")
 tab <- read.csv("VisInfDocs/Results/turk21_users.csv")
 tab2 <- unique(tab)
@@ -724,49 +785,6 @@ res3 <- left_join(res2, more_details, by = c("data_name" = "lineup_filename", "o
               # jtts of 40, 24, 18,17, 9
 res3$group_name <- paste0(res3$group, " #", res3$group.rep)
 
-# get the weights
-res3 %>% group_by(group_name, response_no2, correct) %>% summarise(tot_wt = sum(weight)) -> summ_res_wts
-groupss <- unique(summ_res_wts$group_name)
-ggplot(data = filter(summ_res_wts, group_name %in% groupss[1:5]), 
-       aes(x = reorder(as.factor(response_no2), -tot_wt), 
-                                y = tot_wt,
-                                fill = correct)) + 
-  geom_bar(color = 'black', stat = 'identity') + 
-  scale_fill_manual(values = c("white", "grey30"), 
-                    name = "Correct?") + 
-  facet_wrap(~group_name, scales = "free", ncol = 5) +
-  theme_bw() + 
-  theme(legend.position = 'top') + 
-  labs(x = "User Response" , y = "Number of Responses")
-```
-
- \# JTTs   | \#1 | \#2 | \#3 | \#4 | \#5
------------|----|----|----|----|---
-Alternative plot | 40 | 24 | 18 | 17 | 9
-Highest Null     | 3  | 5  | 9  | 6  | 6
-
-## Results 2
-```{r, out.width="100%", fig.height=5, fig.align='center'}
-ggplot(data = filter(summ_res_wts, group_name %in% groupss[c(6:10, 16:20)]), 
-       aes(x = reorder(as.factor(response_no2), -tot_wt), 
-                                y = tot_wt,
-                                fill = correct)) + 
-  geom_bar(color = 'black', stat = 'identity') + 
-  scale_fill_manual(values = c("white", "grey30"), 
-                    name = "Correct?") + 
-  facet_wrap(~group_name, scales = "free", ncol = 5) +
-  theme_bw() + 
-  theme(legend.position = 'top') + 
-  labs(x = "User Response" , y = "Number of Responses")
-```
-
-
-## Results 3
-
-```{r, echo=FALSE}
-lus_jtts <- readr::read_csv("VisInfDocs/Data/lineups-jtt.csv")
-load("VisInfDocs/Data/lus_ests_truth.rda")
-
 res4 <-left_join(res3, lus_jtts, by = c("data_name" = "filename", "obs_plot_location" = "plot_order"))
 res4.2 <- res4 %>% group_by(data_name, jtt) %>% summarise(perc_corr = sum(correct)/n())
 p1 <- ggplot(data = res4.2) +geom_point(aes(x = jtt, y = perc_corr)) + labs(x = "Number of jumping transitive triplets", y = "Percent of Participants Choosing Correctly", title= "# of JTTs")
@@ -786,27 +804,52 @@ p2 <- ggplot(data = res5.2) + geom_point(aes(x = param_est, y = perc_corr)) + la
 gridExtra::grid.arrange(p2, p1, nrow = 1)
 ```
 
+## Results 2
+
+``` {r, echo=FALSE, fig.align = 'center', out.width = '100%',fig.height=3}
+# get the weights
+res3 %>% group_by(group_name, response_no2, correct) %>% summarise(tot_wt = sum(weight)) -> summ_res_wts
+groupss <- unique(summ_res_wts$group_name)
+jttres <- data.frame(filter(summ_res_wts, group_name %in% groupss[1:5]) %>% ungroup())
+ggplot(data = jttres, 
+       aes(x = reorder(response_no2, -tot_wt), 
+                                y = tot_wt,
+                                fill = correct)) + 
+  geom_bar(color = 'black', stat = 'identity') + 
+  scale_fill_manual(values = c("white", "grey30"), 
+                    name = "Correct?") + 
+  facet_wrap(~group_name, scales = "free", ncol = 5) +
+  theme_bw() + 
+  theme(legend.position = 'top') + 
+  labs(x = "User Response" , y = "Number of Responses")
+```
+
+ \# JTTs   | \#1 | \#2 | \#3 | \#4 | \#5
+-----------|----|----|----|----|---
+Alternative plot | 40 | 24 | 18 | 17 | 9
+Highest Null     | 3  | 5  | 9  | 6  | 6
+
+## Results 3
+```{r, out.width="100%", fig.height=5, fig.align='center'}
+ggplot(data = filter(summ_res_wts, group_name %in% groupss[c(6:10, 16:20)]), 
+       aes(x = reorder(as.factor(response_no2), -tot_wt), 
+                                y = tot_wt,
+                                fill = correct)) + 
+  geom_bar(color = 'black', stat = 'identity') + 
+  scale_fill_manual(values = c("white", "grey30"), 
+                    name = "Correct?") + 
+  facet_wrap(~group_name, scales = "free", ncol = 5) +
+  theme_bw() + 
+  theme(legend.position = 'top') + 
+  labs(x = "User Response" , y = "Number of Responses")
+```
+
 ## What did we learn?
 
 Jumping transitive triplet statistics is visible. 
 
 - People tend to pick out plots with high number of JTTs. 
 - High estimated parameter, $\hat{\beta}_3$, doesn't lead to more IDs of alternative model
-
-## Motivation
-
-Objectives: 
-
-- Use visual tools to diagnose the effect of additional parameters in SAOM models
-- Learn about the *practical* relevance of effects
-- Perform model selection using visual inference methods
-
-Why?
-
-- Many effects to choose from (88 at last count in `RSiena` software)
-- Significance tests exist, but have practical limitations. 
-    + Do they have a visible effect on structure of the network?
-    + Example: jumping transitive triplets. In high numbers, have large effect on appearance, high parameter value not as effective as the statistic
 
 ## Next Steps
 
