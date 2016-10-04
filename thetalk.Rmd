@@ -79,7 +79,7 @@ ggplot() +
   theme_net()
 ```
 
-## Basic Definitions & Notation {.smaller}
+## Basic Definitions & Notation
 
 - Observed network: $x$
 - Unobserved network: $X$
@@ -91,7 +91,7 @@ ggplot() +
     + Self-ties/Loops: $x_{ii} = 0$ for all $i \in \mathcal{N}$
 - Node degree: edges incident to the node
 
-## Erdös-Rényi Simple Random Graph Model
+## Erdös-Rényi Random Graph Model
 For *undirected* graphs. First random graph model [@er59]. 
 
 - Start with $n$ nodes
@@ -118,17 +118,16 @@ Cons:
     + doesn't capture properties of observed networks
 
 ## Exponential Random Graph Models {.smaller}
-Created to model networks more realistically
+Created to model directed and undirected networks more realistically. Also called $p^*$ models [@p1model]. 
 
-For directed or undirected graphs. Also called $p^*$ models [@p1model]. 
+Structural properties of graph become sufficient statistics
+    
+- Outdegree: count edges from node $i$, $x_{i+} = \sum_j x_{ij}$
+- Reciprocity: count reciprocated ties from node $i$, $\sum_j x_{ij}x_{ji}$
+- Count $e$-stars, $s_{k_e}(x) = \sum_i \binom{x_{i+}}{e}$
+- Count triangles: $s_{k_t}(x) = \sum_{i \neq j \neq h} x_{ij}x_{ih}x_{jh}$
 
-- Structural properties of graph become sufficient statistics
-    + Outdegree: count edges from node $i$, $x_{i+} = \sum_j x_{ij}$
-    + Reciprocity: count reciprocated ties from node $i$, $\sum_j x_{ij}x_{ji}$  
-    + Count $e$-stars, $s_{k_e}(x) = \sum_i \binom{x_{i+}}{e}$
-    + Count triangles: $s_{k_t}(x) = \sum_{i \neq j \neq h} x_{ij}x_{ih}x_{jh}$
-
-```{r exs, echo=FALSE, out.width="80%", fig.height=3, fig.align='center'}
+```{r exs, echo=FALSE, out.width="80%", fig.height=2.7, fig.align='center'}
 nodes <- data.frame(id = c(1:3, letters[1:4]), 
                     group = rep(c("Triangle", "3-Star"), c(3,4)), 
                     x = c(1,1.5,2,1,.5,1,1.5), 
@@ -138,7 +137,7 @@ edges <- data.frame(from = c(1,2,3, rep("a", 3)),
 net <- merge(edges, nodes, by.x = "from", by.y = "id", all = T)
 set.seed(12345)
 ggplot() + 
-  geom_net(data = net, label = T, size = 8, 
+  geom_net(data = net, label = T, size = 7, 
            labelcolour = 'white', vjust = .4,
            ecolour = 'grey40', color = 'black', fiteach = T,
            aes(from_id = from, to_id = to)) + 
@@ -286,7 +285,7 @@ SAOMs are "too complicated for the calculation of likelihoods or estimators in c
 Likelihood first presented in @snijders2010
 
 - Uses augmenting data principle of @dataaug. 
-- Likelihood in augmented data form using a constant rate function presented in detail in [Appendix A](#66))
+- Likelihood in augmented data form using a constant rate function presented in detail in [Appendix A](#70))
 
 ## Longitudinal Network Data Example 
 
@@ -821,7 +820,8 @@ ggplot(data = jttres2,
                                 fill = correct)) + 
   geom_bar(color = 'black', stat = 'identity') + 
   scale_fill_manual(values = c("white", "grey30"), 
-                    name = "Correct?") + 
+                    name = "Identification", 
+                    labels = c("Null Plot","Data Plot")) + 
   facet_wrap(~group_name, scales = "free", ncol = 5) +
   theme_bw() + 
   theme(legend.position = 'top') + 
@@ -844,16 +844,17 @@ ggplot(data = m1m2res,
                                 fill = correct)) + 
   geom_bar(color = 'black', stat = 'identity') + 
   scale_fill_manual(values = c("white", "grey30"), 
-                    name = "Correct?") + 
+                    name = "Identification", 
+                    labels = c("Null Plot","Data Plot")) + 
   facet_wrap(~group_name, scales = "free", ncol = 5) +
   theme_bw() + 
   theme(legend.position = 'top') + 
   labs(x = "User Response" , y = "Number of Responses")
 ```
 
-## What did we learn?
+## What have we learned so far?
 
-Jumping transitive triplet statistics is visible. 
+Jumping transitive triplet statistic is visible. 
 
 - People tend to pick out plots with high number of JTTs. 
 - High estimated parameter, $\hat{\beta}_3$, doesn't lead to more IDs of alternative model
@@ -863,7 +864,7 @@ Jumping transitive triplet statistics is visible.
 - Identify a subset of parameters that are good candidates for visual representation
 - Use visual inference to assess effect strength 
     + How large does a parameter have to be for people to "see" the effect?
-
+- Use visual inference to assess goodness-of-fit of a SAOM to longitudinal data
 
 # Closing Material
 
@@ -879,7 +880,6 @@ Jumping transitive triplet statistics is visible.
 - Defend April 2017
 - Graduate May 
     
-
 ## Other Projects 
 
 - *The Joy of Clustering*: Clustering digital images of paintings of the artist Bob Ross. 
@@ -893,8 +893,6 @@ Jumping transitive triplet statistics is visible.
     + Demonstrate use of `geomnet` package  
     + Won 2016 Student Paper Competition sponsored by the ASA Section on Statistical Graphics and Computing
     + See [http://stat-computing.org/awards/student/winners.html](http://stat-computing.org/awards/student/winners.html) 
-
-## References {.smaller}
 
 # Appendix A {#appA}
 
@@ -936,3 +934,5 @@ $$\frac{1}{C_m!}\exp\left\{-n\alpha_m(t_m - t_{m-1})\right\}(n\alpha_m(t_m - t_{
 $Pr(x(t_m)| \alpha_m, \boldsymbol{\beta}, x(t_{m-1}), \mathbf{Z}) = Pr(\mathbf{V}^{(m)} | \alpha_m, \boldsymbol{\beta}, x(t_{m-1}), \mathbf{Z}) =$
 
 $$\frac{1}{C_m!}\exp\left\{-n\alpha_m(t_m - t_{m-1})\right\}(n\alpha_m(t_m - t_{m-1}))^{C_m} \times \\ \alpha_m^{C_m} \prod_{c=1}^{C_m} \frac{\exp\left\{f_{i_c}(\boldsymbol{\beta}, X(T_{c}), \mathbf{Z})\right\}}{\sum\limits_{X'(T_c) \in \mathcal{A}(X(T_{c-1}))}\exp\left\{f_{i_c}(\boldsymbol{\beta}, X'(T_{c}), \mathbf{Z})\right\}}$$
+
+## References
