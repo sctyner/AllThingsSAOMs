@@ -199,7 +199,7 @@ From observation $x(t_{m-1})$ to $x(t_m)$:
 1. Actors act (i.e. change ties with others) at some rate, $\lambda_i(\alpha, \rho, x, m)$
 2. One actor at a time may change a tie, so that only one tie changes at a time in the CTMC
 2. When changing at tie, each actor aims to maximize its objective function $$f_i(\boldsymbol{\beta},x, \mathbf{Z}) = \sum_k \beta_k s_{ik}(x, \mathbf{Z})$$
-where $x$ is the network state, $\boldsymbol{\beta}$ are parameters, and $\mathbf{Z}$ are node-level covariates
+where $x$ is the network state, $s_{ik}$ are network statistics, $\boldsymbol{\beta}$ are parameters, and $\mathbf{Z}$ are node-level covariates
     
 ## Actor-Level Rate Function
 For each actor $i \in \{1,\dots, n\}$:
@@ -250,8 +250,6 @@ $$p_{ij}(\boldsymbol{\beta}, x, \mathbf{Z}) = \frac{\exp\left\{f_i(\boldsymbol{\
 where $x(i \leadsto j)$ is the same network as $x$ with the exception of the tie $x_{ij}$. 
 
 ## Sufficient Statistics 
-
-Recall: $\beta_k$ correspond to the $s_{ik}(x, \mathbf{Z})$. 
 
 There should be two $s_{ik}$ at minimum [@snijders01 p. 371]:
 
@@ -411,7 +409,7 @@ ggplot(data = combined) +
 
 *Network Visualization with `ggplot2`* with Heike Hofmann and François Briatte
 
-- Accepted for publication in *The R Journal* subject to revisions
+- Accepted for publication in *The R Journal* subject to revision
 - 2 independently developed packages: `geomnet` and `ggnetwork` (Briatte)
 
 <img src="paperpic.png" width="800px" height="600px" />
@@ -428,6 +426,7 @@ ggplot(data = combined) +
 ## Research Plan
 
 - Visualization of fitting process of SAOMs
+- Visualization of underlying CTMC 
 - Visualize the distribution of network objects
 - Comparison of network objects
     + Distance measures for networks [see @Ginestet14]
@@ -469,7 +468,9 @@ ggplot(data = weight_whats2 %>% filter(weight > 59)) +
 
 ## Motivation & Objectives
 
-- Use visual tools to diagnose the effect of parameters in SAOM models
+- Use visual tools to diagnose:
+    + effect of parameters in SAOM models
+    + goodness-of-fit of SAOM and other network models
 - Learn about the practical relevance of effects
 - Perform model selection using visual inference methods
 
@@ -722,13 +723,13 @@ ggplot(data = dat) +
 
 Least complex 
 
-![](VisInfDocs/Results/Trial1.png)
+<img src="VisInfDocs/Results/Trial1.png" height="350px" />
 
 ## Trial Plot 2
 
 Most complex 
 
-![](VisInfDocs/Results/Trial2.png)
+<img src="VisInfDocs/Results/Trial2.png" height="350px" />
 
 ## Results 1
 
