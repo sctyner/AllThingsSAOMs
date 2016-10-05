@@ -120,7 +120,7 @@ Cons:
 ## Exponential Random Graph Models {.smaller}
 Created to model directed and undirected networks more realistically. Also called $p^*$ models [@p1model]. 
 
-Structural properties of graph become sufficient statistics
+Structural properties of graph become sufficient statistics, $s_k$
     
 - Outdegree: count edges from node $i$, $x_{i+} = \sum_j x_{ij}$
 - Reciprocity: count reciprocated ties from node $i$, $\sum_j x_{ij}x_{ji}$
@@ -137,11 +137,12 @@ edges <- data.frame(from = c(1,2,3, rep("a", 3)),
 net <- merge(edges, nodes, by.x = "from", by.y = "id", all = T)
 set.seed(12345)
 ggplot() + 
-  geom_net(data = net, label = T, size = 7, 
+  geom_net(data = net, label = T, size = 6, 
            labelcolour = 'white', vjust = .4,
            ecolour = 'grey40', color = 'black', fiteach = T,
            aes(from_id = from, to_id = to)) + 
   theme_net() + 
+  theme(panel.background = element_rect(fill = NA, color = 'black')) +
   facet_wrap(~group)
 ```
 
@@ -218,9 +219,9 @@ At time $T$, $t_{m} \leq T < t_{m+1}$, the waiting time to the next change oppor
 Assume actors are conditionally independent given their ties, $x_{i1}, \dots, x_{in}$ 
 
 Write the rate function for the whole network: 
-$$\lambda(\alpha, \rho, x, m) = \sum_i \lambda_i(\alpha, \rho, x, m).$$ 
+$$\Lambda(\alpha, \rho, x, m) = \sum_i \lambda_i(\alpha, \rho, x, m).$$ 
 At any time $T$, $t_{m} \leq T < t_{m+1}$, waiting time to the next change opportunity by *any* actor in the network has distribution 
-$$\textit{Exp}\big(\lambda(\alpha, \rho, x, m)\big)$$
+$$\textit{Exp}\big(\Lambda(\alpha, \rho, x, m)\big)$$
 
 
 ## Objective Function {.smaller}
@@ -243,7 +244,7 @@ $$f_i(\boldsymbol{\beta}, x, \mathbf{Z}) = \sum_k \beta_k s_{ik}(x, \mathbf{Z}),
 ## Probabilities of Changes
 
 1. Probability that node $i$ gets the next opportunity to change:
-$$\frac{\lambda_i(\alpha, \rho, x, m)}{\lambda(\alpha, \rho, x, m)}$$
+$$\frac{\lambda_i(\alpha, \rho, x, m)}{\Lambda(\alpha, \rho, x, m)}$$
 
 2. Probability that, when given opportunity to change, node $i$ changes its tie to node $j$: 
 $$p_{ij}(\boldsymbol{\beta}, x, \mathbf{Z}) = \frac{\exp\left\{f_i(\boldsymbol{\beta}, x(i \leadsto j))\right\}}{\sum_{h \neq i} \exp\left\{f_i(\boldsymbol{\beta}, x(i \leadsto h))\right\}}$$
@@ -325,7 +326,7 @@ ggplot(data = net) +
   geom_net(aes(from_id = from, to_id = to, color = as.factor(drink)), directed = T, fiteach = T, size = 2, arrowsize = .35, linewidth = .2) + 
   scale_colour_brewer(palette = "Dark2",name = "Covariate") + 
   facet_wrap(~timepoint, labeller = "label_both") + 
-  theme_net() + theme(legend.position = 'bottom')
+  theme_net() + theme(legend.position = 'bottom', panel.background = element_rect(fill = NA, color = 'black'))
 ```
 
 ## Network Visualization
@@ -352,7 +353,7 @@ ggplot(data = net) +
 
 # Chapter 3: *The `R` package `geomnet`*
 
-## Basics
+## `geomnet` Basics
 
 - on CRAN
 - Built on `ggplot2`
@@ -367,7 +368,7 @@ ggplot(data = net) +
     + Edge data: `from` node id and `to` node id for each each edge and information on the edges
 - Node and edge data must be merged
 
-## Data Example
+## `geomnet` Data Example
 
 ```{r example, echo=FALSE}
 library(ggplot2)
@@ -656,7 +657,7 @@ Idea: If an "analyst" sees a feature in the data, and also in the null plots, th
 
 ## Goodness of Fit for M1
 
-True second wave of data among 5 samples simulated from M1 for timepoint 2.
+True [second wave](#41) of data among 5 samples simulated from M1 for timepoint 2.
 
 ```{r coolex}
 set.seed(1234567)
@@ -673,7 +674,7 @@ exlu$plot_order <- rep(sample(6), as.vector(table(exlu$count)))
 ggplot(data = exlu) + 
   geom_net(aes(from_id = from, to_id = to), fiteach = T, size = 2, linewidth = .5) + 
   facet_wrap(~plot_order) + 
-  theme_net()
+  theme_net() + theme(panel.background = element_rect(fill = NA, colour = 'black'))
 ```
 
 ## Small Amazon Turk experiment {.smaller}
