@@ -677,6 +677,27 @@ ggplot(data = exlu) +
   theme_net() + theme(panel.background = element_rect(fill = NA, colour = 'black'))
 ```
 
+## Goodness of Fit for M2
+
+True [second wave](#41) of data among 5 samples simulated from M2 for timepoint 2.
+
+```{r coolex2}
+set.seed(1234567)
+plots <- sample(20, 5)
+m2sims <- read.csv("VisInfDocs/Data/m2sims20.csv", stringsAsFactors = F)
+lineupdat <- m2sims %>% filter(count %in% plots)
+nulldat <- lineupdat[,-1]
+names(nulldat) <- c("from", "to", "count")
+exlu <- rbind(nulldat, datdat)
+set.seed(34925)
+exlu$plot_order <- rep(sample(6), as.vector(table(exlu$count)))
+ggplot(data = exlu) + 
+  geom_net(aes(from_id = from, to_id = to), fiteach = T, size = 2, linewidth = .5) + 
+  facet_wrap(~plot_order) + 
+  theme_net() + theme(panel.background = element_rect(fill = NA, colour = 'black'))
+```
+
+
 ## Small Amazon Turk experiment {.smaller}
 
 - M1 v. M2 (10 lineups total)
