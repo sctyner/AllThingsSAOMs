@@ -84,12 +84,12 @@ ggplot() +
 - Observed network: $x$
 - Unobserved network: $X$
 - Nodes: $\mathcal{N} = \{1,\dots, n\}$
-- Edges: $x_{ij}=$ tie between nodes $i$ and $j$ $x_{ij}$, for $i \neq j \in \mathcal{N}$. Edgeset is $\mathcal{E} = \{x_{ij}\}_{i \neq j \in \mathcal{N}}$
+- Edges: $x_{ij}=$ tie between nodes $i$ and $j$ for $i \neq j \in \mathcal{N}$. Edgeset is $\mathcal{E} = \{x_{ij}\}_{i \neq j \in \mathcal{N}}$
     + $x_{ij} = 1$ $\Rightarrow$ Tie between $i$ and $j$ exists
     + Example: directed edges i.e. $x_{12} = 1 \neq x_{21} = 0$ 
     + Undirected: $x_{ij} = x_{ji}$
     + Self-ties/Loops: $x_{ii} = 0$ for all $i \in \mathcal{N}$
-- Node degree: edges incident to the node
+- Node degree: number of edges incident to the node
 
 ## Erdös-Rényi Random Graph Model
 For *undirected* graphs. First random graph model [@er59]. 
@@ -153,7 +153,7 @@ For a network, $x$:
 $$f(x|\boldsymbol{\beta}) = \frac{1}{\psi(\boldsymbol{\beta})}\exp\left(\sum_k \beta_k s_k(x) \right),$$ 
 
 - $\beta_k$: parameters corresponding to $K$ sufficient statistics (e.g. number of triangles and $e$-stars in $x$)
-- $\psi(\beta)$: the normalizing constant. 
+- $\psi(\boldsymbol{\beta})$: the normalizing constant. 
     + depends on the parameters
     + makes parameter estimation very difficult
     + Estimation via MCMC or pseudo-likelihood done instead
@@ -175,7 +175,7 @@ Cons:
 - First introduced in @saompaper
 - *Longitudinal* network data
 - Capture the process of network change over time
-- Allow node level covariates to affect structure
+- Allow node-level covariates to affect structure
 
 ## Definitions and Notation
 
@@ -422,12 +422,12 @@ ggplot(data = combined) +
 - What does the underlying continuous time Markov chain look like?
 - What makes two network models different?
     + What makes networks simulated from those models different? 
-    + What is an "average" network from a model given a set of $s_{k}$s? 
+    + What is an "average" network from a model given a set of $s_{ik}$s? 
 
 ## Research Plan
 
 - Visualization of fitting process of SAOMs
-- Visualization of underlying CTMC 
+    + Visualization of underlying CTMC 
 - Visualize the distribution of network objects
 - Comparison of network objects
     + Distance measures for networks [see @Ginestet14]
@@ -568,6 +568,11 @@ ggplot(data = jTT, aes(from_id = from, to_id = to)) +
   theme(legend.position = "none")
 ```
 
+## Parameter Choice
+
+- Outdegree and reciprocity always included
+- JTT chosen for high level of significance according to Wald-type tests in `RSiena`
+
 ## Model Fitting
 
 Done in the R package `RSiena` by @RSiena.
@@ -575,12 +580,6 @@ Done in the R package `RSiena` by @RSiena.
 MCMC methods used for method of moments estimators of the objective function parameters.
 
 Also allows for simulation from model given values of the parameters $\alpha_m$, $\boldsymbol{\beta}$
-
-## Parameter Choice
-
-- Outdegree and reciprocity always included
-- JTT chosen for high level of significance according to Wald-type tests in `RSiena`
-
 
 ## Two Models {.smaller}
 
@@ -628,36 +627,36 @@ ggplot(data = dat %>% filter(plot_order %in% c(2,7)) %>% mutate(Model = ifelse(p
 
 ## Research Question
 
-Can we *see* a significant parameter when visualizing networks simulated from two different models?
+Can we *see* the effect of an added significant parameter when visualizing networks simulated from two different models?
 
-- Hypothesis: If testing finds a significant difference in two models, then networks simulated from those models should look different to us.
-- Method: Visual Inference 
+- **Hypothesis**: If testing finds a significant difference in two models, then networks simulated from those models should look different to us.
+- **Method**: Visual Inference 
     + Using the lineup protocol of @Bujaetal
     + Show networks simulated from 2 models, differing by inclusion of one additional $s_{ik}$ to test this hypothesis
 
 ## Visual Inference
 
-Given data and a plot of it, what can you say about the data? 
+Given data and a plot of it, what can you see? 
 
 $H_0$: a null hypothesis scenario from which the data could have arisen 
 
-- For each sample from the null hypothesis, make the same plot type as the data plot (create the "null plots")
+- Sample from the null hypothesis, make the same plot type as the data plot (create the "null plots")
 - Original plot is the "data plot"
 - Place data plot randomly amongst the null plots in a lineup
 
-Idea: If an "analyst" sees a feature in the data, and also in the null plots, then the data cannot be said to come from a different scenario than $H_0$. 
+**Idea**: If an "analyst" sees a feature in the data, and also in the null plots, then the data cannot be said to come from a different scenario than $H_0$. 
 
 ## Lineup Protocol
 
 - Show $M$ plots to $K$ people
 - Ask to identify most different plot
-- Null ($M-1$ plots) vs. Alternative ($1$ plot) models
+- $M-1$ null plots vs. $1$ data plot (alternative)
 - Identification of the alternative plot is evidence *against* null
 - $\frac{1}{M}$: Probability of one observer picking alternative plot at random 
 
 ## Goodness of Fit for M1
 
-True [second wave](#41) of data among 5 samples simulated from M1 for timepoint 2.
+True [second wave](#41) of [data](#44) among 5 samples simulated from M1 for timepoint 2.
 
 ```{r coolex}
 set.seed(1234567)
@@ -679,7 +678,7 @@ ggplot(data = exlu) +
 
 ## Goodness of Fit for M2
 
-True [second wave](#41) of data among 5 samples simulated from M2 for timepoint 2.
+True [second wave](#41) of [data](#44) among 5 samples simulated from M2 for timepoint 2.
 
 ```{r coolex2}
 set.seed(1234567)
@@ -809,7 +808,7 @@ res3$group_name <- paste0(res3$group, " #", res3$group.rep)
 
 res4 <-left_join(res3, lus_jtts, by = c("data_name" = "filename", "obs_plot_location" = "plot_order"))
 res4.2 <- res4 %>% group_by(data_name, jtt) %>% summarise(perc_corr = sum(correct)/n())
-p1 <- ggplot(data = res4.2) +geom_point(aes(x = jtt, y = perc_corr)) + labs(x = "Number of jumping transitive triplets", y = "Percent of Participants Choosing Correctly", title= "# of JTTs")
+p1 <- ggplot(data = res4.2) +geom_point(aes(x = jtt, y = perc_corr)) + labs(x = "Number of JTTs in Alternate Plot", y = "Percent of Participants Choosing Alternate Plot", title= "# of JTTs")
 res3a <- res3
 res3a$data_name <- sub(".csv", "", res3a$data_name)
 res3a$data_name <- sub("-m-", "-", res3a$data_name)
@@ -822,7 +821,7 @@ res5 <- left_join(res3a, lus_truth2, by = c("data_name" = "lineupid",
                                             "obs_plot_location" = "panel_num"))
 res5.2 <- res5 %>% group_by(data_name, param_est) %>% 
   summarise(perc_corr = sum(correct)/n())
-p2 <- ggplot(data = res5.2) + geom_point(aes(x = param_est, y = perc_corr)) + labs(x = "Parameter estimate", y = "Percent of Participants Choosing Correctly", title = "Parameter Estimate")
+p2 <- ggplot(data = res5.2) + geom_point(aes(x = param_est, y = perc_corr)) + labs(x = "Parameter estimate", y = "Percent of Participants Choosing Alternate Plot", title = "Parameter Estimate")
 gridExtra::grid.arrange(p2, p1, nrow = 1)
 ```
 
