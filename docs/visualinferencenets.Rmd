@@ -1,4 +1,4 @@
-# Visual Inference for Stochastic Actor Oriented Models {#ch2}
+# Model Diagnostics for Stochastic Actor-Oriented Models Using Visual Inference {#ch2}
 
 **Abstract**: In this chapter, I will use the visual inference lineup protocol to determine which aspects of SAOMs are visually discoverable. First, I explore the relationship between the addition of statistically significant parameters to a SAOM and the visual side effects of the inclusion of the additional significant parameter. Using visual inference, I will determine whether the addition of the significant parameter changes the observable structure of networks belonging to the model. Then, I will simulate networks from SAOMs using the multitude of possible parameter values available and I will use visual inference protocol to determine which parameters, when included in the model, make significant changes to the appearance of the networks. 
 
