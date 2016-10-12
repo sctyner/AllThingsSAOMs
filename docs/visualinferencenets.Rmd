@@ -697,3 +697,7 @@ ggplot(data = exlu) +
 ```
 
 In an experiment setting, the true data cannot be shown more than once any one participant, so these lineups could not both be shown as they are here. 
+
+## Why Visualize?
+
+The purpose of these visualization methods is to complement exististing statistical tests. Residual plots help demontstrate goodness-of-fit of linear models because an ANOVA table on its own does not tell the whole story. The accompanying graphics provide more information in a compact space; the p-value alone is not enough. 
