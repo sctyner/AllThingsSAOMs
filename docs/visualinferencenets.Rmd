@@ -18,7 +18,7 @@ The introduction of this chapter will start with a shortened introduction to the
 
 The R package `RSiena` provides methods for estimation of stochastic actor-oriented models for social network analysis [@Rsoft; @RSiena]. In this software, there are many possible parameter values that can be included into a model, but no ways of performing model selection. There are, however, some simple $t$-type and Wald-type tests of parameters that can be used to determine the significance of a parameter included in the objective function. This is crucial to the statistical analysis of the network in order to better understand the mechanism underlying the data. When studying a social network, it is also pertinent to the analysis to visualize the data. There is not, however, a way to know just which parameter values are affecting the network structure seen in the visualization. In this paper, we explore the visible effects of different model parameters, and use the lineup protocal of @Bujaetal to perform visual tests of model parameters. 
 
-## Data
+## Data {#smallfriends}
 
 The data we use in our first experiment is a small subset of 16 actors in the dynamic friendship network collected by @friendsdata. This data is made available on the [RSiena webpage](http://www.stats.ox.ac.uk/~snijders/siena/Glasgow_data.htm). It is a study of teenage girls and the changes in their friendship network overtime, and it also includes covariate information on the girls, such as their drinking and smoking behavior or whether or not they participate in school sports. We chose to subset the data to this small network to decrease the cognitive load on our experiment's subjects. The subset contained three waves of data, 16 girls and the relationships between them, and the drinking behavior of each actor at each of the three waves. This specific subset was chosen because it showed somewhat higher connectivity than other subsets, as determined by the adjacency matrix visualization of each wave shown in Figure \@ref(fig:smallfriends). The first wave of our small network, which is conditioned on in estimation, is shown in Figure \@ref(fig:wave1). The covariate, drinking behavior, is coded in the original data set as an integer from 1-5: 1 means no consumption of alchohol, 2 is consumption once or twice a year, 3 is once a month, 4 is once a week, and 5 alcohol consupmtion more than once a week.
 
@@ -101,7 +101,7 @@ source("../VisInfDocs/Code/03c_complete_lineup_creation.R")
 lineup1 <- create_smfriend_lu(null_eff_struct = null_model_eff2, test_eff_struct = eff_models_smallFriends[[39]], M = 3)
 ```
 
-## Models
+## Models {#m1m2}
 
 We fit three models to the data. The first model, which we write as $M1$, is the "null model" because it includes only the abolute minimum number of parameters that should be included in the objective function SAOM: the rates of change between timepoint, the outdegree effect, and the reciprocity effect [see @snijders01 p. 371]. We also fit two "alternative models", which we write as $M_2$ and $M_3$. The alternative model $M_2$ includes one more parameter than the null model, the "jumping transitive triplet"" (JTT), which was determined to be significant by the $t$-type test in the `RSienaTest` package with a $p$-value of 0.00282. The parameters in the objective function are tested for significance using $t$-tests where test statistic is the ratio of the parameter estimate to its standard error. This parameter incorporates the actor covariate, drinking behavior, into the model. The other alternative model, $M_3$, includes one additional structural parameter, "number of doubly achieved distances two effect", whose significance was determined in the same way, with a $p$-value less than 0.0001. Finally, each of the three models includes rate parameters, $\alpha_1$ and $\alpha_2$, which represent how many opportunities for change each actor gets, on average, when moving from wave 1 to 2 and from wave 2 to 3, respectively. 
 
@@ -655,4 +655,26 @@ We have also discovered that a high value of the JTT statistic leads to correct 
 
 The next part of this paper requires several more experiments to be performed. We will simulate data from many more models, each with different parameters and parameter values included in the model. Then, networks simulated from null models like $M1$ will be placed in lineups with a network simulated from one of the several alternative models we will define. By performing visual inference on SAOMs in this way, we hope to determine which parameters, when included, cause significant change in the visible network structure. 
 
+## Goodness of Fit Testing 
+
+Visual inference can also be applied to network models to perform goodness of fit tests. We choose a model for the null hypothesis that we think generated the data and simulate several networks from the model. In a lineup, we place a plot of the data at random among plots of the null data. If the data plot is not easily identifiable among the null plots, then there is evidence that the model is a good fit. However, if the data plot sticks out like a sore thumb, then there is evidence that the model is not apporpriate for the data. A proof-of-concept example using the small friendship network data from section \@ref(smallfriends) is presented in Figure \@ref(fig:coolex). In this lineup, the true second network observation is placed at random among five networks simulated from M1 as presented in section \@ref(m1m2).
+
+```{r coolex, fig.cap="The data placed among five networks simulated from model 1. Observers would be prompted to select the plot that looks the most different from the others."}
+whats <- read.csv("BlindfoldDocs/1000_sims_m1.csv", stringsAsFactors = F)
+set.seed(1234567)
+plots <- sample(1000, 5)
+lineupdat <- whats %>% filter(count %in% plots)
+nulldat <- lineupdat[,-1]
+datdat <- actual2
+datdat <- datdat[,1:2]
+datdat$count <- 1001
+names(datdat) <- c("from", "to", "count")
+exlu <- rbind(nulldat, datdat)
+set.seed(98765)
+exlu$plot_order <- rep(sample(6), as.vector(table(exlu$count)))
+ggplot(data = exlu) + 
+  geom_net(aes(from_id = from, to_id = to), fiteach = T, size = 2, linewidth = .5) + 
+  facet_wrap(~plot_order) + 
+  theme_net() + theme(panel.background = element_rect(fill = NA, colour = 'black'))
+```
 
