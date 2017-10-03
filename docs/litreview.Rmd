@@ -30,7 +30,7 @@ Other models are extensions of the Erd&#x00F6;s-R&#x00E9;nyi (ER) random graph m
 
 ### Dynamic Network Models {#dynamicnets}
 
-Dynamic networks are extremely important because of how realistic they are. Social networks do not form spontaneously: they evolve over time. Ties can be added and deleted, and new nodes can join the network. Modeling the process of network changes over time is more complex but ultimately more useful if done correctly. The work on dynamic network models began with fairly straightforward random graph models that are quasi-dynamic extensions of the classic Erdös-Rényi model. 
+Dynamic networks models are extremely important because of how realistic they are. Social networks do not form spontaneously: they evolve over time. Ties can be added and deleted, and new nodes can join the network. Modeling the process of network changes over time is more complex but ultimately more useful if done correctly. The work on dynamic network models began with fairly straightforward random graph models that are quasi-dynamic extensions of the classic Erdös-Rényi model. 
 
 A model is quasi-dynamic if it models a *static* network via an *underlying* dynamic process. The first is the preferential attachment model of @pamodel. Given $n_0$ nodes to start, at each time point $t$ a new node is added with $n_t \leq n_0$ ties to the nodels already in the network. The $n_t$ new ties are assigned proportionally based on the degree of each existing node. It is quasi-dynamic because it is usually used to model one scale-free network oberervation. The preferential attachment model is also referred to as the "rich-get-richer" model because it results in a network where there are a few nodes with very high degree. 
 
@@ -221,6 +221,8 @@ mnetwork <- network::as.network(m, loops = TRUE)
 plot(migraph)
 plot(mnetwork)
 ```
+
+By creating a way to visualize networks in `ggplot2`, we open up network visualization to a set of visual tools and approaches that 
 
 I will use network visualization in the `ggplot2` framework to graphically explore the SAOMs. By using visual inference, I will learn about the importance of the many possible model parameters in SAOMs and about how they affect the visible structure of the network.    
 

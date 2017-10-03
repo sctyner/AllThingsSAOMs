@@ -40,7 +40,7 @@ library(knitr)
 
 \newpage 
 
-```{r child = "docs/removingblindfoldsaoms.Rmd", eval = TRUE}
+```{r child = "../SAOM-removing-blindfold/paper-child.Rnw", eval = TRUE}
 ```
 
 \newpage

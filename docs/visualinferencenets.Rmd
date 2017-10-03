@@ -83,8 +83,10 @@ waves <- rbind(actual1, actual2)
 library(geomnet)
 actual1$behaviour <- factor(actual1$drink)
 levels(actual1$behaviour) <- c("None", "Once or twice a year", "Once a month", "Once a week")
+actual1$X1 <- paste0("V", actual1$X1)
+actual1$X2 <- ifelse(is.na(actual1$X2), actual1$X2, paste0("V",actual1$X2))
 ggplot(data = actual1, aes(from_id = X1, to_id = X2)) + 
-  geom_net(label = TRUE, hjust = 0.5, vjust=0.5, size=10,  
+  geom_net(labelon = TRUE, hjust = 0.5, vjust=0.5, size=10,  
            fiteach = T, labelcolour = "grey20", directed = T,
            arrowgap = .03, aes(colour = behaviour)) + 
   scale_colour_brewer("Drinking behavior", palette="YlOrRd") +
@@ -122,7 +124,7 @@ jTT <- merge(jTTe, jTTn, by.x = 'from', by.y = "id", all = T)
 
 set.seed(12345) 
 ggplot(data = jTT, aes(from_id = from, to_id = to)) + 
-  geom_net(aes(shape = as.factor(group)), directed = T, label = T, 
+  geom_net(aes(shape = as.factor(group)), directed = T, labelon = T, 
            labelcolour='grey80',vjust = 0.5, hjust =0.5, arrowgap = .15, 
            colour = 'black', size=10, 
            ecolour = c("red", "grey40", "grey40", "grey40")) + 
@@ -137,7 +139,7 @@ dad <- merge(dade, dadn, by.x = 'from', by.y = "id", all = T)
 
 set.seed(12345) 
 ggplot(data = dad, aes(from_id = from, to_id = to)) + 
-  geom_net(aes(shape = as.factor(group)), directed = T, label = T, labelcolour='grey80',vjust = 0.5, hjust =0.5, arrowgap = .15, colour = 'black', size=10) + 
+  geom_net(aes(shape = as.factor(group)), directed = T, labelon = T, labelcolour='grey80',vjust = 0.5, hjust =0.5, arrowgap = .15, colour = 'black', size=10) + 
   expand_limits(x=c(-0.1,1.1), y=c(-0.1,1.1)) +
   theme_net() +
   theme(legend.position = "none")
@@ -660,7 +662,7 @@ The next part of this paper requires several more experiments to be performed. W
 Visual inference can also be applied to network models to perform goodness of fit tests. We choose a model for the null hypothesis that we think generated the data and simulate several networks from the model. In a lineup, we place a plot of the data at random among plots of the null data. If the data plot is not easily identifiable among the null plots, then there is evidence that the model is a good fit. However, if the data plot sticks out like a sore thumb, then there is evidence that the model is not apporpriate for the data. A proof-of-concept example using the small friendship network data from section \@ref(smallfriends) is presented in Figure \@ref(fig:coolex). In this lineup, the true second network observation is placed at random among five networks simulated from M1 as presented in section \@ref(m1m2).
 
 ```{r coolex, fig.cap="The data placed among five networks simulated from model 1. Observers would be prompted to select the plot that looks the most different from the others."}
-whats <- read.csv("BlindfoldDocs/1000_sims_m1.csv", stringsAsFactors = F)
+whats <- read.csv("../BlindfoldDocs/1000_sims_m1.csv", stringsAsFactors = F)
 set.seed(1234567)
 plots <- sample(1000, 5)
 lineupdat <- whats %>% filter(count %in% plots)
@@ -668,10 +670,13 @@ nulldat <- lineupdat[,-1]
 datdat <- actual2
 datdat <- datdat[,1:2]
 datdat$count <- 1001
+names(nulldat) <- c("from", "to", "count")
 names(datdat) <- c("from", "to", "count")
 exlu <- rbind(nulldat, datdat)
 set.seed(98765)
 exlu$plot_order <- rep(sample(6), as.vector(table(exlu$count)))
+exlu$from <- paste0("V", exlu$from)
+exlu$to <- ifelse(is.na(exlu$to),exlu$to,paste0("V", exlu$to))
 ggplot(data = exlu) + 
   geom_net(aes(from_id = from, to_id = to), fiteach = T, size = 2, linewidth = .5) + 
   facet_wrap(~plot_order) + 
@@ -683,13 +688,15 @@ The true data in figure \@ref(fig:coolex) is in panel $2^2-1$. To compare, we ha
 ```{r coolex2, fig.align='center', fig.cap="The true data placed at random among five simulations from M2."}
 set.seed(1234567)
 plots <- sample(20, 5)
-m2sims <- read.csv("VisInfDocs/Data/m2sims20.csv", stringsAsFactors = F)
+m2sims <- read.csv("../VisInfDocs/Data/m2sims20.csv", stringsAsFactors = F)
 lineupdat <- m2sims %>% filter(count %in% plots)
 nulldat <- lineupdat[,-1]
 names(nulldat) <- c("from", "to", "count")
 exlu <- rbind(nulldat, datdat)
 set.seed(34925)
 exlu$plot_order <- rep(sample(6), as.vector(table(exlu$count)))
+exlu$from <- paste0("V", exlu$from)
+exlu$to <- ifelse(is.na(exlu$to),exlu$to,paste0("V", exlu$to))
 ggplot(data = exlu) + 
   geom_net(aes(from_id = from, to_id = to), fiteach = T, size = 2, linewidth = .5) + 
   facet_wrap(~plot_order) + 
