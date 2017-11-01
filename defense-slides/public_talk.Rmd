@@ -1,0 +1,226 @@
+---
+title: "Graphical discovery in stochastic actor-oriented models for social network analysis"
+author: "Sam Tyner"
+date: "2017/11/07"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+    css: samdefense.css  
+bibliography: ../thesis-docs/bigbib.bib      
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+```
+
+# Outline 
+
+- A social network example 
+--
+
+- What is a SAOM?
+--
+
+- Questions of interest
+--
+
+- Example visualizations
+--
+
+- What is the lineup protocol?
+--
+
+- Design of experiment
+--
+
+- Data collection 
+--
+
+- A GLMMer of hope
+--
+
+- Results
+--
+
+- Conclusions and future directions
+
+
+---
+class: inverse, center, middle 
+
+# A social network example
+
+
+---
+class: plotslide, center
+
+# Senate collaboration in the Obama years
+
+<img src="figure/senateAll-1.png" alt="senate" width="600">
+
+???
+A measure of collaboration in the US Congress is cosponsorship of legislation. Each bill brought in the senate has one primary author, and many senators can cosponsor a bill as an indication of their support for it. This is an example of a dynamic social network. In this data, the edges are directed and binary. An edge from senator A to senator B is drawn if senator A frequently cosponsors the legislation that senator B authored. (Skip exact definition of how we determined this, but I welcome questions if there is time.) For instance, in the 114th senate (bottom right corner), there is an edge from Harry Ried to Mitch McConnell, meaning in that session, Ried frequently cosponsored McConnell's legislation but not the other way around. 
+
+---
+class: inverse, center, middle
+
+# What is a SAOM?
+
+---
+class: definition
+
+# Stochastic Actor-Oriented Model (SAOM)
+
+## A statistical model applied to *dynamic* social networks which takes both the *network structure* and the *node-level covariates* into account
+
+---
+
+# How? 
+
+- Assume *conditional independence* of actors / nodes 
+--
+
+- Estimate the *rate* at which actors make changes in the network 
+--
+
+- Maximize an actor's *objective function* when it makes a change
+
+???
+Everything is modeled at the actor-level. The actors are assumed to be conditionally independent given their current set of ties. Then, actors are individually "chosen" to make a tie change in continuous time. When an actor is chosen to change, it attempts to maximize its objective function by changing its relationship to other nodes. 
+
+---
+class: math
+
+# Basic Notation 
+
+$x$ - the current network state in the model
+
+$x(t_1), \dots, x(t_M)$ - the observed network at the discrete time points $t_1, \dots, t_M$ 
+
+$x_{ij}$ - the binary tie variable from actor $i$ to actor $j$, $i,j \in \{1, \dots, n = \text{# of actors}\}$
+
+$x(i \leadsto j)$ - the network that only differs from $x$ by one tie, $x_{ij}$ 
+
+$\alpha_m$ - the rate parameter for the period from $t_{m-1}$ to $t_m$
+
+$\mathbf{Z}$ - an $n \times p$ matrix of $p$ actor-level covariates of interest
+
+$\boldsymbol{\beta}$ - a $K \times 1$, $K>p$, vector of parameters in the objective function
+
+$s_{ik}(x, \mathbf{Z})$ - a statistic computed for actor $i$ and parameter $k$ in the objective function
+
+--- 
+class: math 
+
+# Rate parameter
+
+- In period $m$, the waiting time $\tau_i$ until actor $i$'s next opportunity for change: $$\tau_i | x_{i1}, \dots, x_{in}\stackrel{iid}{\sim} Exp(\alpha_m)$$
+- Expected value is $\alpha_m^{-1}$
+- In period $m$, the waiting time $\tau$ until any actor gets to change: $$\tau(x|m) \sim  Exp(n\alpha_m)$$
+- Expected value is $(n\alpha_m)^{-1}$
+
+---
+class: math
+
+# Objective Function
+
+Actor $i$ gets the opportunity to change, and attempts to maximize its *objective function*:
+$$f_{i}(x, \boldsymbol{\beta}, \mathbf{Z}) = \sum_{k=1}^K \beta_{k} s_{ik}(x,\mathbf{Z}) + U$$
+where $U$ is a random component encompassing all other reasons for change not in the objective function
+
+---
+class: math
+
+# Some objective function parameters 
+
+| Name | Parameter | Statistic | Picture |
+|:-----|:---------:|:---------:|:--------:|
+| outdegree | $\beta_1$ | $\sum_j x_{ij}$| <img src="img/outdegree.png" style="width: 30%"/> |
+| reciprocity | $\beta_2$ | $\sum_j x_{ij}x_{ji}$| <img src="img/reciprocity.png" style="width: 30%"/> |
+| covariate-alter | $\beta_3$ | $\sum_j x_{ij}z_j$ | <img src="img/covaralter.png" style="width: 30%"/>|
+| covariate-ego  | $\beta_5$ | $z_i\sum_j x_{ij}$ | <img src="img/covarego.png" style="width: 30%"/>|
+
+
+???
+There are many possible parameters to include in the objective function. This usually depends on subject area knowledge of the researcher to include the "right" parameters. I only show a few here. 
+
+---
+class: math 
+
+# Transition Probability
+
+- Actor $i$ given chance to change
+- What is probability the tie $x_{ij}$ changes?
+
+$$p_{ij} = \frac{\exp\{f_{i}(x(i \leadsto j), \boldsymbol{\beta}, \mathbf{Z})\}}{\sum_{h=1}^n \exp\{f_{i}(x(i \leadsto h), \boldsymbol{\beta}, \mathbf{Z})\}}$$
+- Used in estimation and simulation
+
+<!--??? Gloss over -->
+
+---
+class: inverse, center, middle
+
+# Questions of interest
+
+---
+
+# What don't we know?
+
+- Which parameters should we include in the model? 
+--
+
+- How do we interpret these parameters? 
+--
+
+- How do we know if the model we chose for our data is a "good" model? 
+
+???
+There are dozens of possible parameters. How can we possibly pick which ones to include? 
+If the estimated value of beta 2 is 5, what does that mean about our data? What about if it's negative 5? 
+What goodness of fit measures can we look at? 
+
+---
+class: inverse, center, middle
+
+# Example visualizations
+
+---
+class: plotslide
+
+---
+class: inverse, center, middle
+
+# What is the lineup protocol?
+
+---
+class: inverse, center, middle
+
+# Design of experiment
+
+---
+class: inverse, center, middle
+
+# Data Collection
+
+---
+class: inverse, center, middle
+
+# A GLMMer of hope
+
+---
+class: inverse, center, middle
+
+# Results
+
+---
+class: inverse, center, middle
+
+# Conclusions and future directions
+
+---
+
+# References 
