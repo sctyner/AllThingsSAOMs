@@ -10,11 +10,24 @@ output:
       highlightLines: true
       countIncrementalSlides: false
     css: samdefense.css  
-bibliography: ../thesis-docs/bigbib.bib      
+bibliography: bigbib.bib      
 ---
 
 ```{r setup, include=FALSE}
 options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(echo = FALSE, tidy = TRUE, message = FALSE, warning = FALSE, dev = 'png')
+```
+
+```{r packages}
+library(tidyverse)
+library(geomnet)
+library(RSiena)
+library(lme4)
+```
+
+```{r loaddata}
+load("data/finalglmm31-2.RDA")
+turk22 <- read_csv("data/turk22-sig.csv")
 ```
 
 # Outline 
@@ -76,6 +89,9 @@ class: definition
 # Stochastic Actor-Oriented Model (SAOM)
 
 ## A statistical model applied to *dynamic* social networks which takes both the *network structure* and the *node-level covariates* into account
+
+???
+These models stand out from the pack because of their ability to incorporate non-structural information and their ability to model network change in time. Most traditional models only consider one observation at a time. 
 
 ---
 
@@ -139,14 +155,14 @@ class: math
 
 | Name | Parameter | Statistic | Picture |
 |:-----|:---------:|:---------:|:--------:|
-| outdegree | $\beta_1$ | $\sum_j x_{ij}$| <img src="img/outdegree.png" style="width: 30%"/> |
-| reciprocity | $\beta_2$ | $\sum_j x_{ij}x_{ji}$| <img src="img/reciprocity.png" style="width: 30%"/> |
-| covariate-alter | $\beta_3$ | $\sum_j x_{ij}z_j$ | <img src="img/covaralter.png" style="width: 30%"/>|
-| covariate-ego  | $\beta_5$ | $z_i\sum_j x_{ij}$ | <img src="img/covarego.png" style="width: 30%"/>|
+| density | $\beta_1$ | $s_{i1}(x) = \sum_j x_{ij}$| <img src="img/outdegree.png" style="width: 30%"/> |
+| reciprocity | $\beta_2$ | $s_{i2}(x) = \sum_j x_{ij}x_{ji}$| <img src="img/reciprocity.png" style="width: 30%"/> |
+| covariate-alter | $\beta_3$ | $\sum_j x_{ij}z_j$ | <img src="img/covaralter.png" style="width: 50%"/>|
+| covariate-ego  | $\beta_5$ | $z_i\sum_j x_{ij}$ | <img src="img/covarego.png" style="width: 50%"/>|
 
 
 ???
-There are many possible parameters to include in the objective function. This usually depends on subject area knowledge of the researcher to include the "right" parameters. I only show a few here. 
+There are many possible parameters to include in the objective function. This usually depends on subject area knowledge of the researcher to include the "right" parameters. I only show a few here. According to the literature, the first two, density and reciprocity, should always be included in the model. 
 
 ---
 class: math 
@@ -167,6 +183,7 @@ class: inverse, center, middle
 # Questions of interest
 
 ---
+class: majorpoint
 
 # What don't we know?
 
@@ -182,6 +199,7 @@ class: inverse, center, middle
 There are dozens of possible parameters. How can we possibly pick which ones to include? 
 If the estimated value of beta 2 is 5, what does that mean about our data? What about if it's negative 5? 
 What goodness of fit measures can we look at? 
+We answer these question using data visualization, visual inference, and the lineup protocol. 
 
 ---
 class: inverse, center, middle
@@ -189,7 +207,42 @@ class: inverse, center, middle
 # Example visualizations
 
 ---
-class: plotslide
+class: plotslide, center
+
+# What do you think? Are these two networks from the same model?
+
+```{r compare1, fig.width=12.2, fig.height=8}
+library(tidyverse)
+library(geomnet)
+dat <- read_csv("data/jttp_pos_easy_1.csv")
+ggplot(data = dat %>% filter(ord %in% 1:2)) + 
+        geom_net(aes(from_id = from, to_id = to), 
+                 arrow = arrow(type = 'open', length = unit(2, "points") ), 
+                 linewidth = .5, singletons = T, fiteach = T, directed = T, 
+                 color = 'black', arrowgap = .015, arrowsize = .3, size =1) + 
+        theme_net() + 
+        theme(panel.background = element_rect(color = 'black')) +
+        facet_wrap(~ord)
+```
+
+---
+class: plotslide, center
+
+# What about these? Are these two networks from the same model?
+
+```{r compare2, fig.width=12.2, fig.height=8}
+ggplot(data = dat %>% filter(ord %in% 3:4)) + 
+        geom_net(aes(from_id = from, to_id = to), 
+                 arrow = arrow(type = 'open', length = unit(2, "points") ), 
+                 linewidth = .25, singletons = T, fiteach = T, directed = T, 
+                 color = 'black', arrowgap = .015, arrowsize = .3, size =1) + 
+        theme_net() + 
+        theme(panel.background = element_rect(color = 'black')) +
+        facet_wrap(~ord)
+```
+
+???
+Plots 1,2,3 were all simulated from the same model, while plot 4 was simulated from a model with one additional parameter in the objective function. 
 
 ---
 class: inverse, center, middle
@@ -197,9 +250,92 @@ class: inverse, center, middle
 # What is the lineup protocol?
 
 ---
+
+# Lineup Idea
+
+![lineup](img/lineupfun.png)
+
+([Image Source](https://allthingslawandorder.blogspot.com/2017/05/law-order-svu-american-dream-sanctuary.html))
+---
+class: majorpoint
+
+# Lineup protocol
+
+- Have some data of interest and a visualization of that data
+- Have a null hypothesis that the data come from a "null model"
+- Simulate "null data" sets from the null model 
+- Use the simulated data to create "null plots"
+- Can you see the data plot among the null plots?
+- Picking the data out among the nulls is evidence *against* the null model
+
+---
+class: definition
+
+# Lineup
+
+## The lineup protocol "asks the witness to *identify* the plot of the *real data* from among a set of decoys, the null plots, under the veil of ignorance" (Buja et al. 2009, p. 4369)
+
+---
+class: plotslide, center
+
+# From Loy et al. (2017)
+
+<img src="img/boxplots.jpeg" alt="senate" width="550">
+
+---
+class: plotslide, center
+
+# From our lineup experiment
+
+```{r lineup1, fig.width=12.2, fig.height=8}
+ggplot(data = dat) + 
+        geom_net(aes(from_id = from, to_id = to), 
+                 arrow = arrow(type = 'open', length = unit(2, "points") ), 
+                 linewidth = .25, singletons = T, fiteach = T, directed = T, 
+                 color = 'black', arrowgap = .015, arrowsize = .3, size =1) + 
+        theme_net() + 
+        theme(panel.background = element_rect(color = 'black')) +
+        facet_wrap(~ord)
+```
+
+---
 class: inverse, center, middle
 
 # Design of experiment
+
+---
+
+# Experiment idea
+
+- Pick several models and parameters in the objective function that we think are important to SAOMs
+--
+
+- Fit models to the Senate collaboration data to get estimates of $\boldsymbol{\beta}$
+--
+
+- Simulate network data from the models using the estimates, and place the plots of the data in various lineup configurations to determine:
+--
+
+    * Which parameters are significant? 
+    * Which models are good fits?
+    * Which parameters are noticeable and at what values? 
+
+---
+class: math
+
+# Parameters of interest 
+
+| Name | Parameter | Statistic | Picture |
+|:-----|:---------:|:---------:|:--------:|
+| jumping transitive triplet - party | $\beta_3$ | $s_{i3}(x, \mathbf{p}) = \sum_{j\neq h} x_{ij}x_{ih}x_{hj}\cdot \mathbb{I}(p_i = p_h \neq p_j)$ | <img src="img/jttp.png" style="width: 100%"/>|
+| jumping transitive triplet - sex | $\beta_4$ | $s_{i4}(x, \mathbf{s}) = \sum_{j\neq h} x_{ij}x_{ih}x_{hj}\cdot \mathbb{I}(s_i = s_h \neq s_j)$ | <img src="img/jtts.png" style="width: 100%"/>|
+| similarity transitive triplet - bills | $\beta_5$ | $s_{i5}(x, \mathbf{b}) = \sum_{j} x_{ij}x_{ih}x_{hj}\cdot (sim^b_{ij} - \overline{sim}^b)^*$ | <img src="img/simttb.png" style="width: 125%"/>|
+| same transitive triplet - party | $\beta_6$ | $s_{i6}(x, \mathbf{p}) =\sum_{j} x_{ij}x_{ih}x_{hj}\cdot \mathbb{I}(p_i = p_j)$ | <img src="img/samettp.png" style="width: 125%"/>|
+
+*- $sim^b_{ij} = \frac{\max_{hk}|b_h - b_k| - |b_i - b_j|}{\max_{hk}|b_h - b_k|}$
+
+???
+In addition to the two basic structural parameters, density and reciprocity, we examine four additional covariate parameters.
 
 ---
 class: inverse, center, middle
@@ -212,9 +348,60 @@ class: inverse, center, middle
 # A GLMMer of hope
 
 ---
+class: math
+
+# Hierarchical model
+
+Binary response variable $Y_{ijkm}$ indicating whether participant $m$ selected the alternative data plot in the $k^{th}$ repitition of a lineup of parameter $i$ and type $j$. 
+
+$$Y_{ijkm} \sim \text{Bernoulli}(\pi_{ijkm})$$
+$$\text{logit}(\pi_{ijkm}) = \alpha_{ij} + \beta_{ij} x + \delta_{ijk} + \epsilon_{m}$$
+$$\delta_{ijk} \stackrel{iid}{\sim} N(0, \sigma^2_{\delta})$$
+$$\epsilon_{m} \stackrel{iid}{\sim} N(0, \sigma^2_{\epsilon})$$ 
+
+---
 class: inverse, center, middle
 
 # Results
+
+--- 
+class: plotslide
+
+# Model Predictions
+
+```{r, fig.width = 12.2, fig.height=8}
+newdata <- read_csv("data/newdata_pred_glmm.csv")
+newdata$lps_param <- with(newdata, interaction(test_param, as.factor(type2)))
+newdata$predictfinal <- predict(model2randomscalesize, newdata, allow.new.levels = T, type = 'response')
+newdata$param <- newdata$test_param
+newdata$param <- as.factor(newdata$test_param)
+levels(newdata$param) <-  c(1,3,4,2,6,5) 
+newdata$param <- as.integer(as.character(newdata$param))
+plotdata <- turk22 %>% mutate(type2 = ifelse(sign == 0, sign(initialEst), sign),
+                       type2 = ifelse(type == "one", type2, -1)) %>% 
+  group_by(pic_id, size, test_param, sign, type2,alt_model) %>% summarize(
+    datapick = mean(datapick)
+)
+plotdata$param <- plotdata$test_param
+plotdata$param <- as.factor(plotdata$param)
+levels(plotdata$param) <- c(1,3,4,2,6,5) 
+plotdata$param <- as.integer(as.character(plotdata$param))
+labdat <- data_frame(test_param = "jttp", param = 3, type2 = -1, x = -5, y = .9, label = "jttp_neg_hard_2")
+
+ggplot() + 
+  geom_line(data = newdata, aes(x = size, y = predictfinal, color = as.factor(type2))) + 
+  geom_point(data = plotdata, aes(x = size, y = datapick, color = as.factor(type2))) + 
+  #geom_text(data = plotdata, aes(x = size, y = datapick, color = as.factor(type2), label = pic_id)) +
+  #geom_text(data = labdat, aes(x = x, y=y, label = label, color = as.factor(type2)),
+  #          show.legend = F) + 
+  geom_hline(yintercept = 1/6, linetype='dashed') +
+  scale_color_brewer(palette = "Dark2", name = "Lineup Type") + 
+  facet_wrap(~param, scales = 'free_x', 
+             labeller = label_bquote(beta [.(param)])) + 
+  labs(x = "Parameter value", y = "Expected probability of detection in a lineup of size 6") + 
+  theme_bw() + 
+  theme(legend.position = 'bottom')
+```
 
 ---
 class: inverse, center, middle

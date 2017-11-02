@@ -63,6 +63,14 @@ a, a > code {
   font-size:110%;
   color: #000000;
 }
+.majorpoint {
+  background-color: #a0cf31;
+  color: #000000;
+  text-shadow: 0 0 0 0;
+}
+.majorpoint h1{
+  color: #4c082b;
+}
 /* Two-column layout */
 .left-column {
   color: #777;
@@ -111,6 +119,12 @@ li {
 }
 ul li:before {
   content: "\f20e";
+  font-family: "FontAwesome";
+  margin-right: 10px;
+  color: #e91b86;
+}
+ul li li:before {
+  content: "\f0c1";
   font-family: "FontAwesome";
   margin-right: 10px;
   color: #e91b86;
