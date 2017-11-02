@@ -129,7 +129,7 @@ $\boldsymbol{\beta}$ - a $K \times 1$, $K>p$, vector of parameters in the object
 
 $s_{ik}(x, \mathbf{Z})$ - a statistic computed for actor $i$ and parameter $k$ in the objective function
 
---- 
+---
 class: math 
 
 # Rate parameter
@@ -327,20 +327,126 @@ class: math
 
 | Name | Parameter | Statistic | Picture |
 |:-----|:---------:|:---------:|:--------:|
-| jumping transitive triplet - party | $\beta_3$ | $s_{i3}(x, \mathbf{p}) = \sum_{j\neq h} x_{ij}x_{ih}x_{hj}\cdot \mathbb{I}(p_i = p_h \neq p_j)$ | <img src="img/jttp.png" style="width: 100%"/>|
-| jumping transitive triplet - sex | $\beta_4$ | $s_{i4}(x, \mathbf{s}) = \sum_{j\neq h} x_{ij}x_{ih}x_{hj}\cdot \mathbb{I}(s_i = s_h \neq s_j)$ | <img src="img/jtts.png" style="width: 100%"/>|
-| similarity transitive triplet - bills | $\beta_5$ | $s_{i5}(x, \mathbf{b}) = \sum_{j} x_{ij}x_{ih}x_{hj}\cdot (sim^b_{ij} - \overline{sim}^b)^*$ | <img src="img/simttb.png" style="width: 125%"/>|
-| same transitive triplet - party | $\beta_6$ | $s_{i6}(x, \mathbf{p}) =\sum_{j} x_{ij}x_{ih}x_{hj}\cdot \mathbb{I}(p_i = p_j)$ | <img src="img/samettp.png" style="width: 125%"/>|
+| jumping transitive triplet - party (jttp)| $\beta_3$ | $s_{i3}(x, \mathbf{p}) = \sum_{j\neq h} x_{ij}x_{ih}x_{hj}\cdot \mathbb{I}(p_i = p_h \neq p_j)$ | <img src="img/jttp.png" style="width: 100%"/>|
+| jumping transitive triplet - sex (jtts) | $\beta_4$ | $s_{i4}(x, \mathbf{s}) = \sum_{j\neq h} x_{ij}x_{ih}x_{hj}\cdot \mathbb{I}(s_i = s_h \neq s_j)$ | <img src="img/jtts.png" style="width: 100%"/>|
+| similarity transitive triplet - bills (simttb) | $\beta_5$ | $s_{i5}(x, \mathbf{b}) = \sum_{j} x_{ij}x_{ih}x_{hj}\cdot (sim^b_{ij} - \overline{sim}^b)^*$ | <img src="img/simttb.png" style="width: 125%"/>|
+| same transitive triplet - party (samettp) | $\beta_6$ | $s_{i6}(x, \mathbf{p}) =\sum_{j} x_{ij}x_{ih}x_{hj}\cdot \mathbb{I}(p_i = p_j)$ | <img src="img/samettp.png" style="width: 125%"/>|
 
 *- $sim^b_{ij} = \frac{\max_{hk}|b_h - b_k| - |b_i - b_j|}{\max_{hk}|b_h - b_k|}$
 
 ???
-In addition to the two basic structural parameters, density and reciprocity, we examine four additional covariate parameters.
+In addition to the two basic structural parameters, density and reciprocity, we examine four additional covariate parameters. We selected these parameters because they were highly significant according to the traditional Wald-type tests built into the RSiena software. 
+
+---
+class: math
+
+# Models for testing
+
+- Model M1: $f_{i}(x, \boldsymbol{\beta}) = \beta_1 s_{i1}(x) + \beta_2 s_{i2}(x)$
+--
+
+- Model M2: $f_{i}(x, \boldsymbol{\beta}, \mathbf{p}) = \beta_1 s_{i1}(x) + \beta_2 s_{i2}(x) + \beta_3 s_{i3}(x, \mathbf{p})$
+--
+
+- Model M3: $f_{i}(x, \boldsymbol{\beta}, \mathbf{s}) = \beta_1 s_{i1}(x) + \beta_2 s_{i2}(x) + \beta_4 s_{i4}(x, \mathbf{s})$
+--
+
+- Model M4: $f_{i}(x, \boldsymbol{\beta}, \mathbf{b}) = \beta_1 s_{i1}(x) + \beta_2 s_{i2}(x) + \beta_5 s_{i5}(x, \mathbf{b})$
+--
+
+- Model M5: $f_{i}(x, \boldsymbol{\beta}, \mathbf{p}) = \beta_1 s_{i1}(x) + \beta_2 s_{i2}(x) + \beta_6 s_{i6}(x, \mathbf{p})$
+--
+
+- Model M6: $f_{i}(x, \boldsymbol{\beta}, \mathbf{p}, \mathbf{b}, \mathbf{s}) = \beta_1 s_{i1}(x) + \beta_2 s_{i2}(x) + \beta_4 s_{i4}(x, \mathbf{s}) + \beta_5 s_{i5}(x, \mathbf{b}) + \beta_6 s_{i6}(x, \mathbf{p})$
+--
+
+Estimates of $\beta_1, \dots, \beta_6$ calculated by `RSiena` by estimating models M1-M5 1,000 times and computing means. For model M6, 100 estimates were obtained. Estimates are denoted $\hat{\beta}_1, \dots, \hat{\beta}_6$
+
+
+---
+class: majorpoint
+
+# Hypotheses for significance test
+
+For $k \in \{3, 4\}$
+
+$H_0$: $\beta_k = 0$
+
+$H_A$: $\beta_k \neq 0$
+
+**Null model** for generating 5 null plots in the lineup: M1 ($\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2$)
+
+**Alternative model** for generating 1 alternative plot in the lineup: 
+
+- M2 ($\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2, \beta_3 =\hat{\beta}_3$) or 
+- M3 ($\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2, \beta_4 =\hat{\beta}_4$)
+
+---
+class: majorpoint
+
+# Hypotheses for goodness-of-fit test
+
+For $i$ in $\{2,3,4,6\}$
+
+$H_0$: Model M$i$ generated the network data
+
+$H_A$: The network data do not come from the null model. 
+
+**Null model** for generating 5 null plots in the lineup: 
+
+- M2 ($\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2, \beta_3 =\hat{\beta}_3$) or 
+- M3  ($\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2, \beta_4 =\hat{\beta}_4$) or 
+- M4 ($\beta_1 = \hat{\beta}_1, \beta_2 = \hat{\beta_2}, \beta_5 = \hat{\beta}_5$) or 
+- M6 ($\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2, \beta_4 =\hat{\beta}_4, \beta_5 =\hat{\beta}_5,\beta_6 =\hat{\beta}_6 $)
+
+**Alternative model**: unknown, use the data as the alternative plot
+
+---
+class: majorpoint
+
+# Hypotheses for power
+
+$H_0$: $\beta_k = 0$
+
+$H_A$: $\beta_k \neq 0$
+
+**Null model** for generating 5 null plots in the lineup: M1 ($\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2$)
+
+**Alternative model** for generating 1 alternative plot in the lineup:
+
+- M1 for 3 values of $\beta_1$ less than $\hat{\beta}_1$ and 3 values of $\beta_1$ greater than $\hat{\beta}_1$
+- M1 for 3 values of $\beta_2$ less than $\hat{\beta}_2$ and 3 values of $\beta_2$ greater than $\hat{\beta}_2$
+- M2 for 3 values of $\beta_3$ less than $\hat{\beta}_3$ and 3 values of $\beta_3$ greater than $\hat{\beta}_3$
+- M3 for 3 values of $\beta_4$ greater than $\hat{\beta}_4$
+- M4 for 3 values of $\beta_5$ less than $\hat{\beta}_5$ and 3 values of $\beta_5$ greater than $\hat{\beta}_5$
+- M5 for 3 values of $\beta_6$ greater than $\hat{\beta}_6$
+
+---
+class: majorpoint
+
+# Additional hypotheses
+
+Why? 
+
 
 ---
 class: inverse, center, middle
 
 # Data Collection
+
+---
+
+# App interface
+
+![](img/lineupapp.png)
+
+---
+
+# Amazon MTurk
+
+- 250 participants recruited through Amazon Mechanical Turk 
+- Each was presented the instructions and provided demographic information, two trial plots, and then 13 lineups to identify which plot was most different from the others
+- Participants were paid $1.75
 
 ---
 class: inverse, center, middle
@@ -359,12 +465,26 @@ $$\text{logit}(\pi_{ijkm}) = \alpha_{ij} + \beta_{ij} x + \delta_{ijk} + \epsilo
 $$\delta_{ijk} \stackrel{iid}{\sim} N(0, \sigma^2_{\delta})$$
 $$\epsilon_{m} \stackrel{iid}{\sim} N(0, \sigma^2_{\epsilon})$$ 
 
+$x$ is the value of $\beta$, centered and scaled
+
+$\delta_{ijk}$ is the random effect for lineup
+
+$\epsilon_{m}$ is the random effect for viewer
+
+
+---
+class: math
+
+# Predicting for new repitition, new observer
+
+$$E[\text{logit}(\pi_{ij})] = \alpha_{ij} + \beta_{ij} x$$
+
 ---
 class: inverse, center, middle
 
 # Results
 
---- 
+---
 class: plotslide
 
 # Model Predictions
@@ -400,6 +520,22 @@ ggplot() +
              labeller = label_bquote(beta [.(param)])) + 
   labs(x = "Parameter value", y = "Expected probability of detection in a lineup of size 6") + 
   theme_bw() + 
+  theme(legend.position = 'bottom')
+```
+
+---
+class: plotslide, center
+
+# $\beta_2$ in more detail
+
+```{r recipzoom, fig.width=12.2, fig.height=8}
+ggplot() + 
+  geom_line(data = newdata %>% filter(test_param == "recip"), aes(x = sqrt(size), y = predictfinal, color = as.factor(type2))) + 
+  geom_point(data = plotdata %>% filter(test_param == "recip"), aes(x = sqrt(size), y = datapick, color = as.factor(type2))) + 
+  scale_color_brewer(palette = "Dark2", name = "Lineup Type") + 
+  geom_hline(yintercept = 1/6, linetype='dashed') + 
+  facet_wrap(~type2, scales = 'free_x') + 
+  labs(x = "Square root of parameter value (recip)", y = "Expected probability of detection\nin a lineup of size 6") + 
   theme(legend.position = 'bottom')
 ```
 
