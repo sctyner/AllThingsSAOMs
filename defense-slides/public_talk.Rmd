@@ -90,6 +90,8 @@ class: definition
 
 ## A statistical model applied to *dynamic* social networks which takes both the *network structure* and the *node-level covariates* into account
 
+First developed by Snijders (1996)
+
 ???
 These models stand out from the pack because of their ability to incorporate non-structural information and their ability to model network change in time. Most traditional models only consider one observation at a time. 
 
@@ -273,7 +275,7 @@ class: definition
 
 # Lineup
 
-## The lineup protocol "asks the witness to *identify* the plot of the *real data* from among a set of decoys, the null plots, under the veil of ignorance" (Buja et al. 2009, p. 4369)
+## The lineup "asks the witness to *identify* the plot of the *real data* from among a set of decoys, the null plots, under the veil of ignorance" (Buja et al. 2009, p. 4369)
 
 ---
 class: plotslide, center
@@ -332,7 +334,7 @@ class: math
 | similarity transitive triplet - bills (simttb) | $\beta_5$ | $s_{i5}(x, \mathbf{b}) = \sum_{j} x_{ij}x_{ih}x_{hj}\cdot (sim^b_{ij} - \overline{sim}^b)^*$ | <img src="img/simttb.png" style="width: 125%"/>|
 | same transitive triplet - party (samettp) | $\beta_6$ | $s_{i6}(x, \mathbf{p}) =\sum_{j} x_{ij}x_{ih}x_{hj}\cdot \mathbb{I}(p_i = p_j)$ | <img src="img/samettp.png" style="width: 125%"/>|
 
-*- $sim^b_{ij} = \frac{\max_{hk}|b_h - b_k| - |b_i - b_j|}{\max_{hk}|b_h - b_k|}$
+$*-sim^b_{ij} = \frac{\max_{hk}|b_h - b_k| - |b_i - b_j|}{\max_{hk}|b_h - b_k|}$
 
 ???
 In addition to the two basic structural parameters, density and reciprocity, we examine four additional covariate parameters. We selected these parameters because they were highly significant according to the traditional Wald-type tests built into the RSiena software. 
@@ -360,7 +362,7 @@ class: math
 - Model M6: $f_{i}(x, \boldsymbol{\beta}, \mathbf{p}, \mathbf{b}, \mathbf{s}) = \beta_1 s_{i1}(x) + \beta_2 s_{i2}(x) + \beta_4 s_{i4}(x, \mathbf{s}) + \beta_5 s_{i5}(x, \mathbf{b}) + \beta_6 s_{i6}(x, \mathbf{p})$
 --
 
-Estimates of $\beta_1, \dots, \beta_6$ calculated by `RSiena` by estimating models M1-M5 1,000 times and computing means. For model M6, 100 estimates were obtained. Estimates are denoted $\hat{\beta}_1, \dots, \hat{\beta}_6$
+Estimates of $\beta_1, \dots, \beta_6$ calculated using the *RSiena* package by estimating models M1-M5 1,000 times and computing means. For model M6, 100 estimates were obtained (Ripley et al. 2017). Estimates are denoted $\hat{\beta}_1, \dots, \hat{\beta}_6$
 
 
 ---
@@ -374,12 +376,12 @@ $H_0$: $\beta_k = 0$
 
 $H_A$: $\beta_k \neq 0$
 
-**Null model** for generating 5 null plots in the lineup: M1 ($\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2$)
+**Null model** for generating 5 null plots in the lineup: M1 ( $\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2$ )
 
 **Alternative model** for generating 1 alternative plot in the lineup: 
 
-- M2 ($\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2, \beta_3 =\hat{\beta}_3$) or 
-- M3 ($\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2, \beta_4 =\hat{\beta}_4$)
+- M2 ( $\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2, \beta_3 =\hat{\beta}_3$ ) or 
+- M3 ( $\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2, \beta_4 =\hat{\beta}_4$ )
 
 ---
 class: majorpoint
@@ -388,16 +390,16 @@ class: majorpoint
 
 For $i$ in $\{2,3,4,6\}$
 
-$H_0$: Model M$i$ generated the network data
+$H_0$: Model M $i$ generated the network data
 
 $H_A$: The network data do not come from the null model. 
 
 **Null model** for generating 5 null plots in the lineup: 
 
-- M2 ($\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2, \beta_3 =\hat{\beta}_3$) or 
-- M3  ($\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2, \beta_4 =\hat{\beta}_4$) or 
-- M4 ($\beta_1 = \hat{\beta}_1, \beta_2 = \hat{\beta_2}, \beta_5 = \hat{\beta}_5$) or 
-- M6 ($\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2, \beta_4 =\hat{\beta}_4, \beta_5 =\hat{\beta}_5,\beta_6 =\hat{\beta}_6 $)
+- M2 ( $\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2, \beta_3 =\hat{\beta}_3$ ) or 
+- M3  ( $\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2, \beta_4 =\hat{\beta}_4$ ) or 
+- M4 ( $\beta_1 = \hat{\beta}_1, \beta_2 = \hat{\beta_2}, \beta_5 = \hat{\beta}_5$ ) or 
+- M6 ( $\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2, \beta_4 =\hat{\beta}_4, \beta_5 =\hat{\beta}_5,\beta_6 =\hat{\beta}_6$ )
 
 **Alternative model**: unknown, use the data as the alternative plot
 
@@ -410,24 +412,59 @@ $H_0$: $\beta_k = 0$
 
 $H_A$: $\beta_k \neq 0$
 
-**Null model** for generating 5 null plots in the lineup: M1 ($\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2$)
+**Null model** for generating 5 null plots in the lineup: M1 ( $\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2$ )
 
 **Alternative model** for generating 1 alternative plot in the lineup:
 
-- M1 for 3 values of $\beta_1$ less than $\hat{\beta}_1$ and 3 values of $\beta_1$ greater than $\hat{\beta}_1$
-- M1 for 3 values of $\beta_2$ less than $\hat{\beta}_2$ and 3 values of $\beta_2$ greater than $\hat{\beta}_2$
-- M2 for 3 values of $\beta_3$ less than $\hat{\beta}_3$ and 3 values of $\beta_3$ greater than $\hat{\beta}_3$
-- M3 for 3 values of $\beta_4$ greater than $\hat{\beta}_4$
-- M4 for 3 values of $\beta_5$ less than $\hat{\beta}_5$ and 3 values of $\beta_5$ greater than $\hat{\beta}_5$
-- M5 for 3 values of $\beta_6$ greater than $\hat{\beta}_6$
+- M1 for 3 values of $\beta_1 < \hat{\beta}_1$ and 3 values of $\beta_1 > \hat{\beta}_1$
+- M1 for 3 values of $\beta_2 < \hat{\beta}_2$ and 3 values of $\beta_2> \hat{\beta}_2$
+- M2 for 3 values of $\beta_3 \leq \hat{\beta}_3$ and 3 values of $\beta_3 > \hat{\beta}_3$
+- M3 for 3 values of $\beta_4 \geq \hat{\beta}_4$
+- M4 for 3 values of $\beta_5 < \hat{\beta}_5$ and 3 values of $\beta_5 > \hat{\beta}_5$
+- M5 for 3 values of $\beta_6 > \hat{\beta}_6$
 
 ---
 class: majorpoint
 
 # Additional hypotheses
 
-Why? 
+For M3 and M5, smaller values of $\beta_4$ and $\beta_6$ were unnoticeable.
 
+Reversed the hypothesized models to test for symmetry: 
+
+**Null model** for generating 5 null plots in the lineup: 
+
+- M3 for 3 values of $\beta_4$ greater than $\hat{\beta}_4$
+- M5 for 3 values of $\beta_6$ greater than $\hat{\beta}_6$
+
+**Alternative model** for generating 1 alternative plot in the lineup: M1 ( $\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2$ )
+
+- Will the one instance of the simple model placed among several instances of the more complex model be noticed at the same rate of the one instance of the more complex model placed among severall null plots? 
+
+---
+
+# Summary of experimental conditions
+
+```{r expertable, results='asis'}
+modelData_sig <- turk22 %>% 
+  mutate(type2 = ifelse(sign == 0, sign(initialEst), sign),
+         type2 = ifelse(type == "one", type2, -1)) %>% 
+  filter(pic_id != 3132) 
+modelData_sig %>% group_by(test_param, type2, difficulty, size) %>%
+  count() %>% ungroup() %>%
+  spread(difficulty, size) -> step1
+step1 %>% select(1:4) %>% filter(!is.na(`1`)) -> step2a
+step1 %>% select(c(1:3,5)) %>% filter(!is.na(`2`)) -> step2b
+step1 %>% select(c(1:3,6)) %>% filter(!is.na(`3`)) -> step2c
+experdet <- step2a %>% mutate(easy = `1`, medium = step2b$`2`, hard = step2c$`3`) %>% select(-c(`1`, n))
+experdet$test_param <- as.factor(experdet$test_param)
+levels(experdet$test_param) <- paste0(" $\\beta_", c(1,3,4,2,6,5), "$ ")
+experdet$test_param <- as.character(experdet$test_param)
+names(experdet) <- c("Parameter", "Condition", "Easy Value", "Medium Value", "Hard Value")
+experdet$Parameter[c(2,4,6,8,10,12)] <- ""
+experdet$Condition[c(5,11)] <- "reverse"
+knitr::kable(experdet, format = "markdown", caption = "All conditions in our MTurk experiment. Note that for $\\beta_4$ and $\\beta_6$, the negative type experiments are the reverse lineups, where 5 plots were simulated from the model with the parameter value given in the table, while 1 plot was simulated from M1.", digits = c(0,0,4,4,3), padding=0)
+```
 
 ---
 class: inverse, center, middle
@@ -465,11 +502,7 @@ $$\text{logit}(\pi_{ijkm}) = \alpha_{ij} + \beta_{ij} x + \delta_{ijk} + \epsilo
 $$\delta_{ijk} \stackrel{iid}{\sim} N(0, \sigma^2_{\delta})$$
 $$\epsilon_{m} \stackrel{iid}{\sim} N(0, \sigma^2_{\epsilon})$$ 
 
-$x$ is the value of $\beta$, centered and scaled
-
-$\delta_{ijk}$ is the random effect for lineup
-
-$\epsilon_{m}$ is the random effect for viewer
+$x$ is the value of $\beta$, centered and scaled; $\delta_{ijk}$ is the random effect for lineup; $\epsilon_{m}$ is the random effect for viewer
 
 
 ---
@@ -477,7 +510,14 @@ class: math
 
 # Predicting for new repitition, new observer
 
+Expected value of link function:
+
 $$E[\text{logit}(\pi_{ij})] = \alpha_{ij} + \beta_{ij} x$$
+
+Expected value of probability
+
+$$E[\pi_{ij}] = \frac{\exp\{\alpha_{ij} + \beta_{ij} x\}}{1 + \exp\{\alpha_{ij} + \beta_{ij} x\}}$$
+
 
 ---
 class: inverse, center, middle
@@ -485,11 +525,23 @@ class: inverse, center, middle
 # Results
 
 ---
+
+# Parameter estimates
+
+$\hat{\sigma}_{\delta^2} =$ `r round(summary(model2randomscalesize)[[13]]$pic_id[[1]], 4)`
+
+$\hat{\sigma}_{\epsilon^2} =$ `r round(summary(model2randomscalesize)[[13]]$nick_name[[1]], 4)`
+
+All but 2 values $\alpha_{ij}$ were significant at 0.05
+
+All but 3 values $\beta_{ij}$ were significant at 0.05
+
+---
 class: plotslide
 
 # Model Predictions
 
-```{r, fig.width = 12.2, fig.height=8}
+```{r, fig.width = 14, fig.height=10, eval=FALSE}
 newdata <- read_csv("data/newdata_pred_glmm.csv")
 newdata$lps_param <- with(newdata, interaction(test_param, as.factor(type2)))
 newdata$predictfinal <- predict(model2randomscalesize, newdata, allow.new.levels = T, type = 'response')
@@ -523,12 +575,31 @@ ggplot() +
   theme(legend.position = 'bottom')
 ```
 
+![res](img/resglmm.png)
+
 ---
 class: plotslide, center
 
 # $\beta_2$ in more detail
 
 ```{r recipzoom, fig.width=12.2, fig.height=8}
+newdata <- read_csv("data/newdata_pred_glmm.csv")
+newdata$lps_param <- with(newdata, interaction(test_param, as.factor(type2)))
+newdata$predictfinal <- predict(model2randomscalesize, newdata, allow.new.levels = T, type = 'response')
+newdata$param <- newdata$test_param
+newdata$param <- as.factor(newdata$test_param)
+levels(newdata$param) <-  c(1,3,4,2,6,5) 
+newdata$param <- as.integer(as.character(newdata$param))
+plotdata <- turk22 %>% mutate(type2 = ifelse(sign == 0, sign(initialEst), sign),
+                       type2 = ifelse(type == "one", type2, -1)) %>% 
+  group_by(pic_id, size, test_param, sign, type2,alt_model) %>% summarize(
+    datapick = mean(datapick)
+)
+plotdata$param <- plotdata$test_param
+plotdata$param <- as.factor(plotdata$param)
+levels(plotdata$param) <- c(1,3,4,2,6,5) 
+plotdata$param <- as.integer(as.character(plotdata$param))
+labdat <- data_frame(test_param = "jttp", param = 3, type2 = -1, x = -5, y = .9, label = "jttp_neg_hard_2")
 ggplot() + 
   geom_line(data = newdata %>% filter(test_param == "recip"), aes(x = sqrt(size), y = predictfinal, color = as.factor(type2))) + 
   geom_point(data = plotdata %>% filter(test_param == "recip"), aes(x = sqrt(size), y = datapick, color = as.factor(type2))) + 
@@ -542,8 +613,41 @@ ggplot() +
 ---
 class: inverse, center, middle
 
-# Conclusions and future directions
+# Conclusion
+
+---
+
+# Future Directions
+
+- Apply methods to different types of network data and different types of network models
+--
+
+- Explore larger datasets, different layout algorithms, different ways of visualizing network data
+-- 
+
+    * change layout algorithm 
+    * adjacency matrix visualizations
+    
+-- 
+
+- Limitations: 
+-- 
+
+    * cognitive load very high for the average observer
+    * very specific to data set and model choice, not generalizable 
 
 ---
 
 # References 
+
+Buja, A., Cook, D., Hofmann, H., Lawrence, M., Lee, E.-K., Swayne, D. F., and Wickham, H. (2009). Statistical inference for exploratory data analysis and model diagnostics. *Philosophical Transactions of the Royal Society of London A: Mathematical, Physical and Engineering Sciences*, 367(1906):4361–4383.
+
+Gross, J. H., Kirkland, J. H., and Shalizi, C. R. (2008). Cosponsorship in the u.s. senate: A multilevel two-mode approach to detecting subtle social predictors of legislative support. Unpublished Manuscript.
+
+Loy, A., Hofmann, H., & Cook, D. (2017). Model Choice and Diagnostics for Linear Mixed-Effects Models Using Statistics on Street Corners. *Journal of Computational and Graphical Statistics*, 26(3)
+
+Ruth Ripley, Krists Boitmanis, Tom A.B. Snijders and Felix Schoenenberger
+  (2017). RSiena: Siena - Simulation Investigation for Empirical Network
+  Analysis. R package version 1.2-3. https://CRAN.R-project.org/package=RSiena
+  
+Snijders, T. A. B. (1996). Stochastic actor-oriented models for network change. Journal of Mathematical Sociology, 21(1-2):149–172.
