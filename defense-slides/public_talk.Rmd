@@ -76,7 +76,14 @@ class: plotslide, center
 <img src="figure/senateAll-1.png" alt="senate" width="600">
 
 ???
-A measure of collaboration in the US Congress is cosponsorship of legislation. Each bill brought in the senate has one primary author, and many senators can cosponsor a bill as an indication of their support for it. This is an example of a dynamic social network. In this data, the edges are directed and binary. An edge from senator A to senator B is drawn if senator A frequently cosponsors the legislation that senator B authored. (Skip exact definition of how we determined this, but I welcome questions if there is time.) For instance, in the 114th senate (bottom right corner), there is an edge from Harry Ried to Mitch McConnell, meaning in that session, Ried frequently cosponsored McConnell's legislation but not the other way around. 
+- Collaboration in the US Congress: cosponsorship of legislation. 
+- Bills have one primary author, and many senators can cosponsor a bill as an indication of their support for it.
+- Edges are directed and binary: edge from senator A to senator B is drawn if senator A frequently cosponsors the legislation that senator B authored. (Skip exact definition of WPC) 
+- e.g. 114th senate (bottom right corner), there is an edge from Harry Ried to Mitch McConnell: Ried frequently cosponsored McConnell's legislation but not the other way around. 
+- A model for this data = two main things to consider
+1. dynamic networks - 4 senate sessions in 8 years, observed at the end
+2. nodes (senators) - their characteristics (party) will affect the edges in the network
+- We model these data with stochastic actor-oriented models
 
 ---
 class: inverse, center, middle
@@ -99,16 +106,24 @@ These models stand out from the pack because of their ability to incorporate non
 
 # How? 
 
+???
+Everything is modeled at the actor-level
+--
+
 - Assume *conditional independence* of actors / nodes 
 --
 
-- Estimate the *rate* at which actors make changes in the network 
+- Model the unobserved tie changes one-at-a-time in a *continuous time Markov Chain*, which is broken into 2 parts: 
 --
 
-- Maximize an actor's *objective function* when it makes a change
+- Estimate the *rate* at which actors make changes in the network $$\alpha_m$$
+--
+
+- Maximize an actor's *objective function* when it makes a change $$f_{i}(x, \boldsymbol{\beta}, \mathbf{Z})$$
+<!-- Do I talk about CTMCs? -->
 
 ???
-Everything is modeled at the actor-level. The actors are assumed to be conditionally independent given their current set of ties. Then, actors are individually "chosen" to make a tie change in continuous time. When an actor is chosen to change, it attempts to maximize its objective function by changing its relationship to other nodes. 
+The actors are assumed to be conditionally independent given their current set of ties. Then, actors are individually "chosen" to make a tie change in continuous time. When an actor is chosen to change, it attempts to maximize its objective function by changing its relationship to other nodes. 
 
 ---
 class: math
@@ -155,17 +170,49 @@ class: math
 
 # Some objective function parameters 
 
+At minimum 2 parameters in the objective function (Ripley et al. 2017): 
+
 | Name | Parameter | Statistic | Picture |
 |:-----|:---------:|:---------:|:--------:|
 | density | $\beta_1$ | $s_{i1}(x) = \sum_j x_{ij}$| <img src="img/outdegree.png" style="width: 30%"/> |
 | reciprocity | $\beta_2$ | $s_{i2}(x) = \sum_j x_{ij}x_{ji}$| <img src="img/reciprocity.png" style="width: 30%"/> |
-| covariate-alter | $\beta_3$ | $\sum_j x_{ij}z_j$ | <img src="img/covaralter.png" style="width: 50%"/>|
-| covariate-ego  | $\beta_5$ | $z_i\sum_j x_{ij}$ | <img src="img/covarego.png" style="width: 50%"/>|
+<!--| covariate-alter | $\beta_3$ | $\sum_j x_{ij}z_j$ | <img src="img/covaralter.png" style="width: 50%"/>|
+| covariate-ego  | $\beta_5$ | $z_i\sum_j x_{ij}$ | <img src="img/covarego.png" style="width: 50%"/>|-->
+
+```{r densrecipex, dev.args=list(bg='transparent'), fig.height=5, fig.show='hold', out.width = '49%'}
+densex <- read_csv("data/highdensityex.csv")
+recipex <- read_csv("data/highrecipex.csv")
+
+ggplot(data = densex %>% filter(ord == 1)) + 
+  geom_net(aes(from_id = from, to_id = to), 
+                 arrow = arrow(type = 'open', length = unit(2, "points") ), 
+                 linewidth = .25, singletons = T, fiteach = T, directed = T, 
+                 color = 'black', arrowgap = .015, arrowsize = .3, size =1) + 
+        theme_net() +  
+  labs(title = expression(paste("High value of " , beta[1]))) + 
+  theme(plot.title = element_text(size = 20))
+
+ggplot(data = densex %>% filter(ord == 6)) + 
+  geom_net(aes(from_id = from, to_id = to), 
+                 arrow = arrow(type = 'open', length = unit(2, "points") ), 
+                 linewidth = .25, singletons = T, fiteach = T, directed = T, 
+                 color = 'black', arrowgap = .015, arrowsize = .3, size =1) + 
+        theme_net() +  
+  labs(title = expression(paste("Low value of " , beta[1]))) + 
+  theme(plot.title = element_text(size = 20))
+
+  
+```
 
 
 ???
-There are many possible parameters to include in the objective function. This usually depends on subject area knowledge of the researcher to include the "right" parameters. I only show a few here. According to the literature, the first two, density and reciprocity, should always be included in the model. 
+- Higher density parameter increases number of outgoing ties, making the network more dense
+- Higher reciprocity parameter increases the number of reciprocated ties, making the network more connected 
+- Many possible parameters to include in the objective function. 
+- Depends on subject area knowledge of the researcher to include the "right" parameters. 
+- More later 
 
+<!--
 ---
 class: math 
 
@@ -177,7 +224,8 @@ class: math
 $$p_{ij} = \frac{\exp\{f_{i}(x(i \leadsto j), \boldsymbol{\beta}, \mathbf{Z})\}}{\sum_{h=1}^n \exp\{f_{i}(x(i \leadsto h), \boldsymbol{\beta}, \mathbf{Z})\}}$$
 - Used in estimation and simulation
 
-<!--??? Gloss over -->
+<!--??? Gloss over
+-->
 
 ---
 class: inverse, center, middle
@@ -190,18 +238,19 @@ class: majorpoint
 # What don't we know?
 
 - Which parameters should we include in the model? 
+???
+- There are dozens of possible parameters. How can we possibly pick which ones to include?
 --
 
 - How do we interpret these parameters? 
+???
+- If the estimated value of beta 2 is 5, what does that mean about our data? What about if it's negative 5? 
 --
 
 - How do we know if the model we chose for our data is a "good" model? 
-
 ???
-There are dozens of possible parameters. How can we possibly pick which ones to include? 
-If the estimated value of beta 2 is 5, what does that mean about our data? What about if it's negative 5? 
-What goodness of fit measures can we look at? 
-We answer these question using data visualization, visual inference, and the lineup protocol. 
+- What goodness of fit measures can we look at? 
+- We answer these question using data visualization, visual inference, and the lineup protocol. 
 
 ---
 class: inverse, center, middle
@@ -223,7 +272,8 @@ ggplot(data = dat %>% filter(ord %in% 1:2)) +
                  linewidth = .5, singletons = T, fiteach = T, directed = T, 
                  color = 'black', arrowgap = .015, arrowsize = .3, size =1) + 
         theme_net() + 
-        theme(panel.background = element_rect(color = 'black')) +
+        theme(panel.background = element_rect(color = 'black'),
+              strip.text = element_text(size = 20)) +
         facet_wrap(~ord)
 ```
 
@@ -239,12 +289,47 @@ ggplot(data = dat %>% filter(ord %in% 3:4)) +
                  linewidth = .25, singletons = T, fiteach = T, directed = T, 
                  color = 'black', arrowgap = .015, arrowsize = .3, size =1) + 
         theme_net() + 
-        theme(panel.background = element_rect(color = 'black')) +
+        theme(panel.background = element_rect(color = 'black'),
+              strip.text = element_text(size = 20)) +
+        facet_wrap(~ord)
+```
+
+---
+class: plotslide, center
+
+# How about these? Are these two networks from the same model?
+
+```{r compare3, fig.width=12.2, fig.height=8}
+ggplot(data = dat %>% filter(ord %in% 5:6)) + 
+        geom_net(aes(from_id = from, to_id = to), 
+                 arrow = arrow(type = 'open', length = unit(2, "points") ), 
+                 linewidth = .25, singletons = T, fiteach = T, directed = T, 
+                 color = 'black', arrowgap = .015, arrowsize = .3, size =1) + 
+        theme_net() + 
+        theme(panel.background = element_rect(color = 'black'),
+              strip.text = element_text(size = 20)) +
+        facet_wrap(~ord)
+```
+
+---
+class: plotslide
+
+# Combined
+
+```{r lineup3, fig.width=12.2, fig.height=8}
+ggplot(data = dat) + 
+        geom_net(aes(from_id = from, to_id = to), 
+                 arrow = arrow(type = 'open', length = unit(2, "points") ), 
+                 linewidth = .25, singletons = T, fiteach = T, directed = T, 
+                 color = 'black', arrowgap = .015, arrowsize = .3, size =1) + 
+        theme_net() + 
+        theme(panel.background = element_rect(color = 'black'), strip.text = element_text(size = 20)) +
         facet_wrap(~ord)
 ```
 
 ???
-Plots 1,2,3 were all simulated from the same model, while plot 4 was simulated from a model with one additional parameter in the objective function. 
+Plots 1,2,3,5,6 were all simulated from the same model, while plot 4 was simulated from a model with one additional parameter in the objective function. 
+This is an example of a lineup in our study. People picked 6 the most, then 4, then 5.
 
 ---
 class: inverse, center, middle
@@ -296,9 +381,13 @@ ggplot(data = dat) +
                  linewidth = .25, singletons = T, fiteach = T, directed = T, 
                  color = 'black', arrowgap = .015, arrowsize = .3, size =1) + 
         theme_net() + 
-        theme(panel.background = element_rect(color = 'black')) +
+        theme(panel.background = element_rect(color = 'black'),
+              strip.text = element_text(size = 20)) +
         facet_wrap(~ord)
 ```
+
+???
+Show a bunch of lineups to a bunch of people to see what network structures they pick up on
 
 ---
 class: inverse, center, middle
@@ -309,7 +398,7 @@ class: inverse, center, middle
 
 # Experiment idea
 
-- Pick several models and parameters in the objective function that we think are important to SAOMs
+- Pick several SAOMs, varying parameters in the objective function that we think are important to SAOMs
 --
 
 - Fit models to the Senate collaboration data to get estimates of $\boldsymbol{\beta}$
@@ -344,23 +433,213 @@ class: math
 
 # Models for testing
 
-- Model M1: $f_{i}(x, \boldsymbol{\beta}) = \beta_1 s_{i1}(x) + \beta_2 s_{i2}(x)$
---
+- Model M1: $$f_{i}(x, \boldsymbol{\beta}) = \beta_1 s_{i1}(x) + \beta_2 s_{i2}(x)$$
+- $\hat{\beta_1} = -4.903$, $\hat{\beta_2} = 4.893$
 
-- Model M2: $f_{i}(x, \boldsymbol{\beta}, \mathbf{p}) = \beta_1 s_{i1}(x) + \beta_2 s_{i2}(x) + \beta_3 s_{i3}(x, \mathbf{p})$
---
+```{r m1, fig.height=5.5, fig.align='center', fig.width=9}
+ggplot(data = dat %>% filter(ord %in% 1:3)) + 
+        geom_net(aes(from_id = from, to_id = to), 
+                 arrow = arrow(type = 'open', length = unit(2, "points") ), 
+                 linewidth = .25, singletons = T, fiteach = T, directed = T, 
+                 color = 'black', arrowgap = .015, arrowsize = .3, size =1) + 
+        theme_net() + 
+        theme(panel.background = element_rect(color = 'black'),
+              strip.text = element_text(size = 20)) +
+        facet_wrap(~ord)
+```
 
-- Model M3: $f_{i}(x, \boldsymbol{\beta}, \mathbf{s}) = \beta_1 s_{i1}(x) + \beta_2 s_{i2}(x) + \beta_4 s_{i4}(x, \mathbf{s})$
---
+---
+class: math
 
-- Model M4: $f_{i}(x, \boldsymbol{\beta}, \mathbf{b}) = \beta_1 s_{i1}(x) + \beta_2 s_{i2}(x) + \beta_5 s_{i5}(x, \mathbf{b})$
---
+# Models for testing
 
-- Model M5: $f_{i}(x, \boldsymbol{\beta}, \mathbf{p}) = \beta_1 s_{i1}(x) + \beta_2 s_{i2}(x) + \beta_6 s_{i6}(x, \mathbf{p})$
---
+- Model M3: $$f_{i}(x, \boldsymbol{\beta}, \mathbf{p}) = \beta_1 s_{i1}(x) + \beta_2 s_{i2}(x) + \beta_3 s_{i3}(x, \mathbf{p})$$
+- $\hat{\beta_1} = -4.902$, $\hat{\beta_2} = 4.893$, $\hat{\beta_3} = -3.450$ 
 
-- Model M6: $f_{i}(x, \boldsymbol{\beta}, \mathbf{p}, \mathbf{b}, \mathbf{s}) = \beta_1 s_{i1}(x) + \beta_2 s_{i2}(x) + \beta_4 s_{i4}(x, \mathbf{s}) + \beta_5 s_{i5}(x, \mathbf{b}) + \beta_6 s_{i6}(x, \mathbf{p})$
---
+```{r jttpex, out.width='33%', fig.show='hold', fig.height=8}
+# easy positive 10.350
+jttp1 <- read_csv("data/jttp_neg_med_1.csv") %>% filter(sim == -1)
+# med negative -10.35
+jttp2 <- read_csv("data/jttp_pos_easy_1.csv") %>% filter(sim == -1)
+# fitted val
+jttp3 <- read_csv("data/jttp_pos_hard_1.csv") %>% filter(sim == -1)
+ggplot(data = jttp1) + 
+        geom_net(aes(from_id = from, to_id = to), 
+                 arrow = arrow(type = 'open', length = unit(2, "points") ), 
+                 linewidth = .25, singletons = T, fiteach = T, directed = T, 
+                 color = 'black', arrowgap = .015, arrowsize = .3, size =1) + 
+        theme_net() + 
+  labs(title = expression(paste(beta[3], "= 10.35"))) + 
+  theme(plot.title = element_text(size = 40))
+
+ggplot(data = jttp2) + 
+        geom_net(aes(from_id = from, to_id = to), 
+                 arrow = arrow(type = 'open', length = unit(2, "points") ), 
+                 linewidth = .25, singletons = T, fiteach = T, directed = T, 
+                 color = 'black', arrowgap = .015, arrowsize = .3, size =1) + 
+        theme_net() + 
+  labs(title = expression(paste(beta[3], "= -10.35"))) + 
+    theme(plot.title = element_text(size = 40))
+
+ggplot(data = jttp3) + 
+        geom_net(aes(from_id = from, to_id = to), 
+                 arrow = arrow(type = 'open', length = unit(2, "points") ), 
+                 linewidth = .25, singletons = T, fiteach = T, directed = T, 
+                 color = 'black', arrowgap = .015, arrowsize = .3, size =1) + 
+        theme_net() + 
+  labs(title = expression(paste(beta[3], "=", hat(beta)[3], "= -3.450" ))) + 
+   theme(plot.title = element_text(size = 40))
+
+```
+
+---
+class: math
+
+# Models for testing
+
+- Model M4:  $$f_{i}(x, \boldsymbol{\beta}, \mathbf{s}) = \beta_1 s_{i1}(x) + \beta_2 s_{i2}(x) + \beta_4 s_{i4}(x, \mathbf{s})$$
+- $\hat{\beta_1} = -4.918$, $\hat{\beta_2} = 4.898$, $\hat{\beta_4} = 3.340$ 
+
+```{r jttsex, out.width='33%', fig.show='hold', fig.height=8}
+# easy positive 6.681
+jtts1 <- read_csv("data/jtts_pos_easy_1.csv") %>% filter(sim == -1)
+# med negative -6.681
+jtts2 <- read_csv("data/jtts_negative_bad.csv") %>% filter(ord == 2)
+# fitted val
+jtts3 <- read_csv("data/jtts_pos_hard_1.csv") %>% filter(sim == -1)
+ggplot(data = jtts1) + 
+        geom_net(aes(from_id = from, to_id = to), 
+                 arrow = arrow(type = 'open', length = unit(2, "points") ), 
+                 linewidth = .25, singletons = T, fiteach = T, directed = T, 
+                 color = 'black', arrowgap = .015, arrowsize = .3, size =1) + 
+        theme_net() + 
+  labs(title = expression(paste(beta[4], "= 6.681"))) + 
+  theme(plot.title = element_text(size = 40))
+
+ggplot(data = jtts2) + 
+        geom_net(aes(from_id = from, to_id = to), 
+                 arrow = arrow(type = 'open', length = unit(2, "points") ), 
+                 linewidth = .25, singletons = T, fiteach = T, directed = T, 
+                 color = 'black', arrowgap = .015, arrowsize = .3, size =1) + 
+        theme_net() + 
+  labs(title = expression(paste(beta[4], "= -6.681"))) + 
+    theme(plot.title = element_text(size = 40))
+
+ggplot(data = jtts3) + 
+        geom_net(aes(from_id = from, to_id = to), 
+                 arrow = arrow(type = 'open', length = unit(2, "points") ), 
+                 linewidth = .25, singletons = T, fiteach = T, directed = T, 
+                 color = 'black', arrowgap = .015, arrowsize = .3, size =1) + 
+        theme_net() + 
+  labs(title = expression(paste(beta[4], "=", hat(beta)[4], "= 3.340" ))) + 
+   theme(plot.title = element_text(size = 40))
+```
+
+---
+class: math
+
+# Models for testing
+
+- Model M5: $$f_{i}(x, \boldsymbol{\beta}, \mathbf{b}) = \beta_1 s_{i1}(x) + \beta_2 s_{i2}(x) + \beta_5 s_{i5}(x, \mathbf{b})$$
+- $\hat{\beta_1} = -4.917$, $\hat{\beta_2} = 4.890$, $\hat{\beta_5} = 10.091$ 
+
+```{r simttbex, out.width='33%', fig.show='hold', fig.height=8}
+# easy positive 20.182
+simttb1 <- read_csv("data/simttb_pos_easy_1.csv") %>% filter(sim == -1)
+# med negative -20.182
+simttb2 <- read_csv("data/simttb_neg_med_1.csv") %>% filter(sim == -1)
+# fitted val
+simttb3 <- read_csv("data/simttb_est_val.csv") %>% filter(sim == -1)
+ggplot(data = simttb1) + 
+        geom_net(aes(from_id = from, to_id = to), 
+                 arrow = arrow(type = 'open', length = unit(2, "points") ), 
+                 linewidth = .25, singletons = T, fiteach = T, directed = T, 
+                 color = 'black', arrowgap = .015, arrowsize = .3, size =1) + 
+        theme_net() + 
+  labs(title = expression(paste(beta[5], "= 20.182"))) + 
+  theme(plot.title = element_text(size = 40))
+
+ggplot(data = simttb2) + 
+        geom_net(aes(from_id = from, to_id = to), 
+                 arrow = arrow(type = 'open', length = unit(2, "points") ), 
+                 linewidth = .25, singletons = T, fiteach = T, directed = T, 
+                 color = 'black', arrowgap = .015, arrowsize = .3, size =1) + 
+        theme_net() + 
+  labs(title = expression(paste(beta[5], "= -20.182"))) + 
+    theme(plot.title = element_text(size = 40))
+
+ggplot(data = simttb3) + 
+        geom_net(aes(from_id = from, to_id = to), 
+                 arrow = arrow(type = 'open', length = unit(2, "points") ), 
+                 linewidth = .25, singletons = T, fiteach = T, directed = T, 
+                 color = 'black', arrowgap = .015, arrowsize = .3, size =1) + 
+        theme_net() + 
+  labs(title = expression(paste(beta[5], "=", hat(beta)[5], "= 10.091" ))) + 
+   theme(plot.title = element_text(size = 40))
+```
+
+---
+class: math
+
+# Models for testing
+
+- Model M6: $$f_{i}(x, \boldsymbol{\beta}, \mathbf{p}) = \beta_1 s_{i1}(x) + \beta_2 s_{i2}(x) + \beta_6 s_{i6}(x, \mathbf{p})$$
+- $\hat{\beta_1} = -4.911$, $\hat{\beta_2} = 4.881$, $\hat{\beta_6} = 1.329$ 
+
+```{r samettpex, out.width='33%', fig.show='hold', fig.height=8}
+# easy positive 5.316
+samettp1 <- read_csv("data/samettp_pos_easy_1.csv") %>% filter(sim == -1)
+# med negative -5.316
+samettp2 <- read_csv("data/samettp-negative-bad.csv") %>% filter(sim == -1)
+# fitted val
+samettp3 <- read_csv("data/samettp_pos_hard_1.csv") %>% filter(sim == -1)
+ggplot(data = samettp1) + 
+        geom_net(aes(from_id = from, to_id = to), 
+                 arrow = arrow(type = 'open', length = unit(2, "points") ), 
+                 linewidth = .25, singletons = T, fiteach = T, directed = T, 
+                 color = 'black', arrowgap = .015, arrowsize = .3, size =1) + 
+        theme_net() + 
+  labs(title = expression(paste(beta[6], "= 5.316"))) + 
+  theme(plot.title = element_text(size = 40))
+
+ggplot(data = samettp2) + 
+        geom_net(aes(from_id = from, to_id = to), 
+                 arrow = arrow(type = 'open', length = unit(2, "points") ), 
+                 linewidth = .25, singletons = T, fiteach = T, directed = T, 
+                 color = 'black', arrowgap = .015, arrowsize = .3, size =1) + 
+        theme_net() + 
+  labs(title = expression(paste(beta[6], "= -5.316"))) + 
+    theme(plot.title = element_text(size = 40))
+
+ggplot(data = samettp3) + 
+        geom_net(aes(from_id = from, to_id = to), 
+                 arrow = arrow(type = 'open', length = unit(2, "points") ), 
+                 linewidth = .25, singletons = T, fiteach = T, directed = T, 
+                 color = 'black', arrowgap = .015, arrowsize = .3, size =1) + 
+        theme_net() + 
+  labs(title = expression(paste(beta[6], "=", hat(beta)[6], "= 1.329" ))) + 
+   theme(plot.title = element_text(size = 40))
+```
+
+---
+class: math
+
+# Models for testing
+
+- Model M7: $$f_{i}(x, \boldsymbol{\beta}, \mathbf{p}, \mathbf{b}, \mathbf{s}) = \beta_1 s_{i1}(x) + \beta_2 s_{i2}(x) + \beta_4 s_{i4}(x, \mathbf{s}) + \beta_5 s_{i5}(x, \mathbf{b}) + \beta_6 s_{i6}(x, \mathbf{p})$$
+- $\hat{\beta_1} = -4.923$, $\hat{\beta_2} = 4.892$, $\hat{\beta_4} = 2.374$ , $\hat{\beta_5} = 6.966$, $\hat{\beta_6} =0.205$ 
+
+```{r bigmodex, fig.align='center', fig.height=5.5, fig.width=9}
+bigmod <- read_csv("data/bigmod_gof_9_1.csv")
+ggplot(data = bigmod %>% filter(ord %in% 3:5)) + 
+        geom_net(aes(from_id = from, to_id = to), 
+                 arrow = arrow(type = 'open', length = unit(2, "points") ), 
+                 linewidth = .25, singletons = T, fiteach = T, directed = T, 
+                 color = 'black', arrowgap = .015, arrowsize = .3, size =1) + 
+        theme_net() + 
+  facet_wrap(~ord, nrow = 1) + 
+  theme(strip.text = element_text(size = 20))
+```
 
 Estimates of $\beta_1, \dots, \beta_6$ calculated using the *RSiena* package by estimating models M1-M5 1,000 times and computing means. For model M6, 100 estimates were obtained (Ripley et al. 2017). Estimates are denoted $\hat{\beta}_1, \dots, \hat{\beta}_6$
 
@@ -380,8 +659,31 @@ $H_A$: $\beta_k \neq 0$
 
 **Alternative model** for generating 1 alternative plot in the lineup: 
 
-- M2 ( $\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2, \beta_3 =\hat{\beta}_3$ ) or 
-- M3 ( $\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2, \beta_4 =\hat{\beta}_4$ )
+- M3 ( $\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2, \beta_3 =\hat{\beta}_3$ ) or 
+- M4 ( $\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2, \beta_4 =\hat{\beta}_4$ )
+
+---
+class: plotslide
+
+# Significance test lineup example: M1 vs. M4
+
+```{r fig.height=8, fig.width=12.2}
+dat <- read_csv("data/jtts_pos_hard_1.csv")
+ggplot(data = dat) + 
+  geom_net(aes(from_id = from, to_id = to), 
+                 arrow = arrow(type = 'open', length = unit(2, "points") ), 
+                 linewidth = .25, singletons = T, fiteach = T, directed = T, 
+                 color = 'black', arrowgap = .015, arrowsize = .3, size =1) + 
+        theme_net() + 
+        theme(panel.background = element_rect(color = 'black'), strip.text = element_text(size = 20)) +
+        facet_wrap(~ord)
+```
+
+
+??? 
+- Which one would you pick? 
+- Alternative model is 5
+- Most people picked 4 or 5
 
 ---
 class: majorpoint
@@ -404,6 +706,23 @@ $H_A$: The network data do not come from the null model.
 **Alternative model**: unknown, use the data as the alternative plot
 
 ---
+class: plotslide
+
+# Goodness-of-fit test lineup example: M7 vs. data
+
+```{r fig.height=8, fig.width=12.2}
+dat <- read_csv("data/bigmod_gof_9_1.csv")
+ggplot(data = dat) + 
+  geom_net(aes(from_id = from, to_id = to), 
+                 arrow = arrow(type = 'open', length = unit(2, "points") ), 
+                 linewidth = .25, singletons = T, fiteach = T, directed = T, 
+                 color = 'black', arrowgap = .015, arrowsize = .3, size =1) + 
+        theme_net() + 
+        theme(panel.background = element_rect(color = 'black'), strip.text = element_text(size = 20)) +
+        facet_wrap(~ord)
+```
+
+---
 class: majorpoint
 
 # Hypotheses for power
@@ -422,6 +741,97 @@ $H_A$: $\beta_k \neq 0$
 - M3 for 3 values of $\beta_4 \geq \hat{\beta}_4$
 - M4 for 3 values of $\beta_5 < \hat{\beta}_5$ and 3 values of $\beta_5 > \hat{\beta}_5$
 - M5 for 3 values of $\beta_6 > \hat{\beta}_6$
+
+---
+
+# Hypothesized power for an additional parameter
+
+```{r hyppower1, fig.height=8, fig.width=13, fig.align='center'}
+x <- seq(-10, 10, .05)
+N <- length(x)
+qplot(x = 1:N, y = pt(x, 1), geom = 'line') + geom_line(aes(x = -(1:N), pt(x,1))) + 
+  scale_x_continuous(name = "Parameter Value", labels = c("very negative", "negative", "0", "positive", "very positive")) + 
+  #geom_hline(yintercept = 1/10, linetype = 'dotted') +
+  geom_vline(xintercept = 0) + 
+  geom_label(data = NULL, aes(x = 0, y = .9, label = "Null Model = Alt. Model"), size = 7) +
+  #geom_vline(xintercept = 150, color = 'red', linetype = 'dotdash') + 
+  #annotate('text', x = 160, y = .9, label = "hat(beta)",parse = TRUE) + 
+  #geom_vline(xintercept = c(-300,-230, -175), color = c('green', 'yellow', 'red')) + 
+  #geom_text(data = NULL, aes(x = -300, y = .75, label = "easy"), angle = 90, vjust = -.5) + 
+  #  geom_text(data = NULL, aes(x = -230, y = .5, label = "medium"), angle = 90, vjust = -.5) +
+  #  geom_text(data = NULL, aes(x = -175, y = .05, label = "hard"), angle = 90, vjust = -.5) + 
+  scale_y_continuous(name = "% detecting plot from\nthe alternative model", labels = paste0(c(0,25,50,75,100), "%")) + 
+  theme_bw() + 
+  theme(text = element_text(size = rel(6)))
+```
+
+---
+
+# Hypothesized power for an additional parameter
+
+```{r hyppower2, fig.height=8, fig.width=13, fig.align='center'}
+x <- seq(-10, 10, .05)
+N <- length(x)
+qplot(x = 1:N, y = pt(x, 1), geom = 'line') + geom_line(aes(x = -(1:N), pt(x,1))) + 
+  scale_x_continuous(name = "Parameter Value", labels = c("very negative", "negative", "0", "positive", "very positive")) + 
+  #geom_hline(yintercept = 1/10, linetype = 'dotted') +
+  geom_vline(xintercept = 0) + 
+  geom_label(data = NULL, aes(x = 0, y = .9, label = "Null Model = Alt. Model"), size = 7) +
+  #geom_vline(xintercept = 150, color = 'red', linetype = 'dotdash') + 
+  #annotate('text', x = 160, y = .9, label = "hat(beta)",parse = TRUE) + 
+  geom_vline(xintercept = c(-300,-230, -175), color = c('green', 'yellow', 'red')) + 
+  geom_text(data = NULL, aes(x = -300, y = .75, label = "easy"), angle = 90, vjust = -.5, size = 7) + 
+  geom_text(data = NULL, aes(x = -230, y = .5, label = "medium"), angle = 90, vjust = -.5, size = 7) +
+  geom_text(data = NULL, aes(x = -175, y = .05, label = "hard"), angle = 90, vjust = -.5, size = 7) + 
+  scale_y_continuous(name = "% detecting plot from\nthe alternative model", labels = paste0(c(0,25,50,75,100), "%")) + 
+  theme_bw() + 
+  theme(text = element_text(size = rel(6)))
+```
+
+---
+
+# Hypothesized power for an additional parameter
+
+```{r hyppower3, fig.height=8, fig.width=13, fig.align='center'}
+x <- seq(-10, 10, .05)
+N <- length(x)
+qplot(x = 1:N, y = pt(x, 1), geom = 'line') + geom_line(aes(x = -(1:N), pt(x,1))) + 
+  scale_x_continuous(name = "Parameter Value", labels = c("very negative", "negative", "0", "positive", "very positive")) + 
+  geom_hline(yintercept = 1/10, linetype = 'dotted') +
+  geom_vline(xintercept = 0) + 
+  geom_label(data = NULL, aes(x = 0, y = .9, label = "Null Model = Alt. Model"), size = 7) +
+  geom_vline(xintercept = 150, color = 'red', linetype = 'dotdash') + 
+  annotate('text', x = 160, y = .9, label = "hat(beta)",parse = TRUE, size = 8) + 
+  geom_vline(xintercept = c(-300,-230, -175), color = c('green', 'yellow', 'red')) + 
+  geom_text(data = NULL, aes(x = -300, y = .75, label = "easy"), angle = 90, vjust = -.5, size = 7) + 
+  geom_text(data = NULL, aes(x = -230, y = .5, label = "medium"), angle = 90, vjust = -.5, size = 7) +
+  geom_text(data = NULL, aes(x = -175, y = .05, label = "hard"), angle = 90, vjust = -.5, size = 7) + 
+  scale_y_continuous(name = "% detecting plot from\nthe alternative model", labels = paste0(c(0,25,50,75,100), "%")) + 
+  theme_bw() + 
+  theme(text = element_text(size = rel(6)))
+```
+
+---
+
+# Hypothesized power for changing M1 parameters
+
+```{r hyppowerm1, fig.height=8, fig.width=13, fig.align='center'}
+x <- seq(-10, 10, .05)
+N <- length(x)
+qplot(x = 1:N, y = pt(x, 1), geom = 'line') + geom_line(aes(x = -(1:N), pt(x,1))) + 
+  scale_x_continuous(name = "Parameter Value", labels = c(expression(paste("much less than ", hat(beta))), expression(paste("less than ", hat(beta))), expression(hat(beta)), expression(paste("greater than ", hat(beta))), expression(paste("much greater than ", hat(beta))))) + 
+  geom_hline(yintercept = 1/10, linetype = 'dotted') +
+  geom_vline(xintercept = 0) + 
+  geom_label(data = NULL, aes(x = 0, y = .9, label = "Null Model = Alt. Model"), size = 7) +
+  geom_vline(xintercept = c(-300,-230, -175), color = c('green', 'yellow', 'red')) + 
+  geom_text(data = NULL, aes(x = -300, y = .75, label = "easy"), angle = 90, vjust = -.5, size = 7) + 
+  geom_text(data = NULL, aes(x = -230, y = .5, label = "medium"), angle = 90, vjust = -.5, size = 7) +
+  geom_text(data = NULL, aes(x = -175, y = .05, label = "hard"), angle = 90, vjust = -.5, size = 7) + 
+  scale_y_continuous(name = "% detecting plot from\nthe alternative model", labels = paste0(c(0,25,50,75,100), "%")) + 
+  theme_bw() + 
+  theme(text = element_text(size = rel(6)), 
+        axis.text.x = element_text(angle = 30, size = rel(4),hjust = 1))
+```
 
 ---
 class: majorpoint
@@ -450,6 +860,9 @@ modelData_sig <- turk22 %>%
   mutate(type2 = ifelse(sign == 0, sign(initialEst), sign),
          type2 = ifelse(type == "one", type2, -1)) %>% 
   filter(pic_id != 3132) 
+modelData_sig$centersize <- as.numeric(scale(modelData_sig$size))
+sub <- attr(scale(modelData_sig$size), "scaled:center")
+div <- attr(scale(modelData_sig$size), "scaled:scale")
 modelData_sig %>% group_by(test_param, type2, difficulty, size) %>%
   count() %>% ungroup() %>%
   spread(difficulty, size) -> step1
@@ -458,12 +871,18 @@ step1 %>% select(c(1:3,5)) %>% filter(!is.na(`2`)) -> step2b
 step1 %>% select(c(1:3,6)) %>% filter(!is.na(`3`)) -> step2c
 experdet <- step2a %>% mutate(easy = `1`, medium = step2b$`2`, hard = step2c$`3`) %>% select(-c(`1`, n))
 experdet$test_param <- as.factor(experdet$test_param)
-levels(experdet$test_param) <- paste0(" $\\beta_", c(1,3,4,2,6,5), "$ ")
+levels(experdet$test_param) <- paste0("&beta;<sub>", c(1,3,4,2,6,5), "</sub>")
 experdet$test_param <- as.character(experdet$test_param)
 names(experdet) <- c("Parameter", "Condition", "Easy Value", "Medium Value", "Hard Value")
-experdet$Parameter[c(2,4,6,8,10,12)] <- ""
-experdet$Condition[c(5,11)] <- "reverse"
-knitr::kable(experdet, format = "markdown", caption = "All conditions in our MTurk experiment. Note that for $\\beta_4$ and $\\beta_6$, the negative type experiments are the reverse lineups, where 5 plots were simulated from the model with the parameter value given in the table, while 1 plot was simulated from M1.", digits = c(0,0,4,4,3), padding=0)
+# experdet$Parameter[c(2,4,6,8,10,12)] <- ""
+# experdet$Parameter[1] <- expression(beta[1])
+# experdet$Parameter[3] <-expression(beta[3])
+# experdet$Parameter[5] <-expression(beta[5])
+# experdet$Parameter[7] <-expression(beta[2])
+# experdet$Parameter[9] <-expression(beta[6])
+# experdet$Parameter[11] <-expression(beta[5])
+experdet$Condition[c(5,11)] <- "reverse" 
+knitr::kable(experdet, format = "markdown", digits = c(0,0,4,4,3), padding=0)
 ```
 
 ---
@@ -528,9 +947,9 @@ class: inverse, center, middle
 
 # Parameter estimates
 
-$\hat{\sigma}_{\delta^2} =$ `r round(summary(model2randomscalesize)[[13]]$pic_id[[1]], 4)`
+$\hat{\sigma}_{\delta}^2 =$ `r round(summary(model2randomscalesize)[[13]]$pic_id[[1]], 4)`
 
-$\hat{\sigma}_{\epsilon^2} =$ `r round(summary(model2randomscalesize)[[13]]$nick_name[[1]], 4)`
+$\hat{\sigma}_{\epsilon}^2 =$ `r round(summary(model2randomscalesize)[[13]]$nick_name[[1]], 4)`
 
 All but 2 values $\alpha_{ij}$ were significant at 0.05
 
@@ -539,11 +958,20 @@ All but 3 values $\beta_{ij}$ were significant at 0.05
 ---
 class: plotslide
 
-# Model Predictions
+# Model Predictions: $\beta_1$
 
 ```{r, fig.width = 14, fig.height=10, eval=FALSE}
 newdata <- read_csv("data/newdata_pred_glmm.csv")
+newdata$category = "inside"
+densneg1 <- seq(max(filter(newdata, type2 == -1, test_param == "dens")$size), -4.902777, by = filter(newdata, type2 == -1, test_param == "dens")$size[2:3] %>% diff)
+denspos1 <- seq( -4.902777, min(filter(newdata, type2 == 1, test_param == "dens")$size), by = filter(newdata, type2 == 1, test_param == "dens")$size[2:3] %>% diff)
+newdata2 <- data.frame(test_param = "dens", 
+                       type2 = rep(c(-1,1), c(length(densneg1), length(denspos1))), 
+                       size = c(densneg1, denspos1), category = 'outside')
+
+
 newdata$lps_param <- with(newdata, interaction(test_param, as.factor(type2)))
+
 newdata$predictfinal <- predict(model2randomscalesize, newdata, allow.new.levels = T, type = 'response')
 newdata$param <- newdata$test_param
 newdata$param <- as.factor(newdata$test_param)
@@ -561,18 +989,19 @@ plotdata$param <- as.integer(as.character(plotdata$param))
 labdat <- data_frame(test_param = "jttp", param = 3, type2 = -1, x = -5, y = .9, label = "jttp_neg_hard_2")
 
 ggplot() + 
-  geom_line(data = newdata, aes(x = size, y = predictfinal, color = as.factor(type2))) + 
-  geom_point(data = plotdata, aes(x = size, y = datapick, color = as.factor(type2))) + 
+  geom_line(data = newdata %>% filter(test_param == "dens"), aes(x = size, y = predictfinal, color = as.factor(type2))) + 
+  geom_point(data = plotdata %>% filter(test_param=="dens"), aes(x = size, y = datapick, color = as.factor(type2))) + 
   #geom_text(data = plotdata, aes(x = size, y = datapick, color = as.factor(type2), label = pic_id)) +
   #geom_text(data = labdat, aes(x = x, y=y, label = label, color = as.factor(type2)),
   #          show.legend = F) + 
-  geom_hline(yintercept = 1/6, linetype='dashed') +
+  geom_vline(xintercept = -4.903) + 
+  geom_hline(yintercept = 1/6, linetype='dotted') +
   scale_color_brewer(palette = "Dark2", name = "Lineup Type") + 
   facet_wrap(~param, scales = 'free_x', 
              labeller = label_bquote(beta [.(param)])) + 
   labs(x = "Parameter value", y = "Expected probability of detection in a lineup of size 6") + 
   theme_bw() + 
-  theme(legend.position = 'bottom')
+  theme(legend.position = 'bottom', strip.text = element_text(size = 20), text = element_text(size = rel(7)), legend.text = element_text(size = rel(7)), legend.key.size = unit(1, "inches"))
 ```
 
 ![res](img/resglmm.png)
@@ -649,5 +1078,7 @@ Loy, A., Hofmann, H., & Cook, D. (2017). Model Choice and Diagnostics for Linear
 Ruth Ripley, Krists Boitmanis, Tom A.B. Snijders and Felix Schoenenberger
   (2017). RSiena: Siena - Simulation Investigation for Empirical Network
   Analysis. R package version 1.2-3. https://CRAN.R-project.org/package=RSiena
+  
+Ripley, R. M., Snijders, T. A., Boda, Z., Vörös, A., and Preciado, P. (2017). Manual for rsiena. https://www.stats.ox.ac.uk/~snijders/siena/RSiena_Manual.pdf.  
   
 Snijders, T. A. B. (1996). Stochastic actor-oriented models for network change. Journal of Mathematical Sociology, 21(1-2):149–172.

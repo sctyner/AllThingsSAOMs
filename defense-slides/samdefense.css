@@ -114,7 +114,7 @@ th, td { padding: 5px; }
 thead, tfoot, tr:nth-child(even) { background: #eee }
 
 li { line-height: 1.85em; }
-li {
+ul li {
   list-style-type: none;
 }
 ul li:before {
