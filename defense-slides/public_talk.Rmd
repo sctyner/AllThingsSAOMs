@@ -179,7 +179,7 @@ At minimum 2 parameters in the objective function (Ripley et al. 2017):
 <!--| covariate-alter | $\beta_3$ | $\sum_j x_{ij}z_j$ | <img src="img/covaralter.png" style="width: 50%"/>|
 | covariate-ego  | $\beta_5$ | $z_i\sum_j x_{ij}$ | <img src="img/covarego.png" style="width: 50%"/>|-->
 
-```{r densrecipex, dev.args=list(bg='transparent'), fig.height=5, fig.show='hold', out.width = '49%'}
+```{r densrecipex, fig.height=5, fig.show='hold', out.width = '49%'}
 densex <- read_csv("data/highdensityex.csv")
 recipex <- read_csv("data/highrecipex.csv")
 
@@ -960,18 +960,9 @@ class: plotslide
 
 # Model Predictions: $\beta_1$
 
-```{r, fig.width = 14, fig.height=10, eval=FALSE}
+```{r, fig.width = 14, fig.height=10, fig.align='center'}
 newdata <- read_csv("data/newdata_pred_glmm.csv")
-newdata$category = "inside"
-densneg1 <- seq(max(filter(newdata, type2 == -1, test_param == "dens")$size), -4.902777, by = filter(newdata, type2 == -1, test_param == "dens")$size[2:3] %>% diff)
-denspos1 <- seq( -4.902777, min(filter(newdata, type2 == 1, test_param == "dens")$size), by = filter(newdata, type2 == 1, test_param == "dens")$size[2:3] %>% diff)
-newdata2 <- data.frame(test_param = "dens", 
-                       type2 = rep(c(-1,1), c(length(densneg1), length(denspos1))), 
-                       size = c(densneg1, denspos1), category = 'outside')
-
-
 newdata$lps_param <- with(newdata, interaction(test_param, as.factor(type2)))
-
 newdata$predictfinal <- predict(model2randomscalesize, newdata, allow.new.levels = T, type = 'response')
 newdata$param <- newdata$test_param
 newdata$param <- as.factor(newdata$test_param)
@@ -1001,10 +992,30 @@ ggplot() +
              labeller = label_bquote(beta [.(param)])) + 
   labs(x = "Parameter value", y = "Expected probability of detection in a lineup of size 6") + 
   theme_bw() + 
-  theme(legend.position = 'bottom', strip.text = element_text(size = 20), text = element_text(size = rel(7)), legend.text = element_text(size = rel(7)), legend.key.size = unit(1, "inches"))
+  theme(legend.position = 'bottom', strip.text = element_text(size = 20), text = element_text(size = rel(5)), legend.text = element_text(size = rel(7)), legend.key.size = unit(1, "inches"))
 ```
 
-![res](img/resglmm.png)
+---
+class: plotslide
+
+# Model Predictions: $\beta_2$
+
+```{r recippred, fig.width = 14, fig.height=10, fig.align='center'}
+ggplot() + 
+  geom_line(data = newdata %>% filter(test_param == "recip"), aes(x = sqrt(size), y = predictfinal, color = as.factor(type2))) + 
+  geom_point(data = plotdata %>% filter(test_param=="recip"), aes(x = sqrt(size), y = datapick, color = as.factor(type2))) + 
+  #geom_text(data = plotdata, aes(x = size, y = datapick, color = as.factor(type2), label = pic_id)) +
+  #geom_text(data = labdat, aes(x = x, y=y, label = label, color = as.factor(type2)),
+  #          show.legend = F) + 
+  geom_vline(xintercept = sqrt(4.893)) + 
+  geom_hline(yintercept = 1/6, linetype='dotted') +
+  scale_color_brewer(palette = "Dark2", name = "Lineup Type") + 
+  facet_grid(~param, scales = 'free_x', 
+             labeller = label_bquote(beta [.(param)])) + 
+  labs(x = "Square root of parameter value", y = "Expected probability of detection\nin a lineup of size 6") + 
+  theme_bw() + 
+  theme(legend.position = 'bottom', strip.text = element_text(size = 20), text = element_text(size = rel(5)), legend.text = element_text(size = rel(7)), legend.key.size = unit(1, "inches"))
+```
 
 ---
 class: plotslide, center
