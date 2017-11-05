@@ -10,7 +10,6 @@ output:
       highlightLines: true
       countIncrementalSlides: false
     css: samdefense.css  
-bibliography: bigbib.bib      
 ---
 
 ```{r setup, include=FALSE}
@@ -27,6 +26,7 @@ library(lme4)
 
 ```{r loaddata}
 load("data/finalglmm31-2.RDA")
+mod <- model2randomscalesize
 turk22 <- read_csv("data/turk22-sig.csv")
 ```
 
@@ -100,7 +100,7 @@ class: definition
 First developed by Snijders (1996)
 
 ???
-These models stand out from the pack because of their ability to incorporate non-structural information and their ability to model network change in time. Most traditional models only consider one observation at a time. 
+These models stand out from the pack because of their ability to incorporate non-structural information and their ability to model network change in time. Most traditional models only consider one observation at a time, and only consider network statistics, not other information that may affect change. 
 
 ---
 
@@ -108,6 +108,7 @@ These models stand out from the pack because of their ability to incorporate non
 
 ???
 Everything is modeled at the actor-level
+The actors are assumed to be conditionally independent given their current set of ties. Then, actors are individually "chosen" to make a tie change in continuous time. When an actor is chosen to change, it attempts to maximize its objective function by changing its relationship to other nodes. 
 --
 
 - Assume *conditional independence* of actors / nodes 
@@ -628,8 +629,7 @@ class: math
 
 - Model M7: $$f_{i}(x, \boldsymbol{\beta}, \mathbf{p}, \mathbf{b}, \mathbf{s}) = \beta_1 s_{i1}(x) + \beta_2 s_{i2}(x) + \beta_4 s_{i4}(x, \mathbf{s}) + \beta_5 s_{i5}(x, \mathbf{b}) + \beta_6 s_{i6}(x, \mathbf{p})$$
 - $\hat{\beta_1} = -4.923$, $\hat{\beta_2} = 4.892$, $\hat{\beta_4} = 2.374$ , $\hat{\beta_5} = 6.966$, $\hat{\beta_6} =0.205$ 
-
-```{r bigmodex, fig.align='center', fig.height=5.5, fig.width=9}
+```{r bigmodex, fig.align='center', fig.height=6, fig.width=9 }
 bigmod <- read_csv("data/bigmod_gof_9_1.csv")
 ggplot(data = bigmod %>% filter(ord %in% 3:5)) + 
         geom_net(aes(from_id = from, to_id = to), 
@@ -679,18 +679,12 @@ ggplot(data = dat) +
         facet_wrap(~ord)
 ```
 
-
-??? 
-- Which one would you pick? 
-- Alternative model is 5
-- Most people picked 4 or 5
-
 ---
 class: majorpoint
 
 # Hypotheses for goodness-of-fit test
 
-For $i$ in $\{2,3,4,6\}$
+For $i$ in $\{3,4,6, 7\}$
 
 $H_0$: Model M $i$ generated the network data
 
@@ -698,10 +692,10 @@ $H_A$: The network data do not come from the null model.
 
 **Null model** for generating 5 null plots in the lineup: 
 
-- M2 ( $\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2, \beta_3 =\hat{\beta}_3$ ) or 
-- M3  ( $\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2, \beta_4 =\hat{\beta}_4$ ) or 
-- M4 ( $\beta_1 = \hat{\beta}_1, \beta_2 = \hat{\beta_2}, \beta_5 = \hat{\beta}_5$ ) or 
-- M6 ( $\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2, \beta_4 =\hat{\beta}_4, \beta_5 =\hat{\beta}_5,\beta_6 =\hat{\beta}_6$ )
+- M3 ( $\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2, \beta_3 =\hat{\beta}_3$ ) or 
+- M4  ( $\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2, \beta_4 =\hat{\beta}_4$ ) or 
+- M5 ( $\beta_1 = \hat{\beta}_1, \beta_2 = \hat{\beta_2}, \beta_5 = \hat{\beta}_5$ ) or 
+- M7 ( $\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2, \beta_4 =\hat{\beta}_4, \beta_5 =\hat{\beta}_5,\beta_6 =\hat{\beta}_6$ )
 
 **Alternative model**: unknown, use the data as the alternative plot
 
@@ -737,14 +731,15 @@ $H_A$: $\beta_k \neq 0$
 
 - M1 for 3 values of $\beta_1 < \hat{\beta}_1$ and 3 values of $\beta_1 > \hat{\beta}_1$
 - M1 for 3 values of $\beta_2 < \hat{\beta}_2$ and 3 values of $\beta_2> \hat{\beta}_2$
-- M2 for 3 values of $\beta_3 \leq \hat{\beta}_3$ and 3 values of $\beta_3 > \hat{\beta}_3$
-- M3 for 3 values of $\beta_4 \geq \hat{\beta}_4$
-- M4 for 3 values of $\beta_5 < \hat{\beta}_5$ and 3 values of $\beta_5 > \hat{\beta}_5$
-- M5 for 3 values of $\beta_6 > \hat{\beta}_6$
+- M3 for 3 values of $\beta_3 \leq \hat{\beta}_3$ and 3 values of $\beta_3 > \hat{\beta}_3$
+- M4 for 3 values of $\beta_4 \geq \hat{\beta}_4$
+- M5 for 3 values of $\beta_5 < \hat{\beta}_5$ and 3 values of $\beta_5 > \hat{\beta}_5$
+- M6 for 3 values of $\beta_6 > \hat{\beta}_6$
 
 ---
+class: plotslide
 
-# Hypothesized power for an additional parameter
+# Hypothesized power: additional parameter
 
 ```{r hyppower1, fig.height=8, fig.width=13, fig.align='center'}
 x <- seq(-10, 10, .05)
@@ -762,12 +757,13 @@ qplot(x = 1:N, y = pt(x, 1), geom = 'line') + geom_line(aes(x = -(1:N), pt(x,1))
   #  geom_text(data = NULL, aes(x = -175, y = .05, label = "hard"), angle = 90, vjust = -.5) + 
   scale_y_continuous(name = "% detecting plot from\nthe alternative model", labels = paste0(c(0,25,50,75,100), "%")) + 
   theme_bw() + 
-  theme(text = element_text(size = rel(6)))
+  theme(text = element_text(size = rel(5)))
 ```
 
 ---
+class: plotslide
 
-# Hypothesized power for an additional parameter
+# Hypothesized power: additional parameter
 
 ```{r hyppower2, fig.height=8, fig.width=13, fig.align='center'}
 x <- seq(-10, 10, .05)
@@ -785,12 +781,13 @@ qplot(x = 1:N, y = pt(x, 1), geom = 'line') + geom_line(aes(x = -(1:N), pt(x,1))
   geom_text(data = NULL, aes(x = -175, y = .05, label = "hard"), angle = 90, vjust = -.5, size = 7) + 
   scale_y_continuous(name = "% detecting plot from\nthe alternative model", labels = paste0(c(0,25,50,75,100), "%")) + 
   theme_bw() + 
-  theme(text = element_text(size = rel(6)))
+  theme(text = element_text(size = rel(5)))
 ```
 
 ---
+class: plotslide
 
-# Hypothesized power for an additional parameter
+# Hypothesized power: additional parameter
 
 ```{r hyppower3, fig.height=8, fig.width=13, fig.align='center'}
 x <- seq(-10, 10, .05)
@@ -808,12 +805,13 @@ qplot(x = 1:N, y = pt(x, 1), geom = 'line') + geom_line(aes(x = -(1:N), pt(x,1))
   geom_text(data = NULL, aes(x = -175, y = .05, label = "hard"), angle = 90, vjust = -.5, size = 7) + 
   scale_y_continuous(name = "% detecting plot from\nthe alternative model", labels = paste0(c(0,25,50,75,100), "%")) + 
   theme_bw() + 
-  theme(text = element_text(size = rel(6)))
+  theme(text = element_text(size = rel(5)))
 ```
 
 ---
+class: plotslide
 
-# Hypothesized power for changing M1 parameters
+# Hypothesized power: changing $\beta_1, \beta_2$ in M1
 
 ```{r hyppowerm1, fig.height=8, fig.width=13, fig.align='center'}
 x <- seq(-10, 10, .05)
@@ -829,7 +827,7 @@ qplot(x = 1:N, y = pt(x, 1), geom = 'line') + geom_line(aes(x = -(1:N), pt(x,1))
   geom_text(data = NULL, aes(x = -175, y = .05, label = "hard"), angle = 90, vjust = -.5, size = 7) + 
   scale_y_continuous(name = "% detecting plot from\nthe alternative model", labels = paste0(c(0,25,50,75,100), "%")) + 
   theme_bw() + 
-  theme(text = element_text(size = rel(6)), 
+  theme(text = element_text(size = rel(5)), 
         axis.text.x = element_text(angle = 30, size = rel(4),hjust = 1))
 ```
 
@@ -838,16 +836,16 @@ class: majorpoint
 
 # Additional hypotheses
 
-For M3 and M5, smaller values of $\beta_4$ and $\beta_6$ were unnoticeable.
+For M4 and M6, smaller values of $\beta_4$ and $\beta_6$ were unnoticeable.
 
 Reversed the hypothesized models to test for symmetry: 
 
 **Null model** for generating 5 null plots in the lineup: 
 
-- M3 for 3 values of $\beta_4$ greater than $\hat{\beta}_4$
-- M5 for 3 values of $\beta_6$ greater than $\hat{\beta}_6$
+- M4 for 3 values of $\beta_4$ greater than $\hat{\beta}_4$
+- M6 for 3 values of $\beta_6$ greater than $\hat{\beta}_6$
 
-**Alternative model** for generating 1 alternative plot in the lineup: M1 ( $\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2$ )
+**Alternative model** for generating 1 alternative plot in lineup: M1 ( $\beta_1 = \hat{\beta}_1, \beta_2 =\hat{\beta}_2$ )
 
 - Will the one instance of the simple model placed among several instances of the more complex model be noticed at the same rate of the one instance of the more complex model placed among severall null plots? 
 
@@ -874,6 +872,7 @@ experdet$test_param <- as.factor(experdet$test_param)
 levels(experdet$test_param) <- paste0("&beta;<sub>", c(1,3,4,2,6,5), "</sub>")
 experdet$test_param <- as.character(experdet$test_param)
 names(experdet) <- c("Parameter", "Condition", "Easy Value", "Medium Value", "Hard Value")
+experdet <- arrange(experdet, Parameter, Condition)
 # experdet$Parameter[c(2,4,6,8,10,12)] <- ""
 # experdet$Parameter[1] <- expression(beta[1])
 # experdet$Parameter[3] <-expression(beta[3])
@@ -881,7 +880,7 @@ names(experdet) <- c("Parameter", "Condition", "Easy Value", "Medium Value", "Ha
 # experdet$Parameter[7] <-expression(beta[2])
 # experdet$Parameter[9] <-expression(beta[6])
 # experdet$Parameter[11] <-expression(beta[5])
-experdet$Condition[c(5,11)] <- "reverse" 
+experdet$Condition[c(7,11)] <- "reverse" 
 knitr::kable(experdet, format = "markdown", digits = c(0,0,4,4,3), padding=0)
 ```
 
@@ -923,6 +922,8 @@ $$\epsilon_{m} \stackrel{iid}{\sim} N(0, \sigma^2_{\epsilon})$$
 
 $x$ is the value of $\beta$, centered and scaled; $\delta_{ijk}$ is the random effect for lineup; $\epsilon_{m}$ is the random effect for viewer
 
+???
+This is the model we use for determining the visual power of the effect. We will predict the probability of detecting an effect at the given size when it is present in one of six plots in a lineup. 
 
 ---
 class: math
@@ -951,19 +952,56 @@ $\hat{\sigma}_{\delta}^2 =$ `r round(summary(model2randomscalesize)[[13]]$pic_id
 
 $\hat{\sigma}_{\epsilon}^2 =$ `r round(summary(model2randomscalesize)[[13]]$nick_name[[1]], 4)`
 
-All but 2 values $\alpha_{ij}$ were significant at 0.05
+9 of 12 $\alpha_{ij}$ were significant at 0.05
 
-All but 3 values $\beta_{ij}$ were significant at 0.05
+8 of 12 $\beta_{ij}$ were significant at 0.05
+
+---
+class: plotslide 
+
+# Reminder: hypothesized power
+
+```{r hyppowerrefresh, fig.height=8, fig.width=13, fig.align='center'}
+x <- seq(-10, 10, .05)
+N <- length(x)
+qplot(x = 1:N, y = pt(x, 1), geom = 'line') + geom_line(aes(x = -(1:N), pt(x,1))) + 
+  scale_x_continuous(name = "Parameter Value", labels = c("very negative", "negative", "0", "positive", "very positive")) + 
+  geom_hline(yintercept = 1/10, linetype = 'dotted') +
+  geom_vline(xintercept = 0) + 
+  geom_label(data = NULL, aes(x = 0, y = .9, label = "Null Model = Alt. Model"), size = 7) +
+  geom_vline(xintercept = 150, color = 'red', linetype = 'dotdash') + 
+  annotate('text', x = 160, y = .9, label = "hat(beta)",parse = TRUE, size = 8) + 
+  geom_vline(xintercept = c(-300,-230, -175), color = c('green', 'yellow', 'red')) + 
+  geom_text(data = NULL, aes(x = -300, y = .75, label = "easy"), angle = 90, vjust = -.5, size = 7) + 
+  geom_text(data = NULL, aes(x = -230, y = .5, label = "medium"), angle = 90, vjust = -.5, size = 7) +
+  geom_text(data = NULL, aes(x = -175, y = .05, label = "hard"), angle = 90, vjust = -.5, size = 7) + 
+  scale_y_continuous(name = "% detecting plot from\nthe alternative model", labels = paste0(c(0,25,50,75,100), "%")) + 
+  theme_bw() + 
+  theme(text = element_text(size = rel(5)))
+```
 
 ---
 class: plotslide
 
 # Model Predictions: $\beta_1$
+```{r modelests}
+alphas <- (coef(mod)[[1]][,-1] %>% unique())[1:12] 
+betas <- (coef(mod)[[1]][,-1] %>% unique())[13:24] 
+names(betas) <- str_replace(str_replace(names(betas), "lps_param", ""), ":centersize", "")
+names(betas) <- str_replace(names(betas), ".-1", "neg")
+names(betas) <- str_replace(names(betas), ".1", "pos")
+names(alphas) <- str_replace(names(alphas), "lps_param", "")
+names(alphas) <- str_replace(names(alphas), ".-1", "neg")
+names(alphas) <- str_replace(names(alphas), ".1", "pos")
+
+```
+
+- $\text{logit}(\pi_{1-1}) =$ `r round(alphas$densneg,3)` $+$ `r round(betas$densneg,3)` $x$    
+- $\text{logit}(\pi_{11}) =$ `r round(alphas$denspos, 3)` $+$ `r round(betas$denspos, 4)` $x$    
 
 ```{r, fig.width = 14, fig.height=10, fig.align='center'}
-newdata <- read_csv("data/newdata_pred_glmm.csv")
-newdata$lps_param <- with(newdata, interaction(test_param, as.factor(type2)))
-newdata$predictfinal <- predict(model2randomscalesize, newdata, allow.new.levels = T, type = 'response')
+source("code/newpredictions.R")
+newdata <- newdata3
 newdata$param <- newdata$test_param
 newdata$param <- as.factor(newdata$test_param)
 levels(newdata$param) <-  c(1,3,4,2,6,5) 
@@ -980,14 +1018,15 @@ plotdata$param <- as.integer(as.character(plotdata$param))
 labdat <- data_frame(test_param = "jttp", param = 3, type2 = -1, x = -5, y = .9, label = "jttp_neg_hard_2")
 
 ggplot() + 
-  geom_line(data = newdata %>% filter(test_param == "dens"), aes(x = size, y = predictfinal, color = as.factor(type2))) + 
+  geom_line(data = newdata %>% filter(test_param == "dens", category == "inside"), aes(x = size, y = predictfinal, color = as.factor(type2)), size = 2) + 
   geom_point(data = plotdata %>% filter(test_param=="dens"), aes(x = size, y = datapick, color = as.factor(type2))) + 
+  geom_line(data = newdata %>% filter(test_param == "dens", category == "outside"), aes(x = size, y = predictfinal, group = as.factor(type2)), color = "gray60", size = 1.5, alpha = .7) +
   #geom_text(data = plotdata, aes(x = size, y = datapick, color = as.factor(type2), label = pic_id)) +
   #geom_text(data = labdat, aes(x = x, y=y, label = label, color = as.factor(type2)),
   #          show.legend = F) + 
   geom_vline(xintercept = -4.903) + 
   geom_hline(yintercept = 1/6, linetype='dotted') +
-  scale_color_brewer(palette = "Dark2", name = "Lineup Type") + 
+  scale_color_manual(values = c("#4c0826", "#01456d"),name = "Lineup Condition") + 
   facet_wrap(~param, scales = 'free_x', 
              labeller = label_bquote(beta [.(param)])) + 
   labs(x = "Parameter value", y = "Expected probability of detection in a lineup of size 6") + 
@@ -1000,16 +1039,21 @@ class: plotslide
 
 # Model Predictions: $\beta_2$
 
-```{r recippred, fig.width = 14, fig.height=10, fig.align='center'}
+- $\text{logit}(\pi_{2-1}) =$ `r round(alphas$recipneg,3)` $+$ `r round(betas$recipneg,3)` $x$    
+- $\text{logit}(\pi_{21})^* =$ `r round(alphas$recippos, 3)` $+$ `r round(betas$recippos, 4)` $x$ 
+- $*-(\alpha_{21}, \beta_{21})$ had $p$-values (0.126, 0.064)
+
+```{r recippred, fig.width = 14, fig.height=9, fig.align='center'}
 ggplot() + 
-  geom_line(data = newdata %>% filter(test_param == "recip"), aes(x = sqrt(size), y = predictfinal, color = as.factor(type2))) + 
+  geom_line(data = newdata %>% filter(test_param == "recip", category == "inside"), aes(x = sqrt(size), y = predictfinal, color = as.factor(type2)), size = 2) + 
   geom_point(data = plotdata %>% filter(test_param=="recip"), aes(x = sqrt(size), y = datapick, color = as.factor(type2))) + 
+  geom_line(data = newdata %>% filter(test_param == "recip", category == "outside"), aes(x = sqrt(size), y = predictfinal, group = as.factor(type2)), color = "gray60", size = 1.5, alpha = .7) +
   #geom_text(data = plotdata, aes(x = size, y = datapick, color = as.factor(type2), label = pic_id)) +
   #geom_text(data = labdat, aes(x = x, y=y, label = label, color = as.factor(type2)),
   #          show.legend = F) + 
   geom_vline(xintercept = sqrt(4.893)) + 
   geom_hline(yintercept = 1/6, linetype='dotted') +
-  scale_color_brewer(palette = "Dark2", name = "Lineup Type") + 
+  scale_color_manual(values = c("#4c0826", "#01456d"),name = "Lineup Condition") +  
   facet_grid(~param, scales = 'free_x', 
              labeller = label_bquote(beta [.(param)])) + 
   labs(x = "Square root of parameter value", y = "Expected probability of detection\nin a lineup of size 6") + 
@@ -1018,36 +1062,110 @@ ggplot() +
 ```
 
 ---
-class: plotslide, center
+class: plotslide
 
-# $\beta_2$ in more detail
+# Model Predictions: $\beta_3$
 
-```{r recipzoom, fig.width=12.2, fig.height=8}
-newdata <- read_csv("data/newdata_pred_glmm.csv")
-newdata$lps_param <- with(newdata, interaction(test_param, as.factor(type2)))
-newdata$predictfinal <- predict(model2randomscalesize, newdata, allow.new.levels = T, type = 'response')
-newdata$param <- newdata$test_param
-newdata$param <- as.factor(newdata$test_param)
-levels(newdata$param) <-  c(1,3,4,2,6,5) 
-newdata$param <- as.integer(as.character(newdata$param))
-plotdata <- turk22 %>% mutate(type2 = ifelse(sign == 0, sign(initialEst), sign),
-                       type2 = ifelse(type == "one", type2, -1)) %>% 
-  group_by(pic_id, size, test_param, sign, type2,alt_model) %>% summarize(
-    datapick = mean(datapick)
-)
-plotdata$param <- plotdata$test_param
-plotdata$param <- as.factor(plotdata$param)
-levels(plotdata$param) <- c(1,3,4,2,6,5) 
-plotdata$param <- as.integer(as.character(plotdata$param))
-labdat <- data_frame(test_param = "jttp", param = 3, type2 = -1, x = -5, y = .9, label = "jttp_neg_hard_2")
+- $\text{logit}(\pi_{3-1}) =$ `r round(alphas$jttpneg,3)` $+$ `r round(betas$jttpneg,3)` $x$    
+- $\text{logit}(\pi_{31}) =$ `r round(alphas$jttppos, 3)` $+$ `r round(betas$jttppos, 4)` $x$
+
+```{r jttppred, fig.width = 14, fig.height=10, fig.align='center'}
 ggplot() + 
-  geom_line(data = newdata %>% filter(test_param == "recip"), aes(x = sqrt(size), y = predictfinal, color = as.factor(type2))) + 
-  geom_point(data = plotdata %>% filter(test_param == "recip"), aes(x = sqrt(size), y = datapick, color = as.factor(type2))) + 
-  scale_color_brewer(palette = "Dark2", name = "Lineup Type") + 
-  geom_hline(yintercept = 1/6, linetype='dashed') + 
-  facet_wrap(~type2, scales = 'free_x') + 
-  labs(x = "Square root of parameter value (recip)", y = "Expected probability of detection\nin a lineup of size 6") + 
-  theme(legend.position = 'bottom')
+  geom_line(data = newdata %>% filter(test_param == "jttp", category == "inside"), aes(x = size, y = predictfinal, color = as.factor(type2)), size = 2) + 
+  geom_point(data = plotdata %>% filter(test_param=="jttp"), aes(x = size, y = datapick, color = as.factor(type2))) + 
+  geom_line(data = newdata %>% filter(test_param == "jttp", category == "outside"), aes(x = size, y = predictfinal, group = as.factor(type2)), color = "gray60", size = 1.5, alpha = .7) +
+  #geom_text(data = plotdata, aes(x = size, y = datapick, color = as.factor(type2), label = pic_id)) +
+  #geom_text(data = labdat, aes(x = x, y=y, label = label, color = as.factor(type2)),
+  #          show.legend = F) + 
+  geom_vline(xintercept = -3.449896) + 
+  geom_hline(yintercept = 1/6, linetype='dotted') +
+  scale_color_manual(values = c("#4c0826", "#01456d"), name = "Lineup Condition") +
+  facet_grid(~param, scales = 'free_x', 
+             labeller = label_bquote(beta [.(param)])) + 
+  labs(x = "Parameter value", y = "Expected probability of detection in a lineup of size 6") + 
+  theme_bw() + 
+  theme(legend.position = 'bottom', strip.text = element_text(size = 20), text = element_text(size = rel(5)), legend.text = element_text(size = rel(7)), legend.key.size = unit(1, "inches"))
+```
+
+---
+class: plotslide
+
+# Model Predictions: $\beta_4$
+
+- $\text{logit}(\pi_{4-1})^* =$ `r round(alphas$jttsneg,3)` $+$ `r round(betas$jttsneg,3)` $x$    
+- $\text{logit}(\pi_{41}) =$ `r round(alphas$jttspos, 3)` $+$ `r round(betas$jttspos, 4)` $x$
+- $*-\beta_{4-1}$ had $p$-value 0.272
+
+```{r jttspred, fig.width = 14, fig.height=9, fig.align='center'}
+ggplot() + 
+  geom_line(data = newdata %>% filter(test_param == "jtts", category == "inside"), aes(x = size, y = predictfinal, color = as.factor(type2)), size = 2) + 
+  geom_point(data = plotdata %>% filter(test_param=="jtts"), aes(x = size, y = datapick, color = as.factor(type2))) + 
+  geom_line(data = newdata %>% filter(test_param == "jtts", category == "outside"), aes(x = size, y = predictfinal, group = as.factor(type2)), color = "gray60", size = 1.5, alpha = .7) +
+  #geom_text(data = plotdata, aes(x = size, y = datapick, color = as.factor(type2), label = pic_id)) +
+  #geom_text(data = labdat, aes(x = x, y=y, label = label, color = as.factor(type2)),
+  #          show.legend = F) + 
+  geom_vline(xintercept = 3.340302) + 
+  geom_hline(yintercept = 1/6, linetype='dotted') +
+  scale_color_manual(values = c("#4c0826", "#01456d"),name = "Lineup Condition", labels = c("reverse", "1")) +
+  facet_grid(~param, scales = 'free_x', 
+             labeller = label_bquote(beta[.(param)])) + 
+  labs(x = "Parameter value", y = "Expected probability of detection in a lineup of size 6") + 
+  theme_bw() + 
+  theme(legend.position = 'bottom', strip.text = element_text(size = 20), text = element_text(size = rel(5)), legend.text = element_text(size = rel(7)), legend.key.size = unit(1, "inches"))
+```
+
+---
+class: plotslide
+
+# Model Predictions: $\beta_5$
+
+- $\text{logit}(\pi_{5-1}) =$ `r round(alphas$simttbneg,3)` $+$ `r round(betas$simttbneg,3)` $x$    
+- $\text{logit}(\pi_{51})^* =$ `r round(alphas$simttbpos, 3)` $+$ `r round(betas$simttbpos, 4)` $x$
+- $*-(\alpha_{51}, \beta_{51})$ has $p$-values (0.051, 0.063)
+
+```{r simttbpred, fig.width = 14, fig.height=9, fig.align='center'}
+ggplot() + 
+  geom_line(data = newdata %>% filter(test_param == "simttb", category == "inside"), aes(x = size, y = predictfinal, color = as.factor(type2)), size = 2) + 
+  geom_point(data = plotdata %>% filter(test_param=="simttb"), aes(x = size, y = datapick, color = as.factor(type2))) + 
+  geom_line(data = newdata %>% filter(test_param == "simttb", category == "outside"), aes(x = size, y = predictfinal, group = as.factor(type2)), color = "gray60", size = 1.5, alpha = .7) +
+  #geom_text(data = plotdata, aes(x = size, y = datapick, color = as.factor(type2), label = pic_id)) +
+  #geom_text(data = labdat, aes(x = x, y=y, label = label, color = as.factor(type2)),
+  #          show.legend = F) + 
+  geom_vline(xintercept = 10.090829) + 
+  geom_hline(yintercept = 1/6, linetype='dotted') +
+  scale_color_manual(values = c("#4c0826", "#01456d"),name = "Lineup Condition") +
+  facet_grid(~param, scales = 'free_x', 
+             labeller = label_bquote(beta [.(param)])) + 
+  labs(x = "Parameter value", y = "Expected probability of detection in a lineup of size 6") + 
+  theme_bw() + 
+  theme(legend.position = 'bottom', strip.text = element_text(size = 20), text = element_text(size = rel(5)), legend.text = element_text(size = rel(7)), legend.key.size = unit(1, "inches"))
+```
+
+---
+class: plotslide
+
+# Model Predictions: $\beta_6$
+
+- $\text{logit}(\pi_{6-1}) =$ `r round(alphas$samettpneg,3)` $+$ `r round(betas$samettpneg,3)` $x$    
+- $\text{logit}(\pi_{61})^* =$ `r round(alphas$samettppos, 3)` $+$ `r round(betas$samettppos, 4)` $x$
+- $*-(\alpha_{61}, \beta_{61})$ had $p$-values (0.342,0.102)
+
+```{r samettppred, fig.width = 14, fig.height=9, fig.align='center'}
+ggplot() + 
+  geom_line(data = newdata %>% filter(test_param == "samettp", category == "inside"), aes(x = size, y = predictfinal, color = as.factor(type2)), size = 2) + 
+  geom_point(data = plotdata %>% filter(test_param=="samettp"), aes(x = size, y = datapick, color = as.factor(type2))) + 
+  geom_line(data = newdata %>% filter(test_param == "samettp", category == "outside"), aes(x = size, y = predictfinal, group = as.factor(type2)), color = "gray60", size = 1.5, alpha = .7) +
+  #geom_text(data = plotdata, aes(x = size, y = datapick, color = as.factor(type2), label = pic_id)) +
+  #geom_text(data = labdat, aes(x = x, y=y, label = label, color = as.factor(type2)),
+  #          show.legend = F) + 
+  geom_vline(xintercept = 1.329051) + 
+  geom_hline(yintercept = 1/6, linetype='dotted') +
+  scale_color_manual(values = c("#4c0826", "#01456d"),name = "Lineup Condition", labels = c("reverse", "1")) +
+  facet_grid(~param, scales = 'free_x', 
+             labeller = label_bquote(beta [.(param)])) + 
+  labs(x = "Parameter value", y = "Expected probability of detection in a lineup of size 6") + 
+  theme_bw() + 
+  theme(legend.position = 'bottom', strip.text = element_text(size = 20), text = element_text(size = rel(5)), legend.text = element_text(size = rel(7)), legend.key.size = unit(1, "inches"))
 ```
 
 ---
@@ -1056,22 +1174,26 @@ class: inverse, center, middle
 # Conclusion
 
 ---
+class: majorpoint
+
+# Summary of results
+
+- Negative parameter values much harder to detect than positive
+- Complex among many simple is easier to detect than simple among many complex 
+- Highly variable results due to the small number of null plots
+
+
+---
 
 # Future Directions
 
 - Apply methods to different types of network data and different types of network models
---
-
 - Explore larger datasets, different layout algorithms, different ways of visualizing network data
--- 
 
     * change layout algorithm 
     * adjacency matrix visualizations
-    
--- 
 
 - Limitations: 
--- 
 
     * cognitive load very high for the average observer
     * very specific to data set and model choice, not generalizable 

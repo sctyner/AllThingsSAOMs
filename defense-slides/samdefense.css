@@ -134,6 +134,11 @@ ul li li:before {
   font-size: 200%;
 }
 
+h1.remark-inline-code {
+  color: #01456d;
+  font-size: 100%;
+}
+
 @page { margin: 0; }
 @media print {
   .remark-slide-scaler {
