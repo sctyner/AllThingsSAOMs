@@ -1189,13 +1189,12 @@ class: majorpoint
 
 - Apply methods to different types of network data and different types of network models
 --
-- Explore larger datasets, different layout algorithms, different ways of visualizing network data
 
+- Explore larger datasets, different layout algorithms, different ways of visualizing network data
     * change layout algorithm 
     * adjacency matrix visualizations
 --
 - Limitations: 
-
     * cognitive load very high for the average observer
     * very specific to data set and model choice, not generalizable 
 

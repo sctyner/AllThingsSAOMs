@@ -346,11 +346,36 @@ class: inverse, center, middle
 
 <img src="img/shinyappscreen.png" width='100%'>
 
+---
+
+# Live demo 🤞
+
+https://sctyner.shinyapps.io/saom_lineup_creation/ 
+
+Source code: https://github.com/sctyner/NetworksVizInference/tree/master/shinyApp 
 
 ---
 class: inverse, center, middle
 
 # Shiny app for visual inference experiment
+
+---
+
+# Intructions
+
+<img src="img/instructionsMTurk.png" width='100%'>
+
+---
+
+# Training Example - Most Simple
+
+<img src="img/mostsimpletraining.png" width='100%'>
+
+---
+
+# Training Example - Most Complex
+
+<img src="img/mostcomplextraining.png" width='100%'>
 
 ---
 class: inverse, center, middle
@@ -399,7 +424,7 @@ SAOMs with rate parameter $\alpha_m$ and different objective functions:
 - Model M1: $f_{i}(x, \boldsymbol{\beta}) = \beta_1 s_{i1}(x) + \beta_2 s_{i2}(x)$
 - Model M2: $f_i(x, \boldsymbol{\beta}, \mathbf{z}) = \beta_1 s_{i1}(x) + \beta_2 s_{i2}(x) + \beta_3s_{i3}(x, \mathbf{z})$
 - Model M3: $f_i(x) = \beta_1 s_{i1}(x) + \beta_2 s_{i2}(x) + \beta_7s_{i7}(x)$ 
-
+- $\mathbf{z}$ is the drinking behavior of the students
 ---
 class: center
 
@@ -518,6 +543,13 @@ class: inverse, middle, center
 ---
 class: plotslide
 
+# First step in the microstep process
+
+<img src="figure-paper/heatmap-1.png" width='80%'>
+
+---
+class: plotslide
+
 # Displaying underlying CTMC: Node-link
 
 <iframe src="https://player.vimeo.com/video/240089108" width="640" height="550" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe> <p><a href="https://vimeo.com/240089108">SAOM Microstep Node-Link Animation</a> from <a href="https://vimeo.com/sctyner">Sam Tyner</a> on <a href="https://vimeo.com">Vimeo</a>.</p>
@@ -538,8 +570,47 @@ class: plotslide
 
 
 ---
+class: inverse, center, middle
 
 # Developing animations: *netvizinf* package 
+
+---
+
+# Package information
+
+- https://github.com/sctyner/netvizinf 
+- Install in R: *devtools::install("sctyner/netvizinf")*
+- Contains functions for 
+    * simulating from SAO models 
+    * convert network simulations from *RSiena* into tidy data frames
+    * creating "average" networks 
+    * series of functions to create the node-link animation with the help of the *tweenr* package (Pedersen, 2016)
+    
+---
+class: inverse, center, middle
+
+# Conclusion 
+
+---
+
+# Summary of Research
+
+- Model visualization helps unveil: 
+    * unseen patterns in SAOMs 
+    * algorithm behavior
+    * model coverage
+    * new methods for goodness-of-fit
+--
+
+- New tools created for visualization and exploration:
+    * animation of network change
+    * app for lineup creation (can be generalized) 
+--
+
+- Lessons learned
+    * correlation issues in SAOM parameters
+    * lack of exploration of data space
+    * difficult for large data sets
 
 
 ---
@@ -549,5 +620,7 @@ class: plotslide
 Hofmann, H. and Röttger, C. (2016). vinference: Inference under the lineup protocol. R package version 0.1.1. http://github.com/heike/vinference
   
 Michell, L. and Amos, A. (1997). Girls, pecking order and smoking. Social Science & Medicine, 44(12):1861–1869.
+
+Pedersen, T.L. (2016). tweenr: Interpolate Data forSmooth Animations. R package version 0.1.5. https://github.com/thomasp85/tweenr
 
 Wickham, H., Cook, D., and Hofmann, H. (2015). Visualizing statistical models: Removing the blindfold. Statistical Analysis and Data Mining, 8(4):203–225.
