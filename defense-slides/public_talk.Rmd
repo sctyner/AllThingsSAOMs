@@ -999,7 +999,7 @@ names(alphas) <- str_replace(names(alphas), ".1", "pos")
 - $\text{logit}(\pi_{1-1}) =$ `r round(alphas$densneg,3)` $+$ `r round(betas$densneg,3)` $x$    
 - $\text{logit}(\pi_{11}) =$ `r round(alphas$denspos, 3)` $+$ `r round(betas$denspos, 4)` $x$    
 
-```{r, fig.width = 14, fig.height=10, fig.align='center'}
+```{r, fig.width = 14, fig.height=9, fig.align='center'}
 source("code/newpredictions.R")
 newdata <- newdata3
 newdata$param <- newdata$test_param
@@ -1043,7 +1043,7 @@ class: plotslide
 - $\text{logit}(\pi_{21})^* =$ `r round(alphas$recippos, 3)` $+$ `r round(betas$recippos, 4)` $x$ 
 - $*-(\alpha_{21}, \beta_{21})$ had $p$-values (0.126, 0.064)
 
-```{r recippred, fig.width = 14, fig.height=9, fig.align='center'}
+```{r recippred, fig.width = 14, fig.height=8, fig.align='center'}
 ggplot() + 
   geom_line(data = newdata %>% filter(test_param == "recip", category == "inside"), aes(x = sqrt(size), y = predictfinal, color = as.factor(type2)), size = 2) + 
   geom_point(data = plotdata %>% filter(test_param=="recip"), aes(x = sqrt(size), y = datapick, color = as.factor(type2))) + 
@@ -1069,7 +1069,7 @@ class: plotslide
 - $\text{logit}(\pi_{3-1}) =$ `r round(alphas$jttpneg,3)` $+$ `r round(betas$jttpneg,3)` $x$    
 - $\text{logit}(\pi_{31}) =$ `r round(alphas$jttppos, 3)` $+$ `r round(betas$jttppos, 4)` $x$
 
-```{r jttppred, fig.width = 14, fig.height=10, fig.align='center'}
+```{r jttppred, fig.width = 14, fig.height=9, fig.align='center'}
 ggplot() + 
   geom_line(data = newdata %>% filter(test_param == "jttp", category == "inside"), aes(x = size, y = predictfinal, color = as.factor(type2)), size = 2) + 
   geom_point(data = plotdata %>% filter(test_param=="jttp"), aes(x = size, y = datapick, color = as.factor(type2))) + 
@@ -1096,7 +1096,7 @@ class: plotslide
 - $\text{logit}(\pi_{41}) =$ `r round(alphas$jttspos, 3)` $+$ `r round(betas$jttspos, 4)` $x$
 - $*-\beta_{4-1}$ had $p$-value 0.272
 
-```{r jttspred, fig.width = 14, fig.height=9, fig.align='center'}
+```{r jttspred, fig.width = 14, fig.height=8, fig.align='center'}
 ggplot() + 
   geom_line(data = newdata %>% filter(test_param == "jtts", category == "inside"), aes(x = size, y = predictfinal, color = as.factor(type2)), size = 2) + 
   geom_point(data = plotdata %>% filter(test_param=="jtts"), aes(x = size, y = datapick, color = as.factor(type2))) + 
@@ -1123,7 +1123,7 @@ class: plotslide
 - $\text{logit}(\pi_{51})^* =$ `r round(alphas$simttbpos, 3)` $+$ `r round(betas$simttbpos, 4)` $x$
 - $*-(\alpha_{51}, \beta_{51})$ has $p$-values (0.051, 0.063)
 
-```{r simttbpred, fig.width = 14, fig.height=9, fig.align='center'}
+```{r simttbpred, fig.width = 14, fig.height=8, fig.align='center'}
 ggplot() + 
   geom_line(data = newdata %>% filter(test_param == "simttb", category == "inside"), aes(x = size, y = predictfinal, color = as.factor(type2)), size = 2) + 
   geom_point(data = plotdata %>% filter(test_param=="simttb"), aes(x = size, y = datapick, color = as.factor(type2))) + 
@@ -1150,7 +1150,7 @@ class: plotslide
 - $\text{logit}(\pi_{61})^* =$ `r round(alphas$samettppos, 3)` $+$ `r round(betas$samettppos, 4)` $x$
 - $*-(\alpha_{61}, \beta_{61})$ had $p$-values (0.342,0.102)
 
-```{r samettppred, fig.width = 14, fig.height=9, fig.align='center'}
+```{r samettppred, fig.width = 14, fig.height=8, fig.align='center'}
 ggplot() + 
   geom_line(data = newdata %>% filter(test_param == "samettp", category == "inside"), aes(x = size, y = predictfinal, color = as.factor(type2)), size = 2) + 
   geom_point(data = plotdata %>% filter(test_param=="samettp"), aes(x = size, y = datapick, color = as.factor(type2))) + 
@@ -1188,11 +1188,12 @@ class: majorpoint
 # Future Directions
 
 - Apply methods to different types of network data and different types of network models
+--
 - Explore larger datasets, different layout algorithms, different ways of visualizing network data
 
     * change layout algorithm 
     * adjacency matrix visualizations
-
+--
 - Limitations: 
 
     * cognitive load very high for the average observer
