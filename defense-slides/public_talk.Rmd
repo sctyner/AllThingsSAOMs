@@ -14,7 +14,7 @@ output:
 
 ```{r setup, include=FALSE}
 options(htmltools.dir.version = FALSE)
-knitr::opts_chunk$set(echo = FALSE, tidy = TRUE, message = FALSE, warning = FALSE, dev = 'png')
+knitr::opts_chunk$set(echo = FALSE, tidy = TRUE, message = FALSE, warning = FALSE, dev = 'png', cache = TRUE)
 ```
 
 ```{r packages}
@@ -330,7 +330,8 @@ ggplot(data = dat) +
 
 ???
 Plots 1,2,3,5,6 were all simulated from the same model, while plot 4 was simulated from a model with one additional parameter in the objective function. 
-This is an example of a lineup in our study. People picked 6 the most, then 4, then 5.
+This is an example of a lineup in our study. People picked 6 the most, then 4, then 5. 
+6: 10/33 ; 4: 8/33 ; 5: 7/33
 
 ---
 class: inverse, center, middle
@@ -349,10 +350,16 @@ class: majorpoint
 
 # Lineup protocol
 
-- Have some data of interest and a visualization of that data
-- Have a null hypothesis that the data come from a "null model"
-- Simulate "null data" sets from the null model 
-- Use the simulated data to create "null plots"
+- Start with a "data plot": a visualization of the data of some aspect of interest
+- Null hypothesis with a corresponding "null model"
+
+$H_0$: data is consistent with null model
+$H_A$: data is not consistent with null model
+
+- Lineup: 
+    + **Null plots**: plots of data generated according to the null model
+    + **Data plot**: randomly insert the data plot among a set of null plots
+
 - Can you see the data plot among the null plots?
 - Picking the data out among the nulls is evidence *against* the null model
 
@@ -388,7 +395,9 @@ ggplot(data = dat) +
 ```
 
 ???
-Show a bunch of lineups to a bunch of people to see what network structures they pick up on
+Plots 1,2,3,5,6 were all simulated from the same model, while plot 4 was simulated from a model with one additional parameter in the objective function. 
+This is an example of a lineup in our study. People picked 6 the most, then 4, then 5. 
+6: 10/33 ; 4: 8/33 ; 5: 7/33
 
 ---
 class: inverse, center, middle
@@ -396,21 +405,25 @@ class: inverse, center, middle
 # Design of experiment
 
 ---
+class: majorpoint
 
-# Experiment idea
+# Reminder: What don't we know?
 
-- Pick several SAOMs, varying parameters in the objective function that we think are important to SAOMs
---
+- Which parameters should we include in the model? 
+- How do we interpret these parameters? 
+- How do we know if the model we chose for our data is a "good" model? 
 
-- Fit models to the Senate collaboration data to get estimates of $\boldsymbol{\beta}$
---
+---
 
-- Simulate network data from the models using the estimates, and place the plots of the data in various lineup configurations to determine:
---
+# Our solution
 
+- Simulate network data from models of interest and place them in various lineup configurations to determine:
     * Which parameters are significant? 
     * Which models are good fits?
     * Which parameters are noticeable and at what values? 
+- Pick several SAOMs, varying parameters in the objective function that we think are important to SAOMs
+- Fit models to the Senate collaboration data to get estimates of $\boldsymbol{\beta}$
+- Use those estimates to simulate from the models
 
 ---
 class: math
@@ -913,10 +926,10 @@ class: math
 
 # Hierarchical model
 
-Binary response variable $Y_{ijkm}$ indicating whether participant $m$ selected the alternative data plot in the $k^{th}$ repitition of a lineup of parameter $i$ and type $j$. 
+Binary response variable $Y_{ijkm}$ indicating whether participant $m$ selected the alternative data plot in the $k^{th}$ repetition of a lineup of parameter $i$ and type $j$. 
 
 $$Y_{ijkm} \sim \text{Bernoulli}(\pi_{ijkm})$$
-$$\text{logit}(\pi_{ijkm}) = \alpha_{ij} + \beta_{ij} x + \delta_{ijk} + \epsilon_{m}$$
+$$\text{logit}(\pi_{ijkm}) = \alpha_{ij} + \gamma_{ij} x + \delta_{ijk} + \epsilon_{m}$$
 $$\delta_{ijk} \stackrel{iid}{\sim} N(0, \sigma^2_{\delta})$$
 $$\epsilon_{m} \stackrel{iid}{\sim} N(0, \sigma^2_{\epsilon})$$ 
 
@@ -928,15 +941,15 @@ This is the model we use for determining the visual power of the effect. We will
 ---
 class: math
 
-# Predicting for new repitition, new observer
+# Predicting for new repetition, new observer
 
 Expected value of link function:
 
-$$E[\text{logit}(\pi_{ij})] = \alpha_{ij} + \beta_{ij} x$$
+$$E[\text{logit}(\pi_{ij})] = \alpha_{ij} + \gamma_{ij} x$$
 
 Expected value of probability
 
-$$E[\pi_{ij}] = \frac{\exp\{\alpha_{ij} + \beta_{ij} x\}}{1 + \exp\{\alpha_{ij} + \beta_{ij} x\}}$$
+$$E[\pi_{ij}] = \frac{\exp\{\alpha_{ij} + \gamma_{ij} x\}}{1 + \exp\{\alpha_{ij} + \gamma_{ij} x\}}$$
 
 
 ---
@@ -946,7 +959,14 @@ class: inverse, center, middle
 
 ---
 
-# Parameter estimates
+# Additional results
+
+- Only discussing results for visual power 
+- Significance test, goodness-of-fit test results not shown in this talk
+
+---
+
+# Parameter estimates 
 
 $\hat{\sigma}_{\delta}^2 =$ `r round(summary(model2randomscalesize)[[13]]$pic_id[[1]], 4)`
 
@@ -954,7 +974,7 @@ $\hat{\sigma}_{\epsilon}^2 =$ `r round(summary(model2randomscalesize)[[13]]$nick
 
 9 of 12 $\alpha_{ij}$ were significant at 0.05
 
-8 of 12 $\beta_{ij}$ were significant at 0.05
+8 of 12 $\gamma_{ij}$ were significant at 0.05
 
 ---
 class: plotslide 
@@ -983,7 +1003,8 @@ qplot(x = 1:N, y = pt(x, 1), geom = 'line') + geom_line(aes(x = -(1:N), pt(x,1))
 ---
 class: plotslide
 
-# Model Predictions: $\beta_1$
+# Model Predictions: $\beta_5$
+
 ```{r modelests}
 alphas <- (coef(mod)[[1]][,-1] %>% unique())[1:12] 
 betas <- (coef(mod)[[1]][,-1] %>% unique())[13:24] 
@@ -993,19 +1014,12 @@ names(betas) <- str_replace(names(betas), ".1", "pos")
 names(alphas) <- str_replace(names(alphas), "lps_param", "")
 names(alphas) <- str_replace(names(alphas), ".-1", "neg")
 names(alphas) <- str_replace(names(alphas), ".1", "pos")
-
-```
-
-- $\text{logit}(\pi_{1-1}) =$ `r round(alphas$densneg,3)` $+$ `r round(betas$densneg,3)` $x$    
-- $\text{logit}(\pi_{11}) =$ `r round(alphas$denspos, 3)` $+$ `r round(betas$denspos, 4)` $x$    
-
-```{r, fig.width = 14, fig.height=9, fig.align='center'}
 source("code/newpredictions.R")
 newdata <- newdata3
 newdata$param <- newdata$test_param
 newdata$param <- as.factor(newdata$test_param)
-levels(newdata$param) <-  c(1,3,4,2,6,5) 
-newdata$param <- as.integer(as.character(newdata$param))
+#levels(newdata$param) <-  c(1,3,4,2,6,5) 
+#newdata$param <- as.integer(as.character(newdata$param))
 plotdata <- turk22 %>% mutate(type2 = ifelse(sign == 0, sign(initialEst), sign),
                        type2 = ifelse(type == "one", type2, -1)) %>% 
   group_by(pic_id, size, test_param, sign, type2,alt_model) %>% summarize(
@@ -1013,79 +1027,64 @@ plotdata <- turk22 %>% mutate(type2 = ifelse(sign == 0, sign(initialEst), sign),
 )
 plotdata$param <- plotdata$test_param
 plotdata$param <- as.factor(plotdata$param)
-levels(plotdata$param) <- c(1,3,4,2,6,5) 
-plotdata$param <- as.integer(as.character(plotdata$param))
+#levels(plotdata$param) <- c(1,3,4,2,6,5) 
+#plotdata$param <- as.integer(as.character(plotdata$param))
 labdat <- data_frame(test_param = "jttp", param = 3, type2 = -1, x = -5, y = .9, label = "jttp_neg_hard_2")
+```
 
+- $\text{logit}(\pi_{5-1}) =$ `r round(alphas$simttbneg,3)` $+$ `r round(betas$simttbneg,3)` $x$    
+- $\text{logit}(\pi_{51})^* =$ `r round(alphas$simttbpos, 3)` $+$ `r round(betas$simttbpos, 4)` $x$
+- $*-(\alpha_{51}, \beta_{51})$ have $p$-values (0.051, 0.063)
+
+```{r simttbpred, fig.width = 14, fig.height=8, fig.align='center'}
+ggplot() + 
+  geom_line(data = newdata %>% filter(test_param == "simttb", category == "inside"), aes(x = size, y = predictfinal, color = as.factor(type2)), size = 2) + 
+  geom_point(data = plotdata %>% filter(test_param=="simttb"), aes(x = size, y = datapick, color = as.factor(type2)), size = 4) + 
+  geom_line(data = newdata %>% filter(test_param == "simttb", category == "outside"), aes(x = size, y = predictfinal, group = as.factor(type2)), color = "gray60", size = 1.5, alpha = .7) +
+  geom_line(data = newdata %>% filter(test_param == "simttb", category == "outside2"), aes(x = size, y = predictfinal, group = as.factor(type2)), color = "gray60", size = 1.5, alpha = .7) +
+  #geom_text(data = plotdata, aes(x = size, y = datapick, color = as.factor(type2), label = pic_id)) +
+  #geom_text(data = labdat, aes(x = x, y=y, label = label, color = as.factor(type2)),
+  #          show.legend = F) + 
+  geom_vline(xintercept = 10.090829) + 
+  geom_hline(yintercept = 1/6, linetype='dotted') +
+  scale_color_manual(values = c("#4c0826", "#01456d"),name = "Lineup Condition", labels = c("-", "+")) +
+  facet_grid(~param) + 
+  labs(x = "Parameter value", y = "Expected probability of detection in a lineup of size 6") + 
+  theme_bw() + 
+  theme(legend.position = 'bottom', strip.text = element_text(size = 20), text = element_text(size = rel(5)), legend.text = element_text(size = rel(7)), legend.key.size = unit(1, "inches"))
+```
+
+???
+Remember triangles! Positive = lots of triangles, negative = no triangles, sparse graph
+
+---
+class: plotslide
+
+# Model Predictions: $\beta_1$
+
+- $\text{logit}(\pi_{1-1}) =$ `r round(alphas$densneg,3)` $+$ `r round(betas$densneg,3)` $x$    
+- $\text{logit}(\pi_{11}) =$ `r round(alphas$denspos, 3)` $+$ `r round(betas$denspos, 4)` $x$    
+
+```{r, fig.width = 14, fig.height=9, fig.align='center'}
 ggplot() + 
   geom_line(data = newdata %>% filter(test_param == "dens", category == "inside"), aes(x = size, y = predictfinal, color = as.factor(type2)), size = 2) + 
-  geom_point(data = plotdata %>% filter(test_param=="dens"), aes(x = size, y = datapick, color = as.factor(type2))) + 
+  geom_point(data = plotdata %>% filter(test_param=="dens"), aes(x = size, y = datapick, color = as.factor(type2)), size = 4) + 
   geom_line(data = newdata %>% filter(test_param == "dens", category == "outside"), aes(x = size, y = predictfinal, group = as.factor(type2)), color = "gray60", size = 1.5, alpha = .7) +
+  geom_line(data = newdata %>% filter(test_param == "dens", category == "outside2"), aes(x = size, y = predictfinal, group = as.factor(type2)), color = "gray60", size = 1.5, alpha = .7) +
   #geom_text(data = plotdata, aes(x = size, y = datapick, color = as.factor(type2), label = pic_id)) +
   #geom_text(data = labdat, aes(x = x, y=y, label = label, color = as.factor(type2)),
   #          show.legend = F) + 
   geom_vline(xintercept = -4.903) + 
   geom_hline(yintercept = 1/6, linetype='dotted') +
-  scale_color_manual(values = c("#4c0826", "#01456d"),name = "Lineup Condition") + 
-  facet_wrap(~param, scales = 'free_x', 
-             labeller = label_bquote(beta [.(param)])) + 
+  scale_color_manual(values = c("#4c0826", "#01456d"),name = "Lineup Condition",  labels = c("-", "+")) + 
+  facet_wrap(~param) + 
   labs(x = "Parameter value", y = "Expected probability of detection in a lineup of size 6") + 
   theme_bw() + 
   theme(legend.position = 'bottom', strip.text = element_text(size = 20), text = element_text(size = rel(5)), legend.text = element_text(size = rel(7)), legend.key.size = unit(1, "inches"))
 ```
 
----
-class: plotslide
-
-# Model Predictions: $\beta_2$
-
-- $\text{logit}(\pi_{2-1}) =$ `r round(alphas$recipneg,3)` $+$ `r round(betas$recipneg,3)` $x$    
-- $\text{logit}(\pi_{21})^* =$ `r round(alphas$recippos, 3)` $+$ `r round(betas$recippos, 4)` $x$ 
-- $*-(\alpha_{21}, \beta_{21})$ had $p$-values (0.126, 0.064)
-
-```{r recippred, fig.width = 14, fig.height=8, fig.align='center'}
-ggplot() + 
-  geom_line(data = newdata %>% filter(test_param == "recip", category == "inside"), aes(x = sqrt(size), y = predictfinal, color = as.factor(type2)), size = 2) + 
-  geom_point(data = plotdata %>% filter(test_param=="recip"), aes(x = sqrt(size), y = datapick, color = as.factor(type2))) + 
-  geom_line(data = newdata %>% filter(test_param == "recip", category == "outside"), aes(x = sqrt(size), y = predictfinal, group = as.factor(type2)), color = "gray60", size = 1.5, alpha = .7) +
-  #geom_text(data = plotdata, aes(x = size, y = datapick, color = as.factor(type2), label = pic_id)) +
-  #geom_text(data = labdat, aes(x = x, y=y, label = label, color = as.factor(type2)),
-  #          show.legend = F) + 
-  geom_vline(xintercept = sqrt(4.893)) + 
-  geom_hline(yintercept = 1/6, linetype='dotted') +
-  scale_color_manual(values = c("#4c0826", "#01456d"),name = "Lineup Condition") +  
-  facet_grid(~param, scales = 'free_x', 
-             labeller = label_bquote(beta [.(param)])) + 
-  labs(x = "Square root of parameter value", y = "Expected probability of detection\nin a lineup of size 6") + 
-  theme_bw() + 
-  theme(legend.position = 'bottom', strip.text = element_text(size = 20), text = element_text(size = rel(5)), legend.text = element_text(size = rel(7)), legend.key.size = unit(1, "inches"))
-```
-
----
-class: plotslide
-
-# Model Predictions: $\beta_3$
-
-- $\text{logit}(\pi_{3-1}) =$ `r round(alphas$jttpneg,3)` $+$ `r round(betas$jttpneg,3)` $x$    
-- $\text{logit}(\pi_{31}) =$ `r round(alphas$jttppos, 3)` $+$ `r round(betas$jttppos, 4)` $x$
-
-```{r jttppred, fig.width = 14, fig.height=9, fig.align='center'}
-ggplot() + 
-  geom_line(data = newdata %>% filter(test_param == "jttp", category == "inside"), aes(x = size, y = predictfinal, color = as.factor(type2)), size = 2) + 
-  geom_point(data = plotdata %>% filter(test_param=="jttp"), aes(x = size, y = datapick, color = as.factor(type2))) + 
-  geom_line(data = newdata %>% filter(test_param == "jttp", category == "outside"), aes(x = size, y = predictfinal, group = as.factor(type2)), color = "gray60", size = 1.5, alpha = .7) +
-  #geom_text(data = plotdata, aes(x = size, y = datapick, color = as.factor(type2), label = pic_id)) +
-  #geom_text(data = labdat, aes(x = x, y=y, label = label, color = as.factor(type2)),
-  #          show.legend = F) + 
-  geom_vline(xintercept = -3.449896) + 
-  geom_hline(yintercept = 1/6, linetype='dotted') +
-  scale_color_manual(values = c("#4c0826", "#01456d"), name = "Lineup Condition") +
-  facet_grid(~param, scales = 'free_x', 
-             labeller = label_bquote(beta [.(param)])) + 
-  labs(x = "Parameter value", y = "Expected probability of detection in a lineup of size 6") + 
-  theme_bw() + 
-  theme(legend.position = 'bottom', strip.text = element_text(size = 20), text = element_text(size = rel(5)), legend.text = element_text(size = rel(7)), legend.key.size = unit(1, "inches"))
-```
+???
+Remember hairball! Higher density parameter more connections, lower density parameter fewer connections
 
 ---
 class: plotslide
@@ -1099,74 +1098,28 @@ class: plotslide
 ```{r jttspred, fig.width = 14, fig.height=8, fig.align='center'}
 ggplot() + 
   geom_line(data = newdata %>% filter(test_param == "jtts", category == "inside"), aes(x = size, y = predictfinal, color = as.factor(type2)), size = 2) + 
-  geom_point(data = plotdata %>% filter(test_param=="jtts"), aes(x = size, y = datapick, color = as.factor(type2))) + 
+  geom_point(data = plotdata %>% filter(test_param=="jtts"), aes(x = size, y = datapick, color = as.factor(type2)), size = 4) + 
   geom_line(data = newdata %>% filter(test_param == "jtts", category == "outside"), aes(x = size, y = predictfinal, group = as.factor(type2)), color = "gray60", size = 1.5, alpha = .7) +
+  geom_line(data = newdata %>% filter(test_param == "jtts", category == "outside2"), aes(x = size, y = predictfinal, group = as.factor(type2)), color = "gray60", size = 1.5, alpha = .7) +
   #geom_text(data = plotdata, aes(x = size, y = datapick, color = as.factor(type2), label = pic_id)) +
   #geom_text(data = labdat, aes(x = x, y=y, label = label, color = as.factor(type2)),
   #          show.legend = F) + 
   geom_vline(xintercept = 3.340302) + 
   geom_hline(yintercept = 1/6, linetype='dotted') +
-  scale_color_manual(values = c("#4c0826", "#01456d"),name = "Lineup Condition", labels = c("reverse", "1")) +
-  facet_grid(~param, scales = 'free_x', 
-             labeller = label_bquote(beta[.(param)])) + 
+  scale_color_manual(values = c("#4c0826", "#01456d"),name = "Lineup Condition", labels = c("reverse", "regular")) +
+  facet_grid(~param) + 
   labs(x = "Parameter value", y = "Expected probability of detection in a lineup of size 6") + 
   theme_bw() + 
   theme(legend.position = 'bottom', strip.text = element_text(size = 20), text = element_text(size = rel(5)), legend.text = element_text(size = rel(7)), legend.key.size = unit(1, "inches"))
 ```
+
+???
+Another triangle effect: reverse = all plots have many triangles, want to detect the one without. regular = only one plot has trianges. 
+Harder to process when many triangles. 
 
 ---
 class: plotslide
 
-# Model Predictions: $\beta_5$
-
-- $\text{logit}(\pi_{5-1}) =$ `r round(alphas$simttbneg,3)` $+$ `r round(betas$simttbneg,3)` $x$    
-- $\text{logit}(\pi_{51})^* =$ `r round(alphas$simttbpos, 3)` $+$ `r round(betas$simttbpos, 4)` $x$
-- $*-(\alpha_{51}, \beta_{51})$ has $p$-values (0.051, 0.063)
-
-```{r simttbpred, fig.width = 14, fig.height=8, fig.align='center'}
-ggplot() + 
-  geom_line(data = newdata %>% filter(test_param == "simttb", category == "inside"), aes(x = size, y = predictfinal, color = as.factor(type2)), size = 2) + 
-  geom_point(data = plotdata %>% filter(test_param=="simttb"), aes(x = size, y = datapick, color = as.factor(type2))) + 
-  geom_line(data = newdata %>% filter(test_param == "simttb", category == "outside"), aes(x = size, y = predictfinal, group = as.factor(type2)), color = "gray60", size = 1.5, alpha = .7) +
-  #geom_text(data = plotdata, aes(x = size, y = datapick, color = as.factor(type2), label = pic_id)) +
-  #geom_text(data = labdat, aes(x = x, y=y, label = label, color = as.factor(type2)),
-  #          show.legend = F) + 
-  geom_vline(xintercept = 10.090829) + 
-  geom_hline(yintercept = 1/6, linetype='dotted') +
-  scale_color_manual(values = c("#4c0826", "#01456d"),name = "Lineup Condition") +
-  facet_grid(~param, scales = 'free_x', 
-             labeller = label_bquote(beta [.(param)])) + 
-  labs(x = "Parameter value", y = "Expected probability of detection in a lineup of size 6") + 
-  theme_bw() + 
-  theme(legend.position = 'bottom', strip.text = element_text(size = 20), text = element_text(size = rel(5)), legend.text = element_text(size = rel(7)), legend.key.size = unit(1, "inches"))
-```
-
----
-class: plotslide
-
-# Model Predictions: $\beta_6$
-
-- $\text{logit}(\pi_{6-1}) =$ `r round(alphas$samettpneg,3)` $+$ `r round(betas$samettpneg,3)` $x$    
-- $\text{logit}(\pi_{61})^* =$ `r round(alphas$samettppos, 3)` $+$ `r round(betas$samettppos, 4)` $x$
-- $*-(\alpha_{61}, \beta_{61})$ had $p$-values (0.342,0.102)
-
-```{r samettppred, fig.width = 14, fig.height=8, fig.align='center'}
-ggplot() + 
-  geom_line(data = newdata %>% filter(test_param == "samettp", category == "inside"), aes(x = size, y = predictfinal, color = as.factor(type2)), size = 2) + 
-  geom_point(data = plotdata %>% filter(test_param=="samettp"), aes(x = size, y = datapick, color = as.factor(type2))) + 
-  geom_line(data = newdata %>% filter(test_param == "samettp", category == "outside"), aes(x = size, y = predictfinal, group = as.factor(type2)), color = "gray60", size = 1.5, alpha = .7) +
-  #geom_text(data = plotdata, aes(x = size, y = datapick, color = as.factor(type2), label = pic_id)) +
-  #geom_text(data = labdat, aes(x = x, y=y, label = label, color = as.factor(type2)),
-  #          show.legend = F) + 
-  geom_vline(xintercept = 1.329051) + 
-  geom_hline(yintercept = 1/6, linetype='dotted') +
-  scale_color_manual(values = c("#4c0826", "#01456d"),name = "Lineup Condition", labels = c("reverse", "1")) +
-  facet_grid(~param, scales = 'free_x', 
-             labeller = label_bquote(beta [.(param)])) + 
-  labs(x = "Parameter value", y = "Expected probability of detection in a lineup of size 6") + 
-  theme_bw() + 
-  theme(legend.position = 'bottom', strip.text = element_text(size = 20), text = element_text(size = rel(5)), legend.text = element_text(size = rel(7)), legend.key.size = unit(1, "inches"))
-```
 
 ---
 class: inverse, center, middle
@@ -1215,3 +1168,87 @@ Ruth Ripley, Krists Boitmanis, Tom A.B. Snijders and Felix Schoenenberger
 Ripley, R. M., Snijders, T. A., Boda, Z., Vörös, A., and Preciado, P. (2017). Manual for rsiena. https://www.stats.ox.ac.uk/~snijders/siena/RSiena_Manual.pdf.  
   
 Snijders, T. A. B. (1996). Stochastic actor-oriented models for network change. Journal of Mathematical Sociology, 21(1-2):149–172.
+
+---
+class: plotslide
+
+# Model Predictions: $\beta_2$
+
+- $\text{logit}(\pi_{2-1}) =$ `r round(alphas$recipneg,3)` $+$ `r round(betas$recipneg,3)` $x$    
+- $\text{logit}(\pi_{21})^* =$ `r round(alphas$recippos, 3)` $+$ `r round(betas$recippos, 4)` $x$ 
+- $*-(\alpha_{21}, \beta_{21})$ had $p$-values (0.126, 0.064)
+
+```{r recippred, fig.width = 14, fig.height=8, fig.align='center'}
+ggplot() + 
+  geom_line(data = newdata %>% filter(test_param == "recip", category == "inside"), aes(x = sqrt(size), y = predictfinal, color = as.factor(type2)), size = 2) + 
+  geom_point(data = plotdata %>% filter(test_param=="recip"), aes(x = sqrt(size), y = datapick, color = as.factor(type2)), size = 4) + 
+  geom_line(data = newdata %>% filter(test_param == "recip", category == "outside"), aes(x = sqrt(size), y = predictfinal, group = as.factor(type2)), color = "gray60", size = 1.5, alpha = .7) +
+  geom_line(data = newdata %>% filter(test_param == "recip", category == "outside2"), aes(x = sqrt(size), y = predictfinal, group = as.factor(type2)), color = "gray60", size = 1.5, alpha = .7) +
+  #geom_text(data = plotdata, aes(x = size, y = datapick, color = as.factor(type2), label = pic_id)) +
+  #geom_text(data = labdat, aes(x = x, y=y, label = label, color = as.factor(type2)),
+  #          show.legend = F) + 
+  geom_vline(xintercept = sqrt(4.893)) + 
+  geom_hline(yintercept = 1/6, linetype='dotted') +
+  scale_color_manual(values = c("#4c0826", "#01456d"),name = "Lineup Condition", labels = c("-", "+")) +  
+  facet_grid(~param) + 
+  labs(x = "Square root of parameter value", y = "Expected probability of detection\nin a lineup of size 6") + 
+  theme_bw() + 
+  theme(legend.position = 'bottom', strip.text = element_text(size = 20), text = element_text(size = rel(5)), legend.text = element_text(size = rel(7)), legend.key.size = unit(1, "inches"))
+```
+
+
+---
+class: plotslide
+
+# Model Predictions: $\beta_3$
+
+- $\text{logit}(\pi_{3-1}) =$ `r round(alphas$jttpneg,3)` $+$ `r round(betas$jttpneg,3)` $x$    
+- $\text{logit}(\pi_{31}) =$ `r round(alphas$jttppos, 3)` $+$ `r round(betas$jttppos, 4)` $x$
+
+```{r jttppred, fig.width = 14, fig.height=9, fig.align='center'}
+ggplot() + 
+  geom_line(data = newdata %>% filter(test_param == "jttp", category == "inside"), aes(x = size, y = predictfinal, color = as.factor(type2)), size = 2) + 
+  geom_point(data = plotdata %>% filter(test_param=="jttp"), aes(x = size, y = datapick, color = as.factor(type2)), size = 4) + 
+  geom_line(data = newdata %>% filter(test_param == "jttp", category == "outside"), aes(x = size, y = predictfinal, group = as.factor(type2)), color = "gray60", size = 1.5, alpha = .7) +
+  geom_line(data = newdata %>% filter(test_param == "jttp", category == "outside2"), aes(x = size, y = predictfinal, group = as.factor(type2)), color = "gray60", size = 1.5, alpha = .7) +
+  #geom_text(data = plotdata, aes(x = size, y = datapick, color = as.factor(type2), label = pic_id)) +
+  #geom_text(data = labdat, aes(x = x, y=y, label = label, color = as.factor(type2)),
+  #          show.legend = F) + 
+  geom_vline(xintercept = -3.449896) + 
+  geom_hline(yintercept = 1/6, linetype='dotted') +
+  scale_color_manual(values = c("#4c0826", "#01456d"), name = "Lineup Condition",  labels = c("-", "+")) +
+  facet_grid(~param) + 
+  labs(x = "Parameter value", y = "Expected probability of detection in a lineup of size 6") + 
+  theme_bw() + 
+  theme(legend.position = 'bottom', strip.text = element_text(size = 20), text = element_text(size = rel(5)), legend.text = element_text(size = rel(7)), legend.key.size = unit(1, "inches"))
+```
+
+
+
+---
+class: plotslide
+
+# Model Predictions: $\beta_6$
+
+- $\text{logit}(\pi_{6-1}) =$ `r round(alphas$samettpneg,3)` $+$ `r round(betas$samettpneg,3)` $x$    
+- $\text{logit}(\pi_{61})^* =$ `r round(alphas$samettppos, 3)` $+$ `r round(betas$samettppos, 4)` $x$
+- $*-(\alpha_{61}, \beta_{61})$ had $p$-values (0.342,0.102)
+
+```{r samettppred, fig.width = 14, fig.height=8, fig.align='center'}
+ggplot() + 
+  geom_line(data = newdata %>% filter(test_param == "samettp", category == "inside"), aes(x = size, y = predictfinal, color = as.factor(type2)), size = 2) + 
+  geom_point(data = plotdata %>% filter(test_param=="samettp"), aes(x = size, y = datapick, color = as.factor(type2)), size = 4) + 
+  geom_line(data = newdata %>% filter(test_param == "samettp", category == "outside"), aes(x = size, y = predictfinal, group = as.factor(type2)), color = "gray60", size = 1.5, alpha = .7) +
+  geom_line(data = newdata %>% filter(test_param == "samettp", category == "outside2"), aes(x = size, y = predictfinal, group = as.factor(type2)), color = "gray60", size = 1.5, alpha = .7) +
+  #geom_text(data = plotdata, aes(x = size, y = datapick, color = as.factor(type2), label = pic_id)) +
+  #geom_text(data = labdat, aes(x = x, y=y, label = label, color = as.factor(type2)),
+  #          show.legend = F) + 
+  geom_vline(xintercept = 1.329051) + 
+  geom_hline(yintercept = 1/6, linetype='dotted') +
+  scale_color_manual(values = c("#4c0826", "#01456d"),name = "Lineup Condition", labels = c("reverse", "regular")) +
+  facet_grid(~param) + 
+  labs(x = "Parameter value", y = "Expected probability of detection in a lineup of size 6") + 
+  theme_bw() + 
+  theme(legend.position = 'bottom', strip.text = element_text(size = 20), text = element_text(size = rel(5)), legend.text = element_text(size = rel(7)), legend.key.size = unit(1, "inches"))
+```
+
