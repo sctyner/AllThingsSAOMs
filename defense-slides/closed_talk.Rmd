@@ -603,11 +603,9 @@ class: inverse, center, middle
     * algorithm behavior
     * model coverage
     * new methods for goodness-of-fit
-
 - New tools created for visualization and exploration:
     * animation of network change
     * app for lineup creation (can be generalized)
-
 - Lessons learned
     * correlation issues in SAOM parameters
     * lack of exploration of data space
@@ -660,6 +658,8 @@ gridExtra::grid.arrange(p1, p2, p3, nrow = 1)
 Hofmann, H. and Röttger, C. (2016). vinference: Inference under the lineup protocol. R package version 0.1.1. http://github.com/heike/vinference
   
 Michell, L. and Amos, A. (1997). Girls, pecking order and smoking. Social Science & Medicine, 44(12):1861–1869.
+
+Pearson, M., Steglich, C., and Snijders, T. (2006). Homophily and assimilation among sport-active adolescent substance users. Connections, 27(1): 47-63.
 
 Pedersen, T.L. (2016). tweenr: Interpolate Data for Smooth Animations. R package version 0.1.5. https://github.com/thomasp85/tweenr
 
